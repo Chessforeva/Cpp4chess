@@ -579,6 +579,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 
 	G[gc].rl = strlen( G[gc].H );		// before we split the string
 	char *p_round = getHeaderData( gc, c1_pgn_hdr_round, G[gc].rl );
+
 	G[gc].srnd = c1_chess::toUInt(p_round) << 10;
 	for(z=p_round;;)
 		{
@@ -1022,6 +1023,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 				for(;!tooLarge;)
 					{
 					at = strstr(at,c1_pgn_evPtr);
+					if((at==NULL) && (!feof(in))) break;
 					if(at!=NULL) *(at)=0;
 					ParsePgn_prepare(st); gc++;
 					if(at!=NULL) *(at)='[';
