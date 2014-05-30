@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<HEAD>
+<title>Help on chess PGN to HTML tools</title>
+<link rel="shortcut icon" href="/f.txt" type="image/vnd.microsoft.icon"/>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name="chess js library version 2" content="http:/chessforeva.blogspot.com" />
+<link rel="StyleSheet" href="c1_chess.css" type="text/css">
+</HEAD>
+
+<BODY style="color:#CC9911" bgcolor="black" >
+<font size="4">
+<font color="white">Description:</font><br>
+Creates a browsable web-page from a pgn-notation of chess games.<br>
+<br>
+<font color="white">Tools:</font><br>
+Online editor <a href="c1_editor.htm">c1_editor</a> or windows cmd-tool 
+<a href="http://github.com/Chessforeva/Cpp4chess/c1_chess">c1_chess</a> on github for downloading.<br>
+<br>
+<font color="white">Help on online editor:</font><br>
+Put the pgn notation of chess tournament by copy+paste into text area. Click on 
+<div class="_pgn1">[preview]</div>.<br>
+Click on <div class="_pgn1">[html]</div> 
+when ready to generate code for web-page.<br>
+Click on <div class="_pgn1">[block]</div> 
+if the code will be placed in other html (as blog section).<br>
+If pgn contains annotations, comments or variants then use styling <div class="_pgn1">[inline]</div> checkbox.<br> 
+Remove variants by clicking on <div class="_pgn1">[variants]</div> checkbox.<br> 
+Sorting by rounds takes place, otherwise click <div class="_pgn1">[sort rounds]</div>.<br>
+The resulting html codes are <div class="_pgn1">[compressed]</div> with option <div class="_pgn1">[n]</div>ormally or <div class="_pgn1">[max]</div>imal.
+Remove checkbox if no compression required.<br>
+Chess boards are displayed as images in canvas elements. Adjust <div class="_pgn1">[canvas size]</div>. 
+Make a shorter <div class="_pgn1">[distance]</div> between canvas elements for particular game.<br>
+On diagrams no first move is set by <div class="_pgn1">[0mv]</div> checkbox.<br>
+<br>
+<font color="white">Notes:</font><br>
+Some browsers as Firefox may not work locally on previews.<br>
+The editor is good for annotating. Javascript is much slower than application. Use tool <a href="http://github.com/Chessforeva/Cpp4chess/c1_chess">c1_chess.exe</a> to batch the process.<br>
+<br>
+<font color="white">c1_chess options:</font><br>
+<pre>
+Creates a browsable web-page from pgn-file (optional sorting by rounds)
+or creates a txt-file of all boards and moves for chess games from pgn-file
+
+usage: c1_chess <pgn file(s) to parse> [options]
+  options list:
+   /S=2k - big event of 2000 games, sorted by rounds
+            (default is unsorted, for fast processing on low memory usage)
+   /2 - output positions and moves to txt-files (default is html)
+   /T - use tabs in annotations (default is inline)
+   /L=4 - set limit of htm-file to 4Mb (default is 2Mb)
+   /C=300 - set board canvas size to 300px (default is 200px)
+   /I=2k - more board canvases 2000 chars inbetween (default is 8000)
+   /D - remove domain to use locally or on other server
+
+Sample to process all pgn-files of current folder:
+   c1_chess  *.pgn /T /L=1 /C=400
+
+Free source at: <a href="http://github.com/Chessforeva/Cpp4chess/c1_chess">link</a>
+Blog at: <a href="http://chessforeva.appspot.com/c1_chess.htm">link</a>
+
+</pre>
+
+</font>
+</BODY>
+</HTML>

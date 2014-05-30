@@ -1,0 +1,313 @@
+<!DOCTYPE HTML>
+<HEAD>
+<title>Chess PGN to HTML tool v1.0</title>
+<link rel="shortcut icon" href="/f.txt" type="image/vnd.microsoft.icon"/>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name="chess js library version 2" content="http:/chessforeva.blogspot.com" />
+<link rel="StyleSheet" href="c1_chess.css" type="text/css">
+</HEAD>
+
+<BODY bgcolor="grey">
+
+<script type="text/javascript" src="c1_chess.js"></script>
+<script type="text/javascript" src="c1_chess_pgn.js"></script>
+
+<a href="c1_chess.htm" target="_blank"
+ style="text-decoration:none;display:inline;color:#993300;cursor:pointer" >help</a>,
+<div class="_pgn1" onclick="clearArea()">clear</div>,
+<div class="_pgn1" onclick="submitEvent(1)">preview</div>,
+<div class="_pgn1" onclick="submitEvent(2)">html</div> or 
+<div class="_pgn1" onclick="submitEvent(3)">block</div>
+ ...
+inline <div class="_pgn1" id="_p_Sw9" onclick="clickSwitch(9)">[x]</div>, 
+variants <div class="_pgn1" id="_p_Sw1" onclick="clickSwitch(1)">[x]</div>,
+sort rounds <div class="_pgn1" id="_p_Sw2" onclick="clickSwitch(2)">[x]</div>,
+compress <div class="_pgn1" id="_p_Sw3" onclick="clickSwitch(3)">[x]</div>
+<div class="_pgn1" id="_p_Sw38" onclick="clickCmpr()">n.</div>,
+
+canvas size <div class="_pgn1" id="_p_Sw4" onclick="clickCanvSize()">[200]</div>
+distance <div class="_pgn1" id="_p_Sw5" onclick="clickCanvDist()">[4t]</div>,
+0mv.<div class="_pgn1" id="_p_Sw7" onclick="clickSwitch(7)">[ ]</div>
+<br>
+<TEXTAREA COLS=90 ROWS=16 id="pgn_data" style="color:grey;background-color:black"></TEXTAREA>
+<DIV id="rDIV" width="100%"></DIV>
+
+
+<script type="text/javascript">
+
+/*----------------------
+
+ Chess PGN to HTM editor tool v.18.08.2013
+ Chess for blogs.
+
+-----------------------*/
+
+// User parameters
+var fl_Compr = 0;       // 1 to compress resulting htm
+var fl_Compr_max = 0;   // 1 to omit FENs (slower but shorter code)
+var fl_Fast = 0;        // 1 for parser to ignore comments and variants
+var fl_byRounds = 0;    // 1 to sort by rounds
+var fl_canvDist = 0;    // space in chars between diagrams 
+var fl_canvSize = 0;    // size of diagram
+var fl_inline = 0;      // inline or not
+var fl_diagram = 0;     // without 1st move for diagrams
+
+function getElsw(k) { return document.getElementById("_p_Sw"+k); }
+
+function clearArea()
+{ document.getElementById("pgn_data").value = ''; }
+
+function clickSwitch(n)
+{ var d = getElsw(n); d.innerHTML = ((d.innerHTML.indexOf('x')<0) ? '[x]' : '[ ]'); }
+
+function getSwitch(n)
+{ var d = getElsw(n); return (d.innerHTML.indexOf('x')>=0); }
+
+function clickCanvSize()
+{ var d = getElsw(4); var sz = parseInt( d.innerHTML.substr(1) );
+  sz+=50; if(sz>400) sz = 100; d.innerHTML = '['+sz+']'; }
+
+function getCanvSize()
+{ var d = getElsw(4); return parseInt( d.innerHTML.substr(1) ); }
+
+function clickCanvDist()
+{ var d = getElsw(5); var ds = parseInt( d.innerHTML.substr(1) );
+  ds+=1; if(ds>16) ds = 2; d.innerHTML = '['+ds+'t]'; }
+function getCanvDist()
+{ var d = getElsw(5); return parseInt( d.innerHTML.substr(1) )*1000; }
+
+function clickCmpr()
+{ var d = getElsw(38); d.innerHTML = (d.innerHTML=='max' ? 'n.' :'max'); }
+function getCmpr()
+{ var d = getElsw(38); return (d.innerHTML=='max'); }
+
+
+var f_BLOCK = 0;
+var f_HTML = 0
+var f_PREVIEW = 0;
+var rDIV = null;
+
+function submitEvent(c)
+{
+f_PREVIEW = (c==1);
+f_HTML = (c==2);
+f_BLOCK = (c==3 || c==1);
+
+fl_Fast = (getSwitch(1)?0:1);
+fl_byRounds = getSwitch(2);
+fl_Compr = getSwitch(3);
+fl_Compr_max = getCmpr();
+fl_canvSize = getCanvSize();
+fl_canvDist = getCanvDist();
+fl_inline = getSwitch(9);
+fl_diagram = getSwitch(7);
+CreaBrowsableGames();
+}
+     
+/* Analyses div container for chess games and creates html as output */
+
+var _chAp = [];
+var _chSort = [];
+var _chSort_2 = [];
+var _chAi = 0;
+var _chHtml = '';
+var _pOcVar = '';
+
+/* Creates an array of PNGs of chess games from a given div-container.
+ Then starts the process that slowly analyses games.  */
+
+function CreaBrowsableGames()
+{
+ rDIV = document.getElementById("rDIV");
+ if(rDIV==null) return;
+ rDIV.innerHTML = 'starting';
+ 
+ var pgnt = document.getElementById("pgn_data").value; 
+ 
+ _chAp = [];
+ _chSort = []; _chSort_2 = [];
+ _chAi = 0;
+ _pOcVar = '';
+ _chHtml = '';
+ _pgn_Pt=[];
+ _pgn_Pt_pr = -1;
+ _c1_AutoPlay = 0;
+ _c1_AutoPl_1stmv = '';
+
+
+ var _css_src = '<link rel="StyleSheet" href="' + _c1_domain + 'c1_chess.css" type="text/css">';
+   
+
+ if(f_HTML) _chHtml += '<!doctype html><head>' +
+   '<meta http-equiv=Content-Type content="text/html; charset=utf-8">' + _css_src +  
+   '</head><body>';
+ 
+ if(f_HTML || f_BLOCK)
+  _chHtml += scrBegin + 'src="' + _c1_domain + 'c1_chess.js">' + scrEnd;
+
+ if(f_BLOCK) _chHtml += _css_src;
+ 
+ _chHtml += '<table>';
+ 
+ var f=0;
+ var a1=0;
+ var q=0;
+ for(var a=0;a<pgnt.length;a++)
+  {
+  var c=pgnt.charAt(a);
+  if(c=='[')
+   {
+    if(f==2) { if(q==0) { _chAp.push(pgnt.substr(a1,a-a1)); a1=a; f=1; } }
+    else f=1;
+   }
+  else if(c==']')
+   {
+    if(f==1) f=0;
+   } 
+  else if(("abcdefgh").indexOf(c)>=0) { if(f==0) f=2; }
+  else if(c=='{' || c=='(') q++;
+  else if(c=='}' || c==')') q--;
+  }
+ if(f==2) _chAp.push(pgnt.substr(a1,a-a1));
+ setTimeout('AddBrowsables()',100);
+}
+
+var scrBegin = '<scr' + 'ipt type=' + '"text/javascript" ';
+var scrEnd = '</scr' + 'ipt>';
+
+function AddBrowsables()
+{
+ if(_chAi< _chAp.length)
+  {
+   var pgnObj=_pgn.clone();
+   
+   pgnObj.compr = (!f_PREVIEW && fl_Compr);
+   pgnObj.fast = fl_Fast;
+   pgnObj.canv.Dist = fl_canvDist;
+   pgnObj.canv.Size = fl_canvSize;
+   pgnObj.tabs = !fl_inline;
+   pgnObj.PGN( _chAp[ _chAi ] );
+   _chSort.push({o: pgnObj, r: parseFloat(pgnObj.hd.Round), N:true});
+   
+   _chAi++;
+   
+   rDIV.innerHTML = _chAi + '. of ' + _chAp.length;
+   setTimeout('AddBrowsables()',100);
+  }
+  else
+   {
+   if(_chAi== _chAp.length)
+    {
+    if(fl_byRounds)
+     {
+      rDIV.innerHTML = 'sorting';
+      var Srt = null;
+      for(;;)
+      {
+      var rd = -1; var rI = -1;
+      for(var k=0;k<_chSort.length;k++)
+       {
+       Srt = _chSort[k];
+       if(Srt.N && (rI<0 || Srt.r<rd)) { rd=Srt.r; rI = k; }
+       }
+      if(rI<0) break;
+      Srt = _chSort[rI];
+      Srt.N=false;
+      _chSort_2.push(rI);
+      }
+    }
+    
+    var b=scrBegin+'>'; var bl=b.length;
+    var e=scrEnd; var el=e.length;    
+    for(var j=0;j<_chAp.length;j++)
+    {
+    var pgnObj = _chSort[ (fl_byRounds?_chSort_2[j]:j) ].o;
+
+    _chHtml+= '<tr><td>' + pgnObj.shtm + '</td></tr>';
+         
+     _pOcVar= pgnObj.idk + (j>0?',':'') + _pOcVar;
+    }
+
+
+
+    // some things after
+    _chAi++;
+    setTimeout('AddBrowsables()',100);
+    }
+   else
+    { 
+    _chHtml+= '</table>';
+    
+    _pOcVar = '_c1_Pt_OnLd([' + _pOcVar + ']' + (fl_diagram?',1':'') + ')';
+    
+    if(!f_PREVIEW)
+     {
+     _chHtml+= scrBegin +'> _pgn_Pt=[];_c1_Pt_add("' ;
+        
+     _pOcVar = 'function OnWinLd(){' + _pOcVar + '}';
+   
+     for(var k=0;k<_pgn_Pt.length;k++)
+     {
+      var p=_pgn_Pt[k];
+      var vf = p.vf;
+      if(vf==0 && k>0)
+       {
+         var p2 = _pgn_Pt[k-1];
+         if(p2.v<p.v) vf=1;
+       }
+
+      _chHtml+='i'+p.idk+'v'+p.v+'u'+p.uci+'z'+
+            (vf>0 || p.m=="1w" ||
+            ((!fl_Compr_max) && (parseInt(p.m)%5==0 && p.m.charAt(p.m.length-1)=='w')) ||
+             parseInt(p.idk)==k ?  (p.FEN == _c1.sFEN ? '0' : replaceAll(p.FEN,'/','')) : '');
+      if(k%50==0) _chHtml+='i");_c1_Pt_add("';
+     }
+     
+     _chHtml+='i");' + _pOcVar + 'var oOnLd=window.onload;' +
+        'if(typeof(window.onload)=="function") '+
+        'window.onload=function(){if(oOnLd) oOnLd();OnWinLd()};' +
+        'else window.onload=function(){OnWinLd()}' + scrEnd;
+
+     if(f_HTML) _chHtml+= '</body></html>';
+    
+     _chHtml = Repl_lt_gt(_chHtml);
+    
+     var Kb = _chHtml.length/1024;
+     var _ht=parseInt(Kb)+'Kb '; 
+     if(fl_Compr && fl_Compr_max) _ht+='(slower on clicks)';
+     
+     if(f_HTML) _ht += 'Copy/paste in a new text file, then save as .htm; Put on your server (or ' + 
+	'<a href="http://smecers.appspot.com/AddHtml.htm" target="_blank">here</a>).' + '<br>';
+     if(f_BLOCK) _ht += 'Copy/paste this block into body of other .htm. One per document!' + '<br>';
+ 
+    
+    _chHtml = _ht + '<TEXTAREA COLS=90 ROWS=8 id="pgn_ResCode">' + _chHtml + '</TEXTAREA>';
+    }    
+    
+    rDIV.innerHTML = _chHtml;
+    _chHtml='';
+        
+    if(f_PREVIEW) eval(_pOcVar);
+
+   }
+  }
+}
+
+
+function Repl_lt_gt(s)      /* simple html friendly conversion */
+{
+var w='';
+for(var i=0;i<s.length;i++)
+ {
+  var c = s.charAt(i);
+  if(c=='<') w+='&lt;'
+  else if(c=='>') w+='&gt;';
+  else w+=c;
+ }
+return w;
+}
+  
+</script>
+
+</BODY>
+</HTML>
