@@ -995,6 +995,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		sprintf(be, "<!doctype html><head>"); be+=strlen(be);
 		sprintf(be, "<meta http-equiv=Content-Type content=\"text/html; charset=utf-8\">"); be+=strlen(be);
 		sprintf(be, "%s%s%s", c1_htmcss0, c1_domain, c1_htmcss1 ); be+=strlen(be);
+		sprintf(be, "</head><body>"); be+=strlen(be);
 		sprintf(be, "%ssrc=\"%sc1_chess.js\">%s", c1_scrBegin, c1_domain, c1_scrEnd ); be+=strlen(be);
 		sprintf(be, "<table>"); be+=strlen(be);
 
