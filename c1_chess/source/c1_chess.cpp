@@ -49,7 +49,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		printf("   /D - remove domain to use locally or on other server\n");
 		printf("\nSample to process all pgn-files of current folder:\n");
 		printf("   c1_chess  *.pgn /T /L=1 /C=400\n\n");
-		printf("Free source at: http://github.com/Chessforeva/Cpp4chess/c1_chess \n");
+		printf("Free source at: http://github.com/Chessforeva/Cpp4chess\n");
 		printf("Blog at: http://chessforeva.appspot.com/c1_chess.htm \n\n");
 		printf("Click Enter.\n"); getchar();
 		}
