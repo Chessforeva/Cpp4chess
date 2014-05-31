@@ -113,6 +113,8 @@ var _chAi = 0;
 var _chHtml = '';
 var _pOcVar = '';
 
+var _pageTitle = '';		// will be title of the web-page
+
 /* Creates an array of PNGs of chess games from a given div-container.
  Then starts the process that slowly analyses games.  */
 
@@ -138,8 +140,8 @@ function CreaBrowsableGames()
  var _css_src = '<link rel="StyleSheet" href="' + _c1_domain + 'c1_chess.css" type="text/css">';
    
 
- if(f_HTML) _chHtml += '<!doctype html><head>' +
-   '<meta http-equiv=Content-Type content="text/html; charset=utf-8">' + _css_src +  
+ if(f_HTML) _chHtml += '<!doctype html><head><title></title>' +
+   '<meta http-equiv=Content-Type content="text/html; charset=utf-8">' + _css_src +
    '</head><body>';
  
  if(f_HTML || f_BLOCK)
@@ -269,7 +271,16 @@ function AddBrowsables()
         'else window.onload=function(){OnWinLd()}' + scrEnd;
 
      if(f_HTML) _chHtml+= '</body></html>';
-    
+
+     var ti = (f_HTML ? _chHtml.indexOf("<title></title>") : -1);
+     if(ti>0)
+      {
+      var gmcnt = _chAp.length;
+      var pageTitle = ( gmcnt<2 ? '' : _chSort[0].o.hd.Event);
+      if((!fl_byRounds) && gmcnt>1) pageTitle = '' + gmcnt + ' chess games';
+      if(pageTitle.length>0) _chHtml = _chHtml.substr(0,ti+7) +pageTitle + _chHtml.substr(ti+7);
+      }
+
      _chHtml = Repl_lt_gt(_chHtml);
     
      var Kb = _chHtml.length/1024;
