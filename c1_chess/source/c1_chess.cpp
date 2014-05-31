@@ -14,12 +14,12 @@
 
 // user set options
 bool userSortOption = false;
-int userGamesCnt = 0;
+long userGamesCnt = 0;
 bool userToTxtOption = false;
 bool userTabsOption = false;
-int userFileLimitSize = 0;
-int userCanvasSize = 0;
-int userIntDist = 0;
+long userFileLimitSize = 0;
+long userCanvasSize = 0;
+long userIntDist = 0;
 bool userNoDomainOption = false;
 
 char filename[2048], resname[2048];
@@ -55,7 +55,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 	else
 		{
-		char *p, *w, c, *b;
+		char *p, *w, c, *b, *sp;
 		char a[1024];			// to convert TCHAR* to char*
 
 		int i,k,l,fcount=0;
@@ -99,16 +99,32 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 			if(argv[i][0]!='/')
 				{
+				for(p=filename, w=(char *)argv[i], c=1; c!=0; )
+					{
+					c=*(w++); w++;	// TCHAR is 2 bytes wide, ignore second byte
+					*(p++)=c;
+					}
+				b = filename;
+				l = strlen(b);
+				for(k=l-1; k>=0; k--)
+					{
+					c = b[k];
+					if(c=='/' || c=='\\') { p = &b[k+1]; break; }
+					}
+				if(k>=0) *(p)=0;
+				else p= filename;
+				sp = p;
+
 				WIN32_FIND_DATA fd;
 				HANDLE h = FindFirstFile(argv[i],&fd);
 				for(;h != INVALID_HANDLE_VALUE;)
 					{
-					for(p=filename, w=(char *)fd.cFileName, c=1; c!=0; )
+					for(p=sp, w=(char *)fd.cFileName, c=1; c!=0; )
 							{
 							c=*(w++); w++;	// TCHAR is 2 bytes wide, ignore second byte
 							*(p++)=c;
 							}
-					if(filename[0] != '.')
+					if(sp[0] != '.')
 					{
 					printf("%s\n",filename);
 					strcpy(resname,filename);
@@ -139,6 +155,11 @@ int _tmain(int argc, _TCHAR* argv[])
 						else break;
 						}
 					P.ReadParsePgnFile(filename, resname);
+					if(P.tooLarge)
+						{
+						printf( "Result too large.\n" );
+						P.tooLarge = false;
+						}
 					fcount++;
 					}
 

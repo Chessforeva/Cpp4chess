@@ -39,12 +39,12 @@ long c1_pgn_buffer_games_cnt = 200;
 		/* maximum games to parse and sort for this object (about 1 megaevent to sort by rounds),
 		200 is just fast without sorting */
 long c1_pgn_filereader_buffer_size = 64 * 1024;	// 64Kb per-one-reading from file
-long c1_pgn_avrg_positions_per_game = 500;		// average count of positions per game (+variants)
-long c1_pgn_avrg_header_buffer_size = 3 * 1024;	// 3Kb average buffer for header [Event,White,Black,...] data
-long c1_pgn_avrg_pgn_buffer_size = 64 * 1024;	// 64Kb average buffer for pgn data 1.e4..., also comments
+long c1_pgn_avrg_positions_per_game = 200;		// average count of positions per game (+variants)
+long c1_pgn_avrg_header_buffer_size = 1 * 1024;	// 1Kb average buffer for header [Event,White,Black,...] data
+long c1_pgn_avrg_pgn_buffer_size = 5 * 1024;	// 5Kb average buffer for pgn data 1.e4..., also comments
 long c1_pgn_file_size = 2 * 1024 * 1024;
-		/* 2Mb is buffer in memory to compose the html result, txt file is 2x larger */
-long c1_pgn_variants_cnt = 100;					// maximum variants in depth
+		/* 2Mb is buffer in memory to compose the html result, txt file is not limited */
+long c1_pgn_variants_cnt = 20;					// maximum variants in depth
 
 
 //--------Numeric Annotation Glyphs. Standard NAGs only
@@ -282,7 +282,6 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		bool tabs;		// should add tabs or not
 		bool tooLarge;	// if too large result
 		long bLength;	// length of html-result
-		long tLength;	// length of txt-result
 
 		struct Vstru {	/* structure of variant data */
 			char c;		// '{' or '('
@@ -638,7 +637,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 	long j = AddEmptySubTreeArray(0);
 	G[gm].Ti = j;
 
-	char *be_0 = &Bhtm[ strlen(Bhtm) ], *tbbe_0 = &Btbl[ strlen(Btbl) ];
+	char *be_0 = &Bhtm[ strlen(Bhtm) ], *tbbe_0 = Btbl;
 
 	int q=0,f=0,Mn = 0;
 	bool vf = false;
@@ -906,14 +905,22 @@ class c1_pgn {			// ------------------start of c1_pgn class
 
 		p[slen] = c_last;
 
-		int l2=0,ltb=0;
+		int l2;
 		if((rf&2)>0)
 			{
 			B2.getFEN( fen );
 			sprintf(tbbe,"%s\n",fen); tbbe+=strlen(tbbe);
 			sprintf(tbbe,"%s\n\n\n", p_result); tbbe+=strlen(tbbe);
 			l2 = strlen(be_0);
-			ltb = strlen(tbbe_0);
+
+			fprintf(out,"%s", tbbe_0);		// simply flush txt file
+			tbbe = &tbbe_0[0];
+			*(tbbe)=0;
+
+			// this removes html datas, not needed
+			l2 = 0;
+			be=&be_0[l2];
+			*(be)=0;
 			}
 		else
 			{
@@ -925,9 +932,8 @@ class c1_pgn {			// ------------------start of c1_pgn class
 			}
 
 		bLength += l2;
-		tLength += ltb;
 		sprintf(be, "</td></tr>"); be+=strlen(be);
-		if( ((bLength+1024)>c1_pgn_file_size) || ((tLength+1024)>(c1_pgn_file_size<<1)) ) tooLarge = true;
+		if( (bLength+1024)>c1_pgn_file_size ) tooLarge = true;
 
 	};
 
@@ -978,7 +984,8 @@ class c1_pgn {			// ------------------start of c1_pgn class
 	void ReadParsePgnFile( char *fname, char *to_fname ) {
 		
 		size_t rd,i,n;
-		char *st=NULL, *at, *to;
+		int l,k,f;
+		char *st=NULL, *at, *to, *v, *p, c, *q;
 		long count=0, c2=0;
 		char *b2 = &reader_buf[ c1_pgn_filereader_buffer_size ];
 
@@ -990,17 +997,30 @@ class c1_pgn {			// ------------------start of c1_pgn class
 
 		tooLarge = false;
 		bLength = 0;
-		tLength = 0;
 
 		sprintf(be, "<!doctype html><head>"); be+=strlen(be);
 		sprintf(be, "<meta http-equiv=Content-Type content=\"text/html; charset=utf-8\">"); be+=strlen(be);
 		sprintf(be, "%s%s%s", c1_htmcss0, c1_domain, c1_htmcss1 ); be+=strlen(be);
+		v = to_fname;		// sets title for the htm-file
+		q = v;
+		l = strlen(v);
+		for(k=l-1,f=0; k>=0; k--)
+			{
+			c = v[k];
+			if(c=='/' || c=='\\') { q = &v[k+1]; if(f==0) p = &v[l]; break; }
+			if(c=='.') { p=&v[k]; f=1; }
+			}
+		if(k<0 && f==0) p = &v[l];
+		c = *(p); *(p)=0;
+		sprintf(be, "<title>%s</title>",q); be+=strlen(be);
+		*(p) = c;
+
 		sprintf(be, "</head><body>"); be+=strlen(be);
 		sprintf(be, "%ssrc=\"%sc1_chess.js\">%s", c1_scrBegin, c1_domain, c1_scrEnd ); be+=strlen(be);
 		sprintf(be, "<table>"); be+=strlen(be);
 
 		sprintf(ptbe,"%s> _pgn_Pt=[];_c1_Pt_add(\"",c1_scrBegin ); ptbe+=strlen(ptbe);
-
+		out = (((rf&2)>0) ? fopen( to_fname, "wb" ) : NULL);
 		in = fopen( fname, "rb" );
 		if(in!=NULL)
 			{
@@ -1061,8 +1081,6 @@ class c1_pgn {			// ------------------start of c1_pgn class
 			ParsePgn( fsort ? Sort[n] : n );
 			}
 
-
-
 		printf( "%d\n", count );
 
 		ptbeAddMousePointers();
@@ -1076,18 +1094,12 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		sprintf(be, "</body></html>"); be+=strlen(be);
 
 		if(tooLarge)
-			{ sprintf(Bhtm, "<html><body>Result too large for %dMb buffer.</body></html>",
+			{ sprintf(Bhtm, "<html><body>Result too large for %dMb buffer. Increase /L=Mbytes option.</body></html>",
 				c1_pgn_file_size>>20) ; }
 
 		if(in!=NULL) fclose(in);
-		out = fopen( to_fname, "wb" );
-		if(out!=NULL)
-			{
-				char *otxt;
-				if((rf&2)>0) otxt = Btbl;
-				else otxt = Bhtm;
-				fprintf(out,"%s", otxt );
-			}
+		if(out==NULL) out = fopen( to_fname, "wb" );
+		if(out!=NULL && ((rf&2)==0)) fprintf(out,"%s", Bhtm );
 		if(out!=NULL) fclose(out);
 	};
 
@@ -1134,7 +1146,9 @@ class c1_pgn {			// ------------------start of c1_pgn class
 
 	};
 
-	void c1_0() { tc = 0; gc = 0; hc = 0; hpc = 0; vc = 0; pc = 0; };		// sets counters to 0
+	void c1_0() { 		// sets counters to 0
+		tc = 0; gc = 0; hc = 0; hpc = 0; vc = 0; pc = 0; AddEmptySubTreeArray(0);
+	};
 
 	c1_pgn()
 	{
@@ -1155,7 +1169,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		Pb = (char *) malloc( (c1_pgn_buffer_games_cnt+1) * c1_pgn_avrg_pgn_buffer_size );
 		Vr = (Vstru *) malloc( sizeof(Vstru) * (c1_pgn_variants_cnt+1));
 		reader_buf = (char *) malloc( (c1_pgn_filereader_buffer_size+1)<<1 );	// buffer 2x;
-		Bhtm = (char *) malloc( c1_pgn_file_size<<2 );
+		Bhtm = (char *) malloc( c1_pgn_file_size*3 );
 		Bht2 = &Bhtm[ c1_pgn_file_size ];	// some space ahead
 		Bht3 = &Bht2[ c1_pgn_file_size-2 ];
 		Btbl = &Bhtm[ c1_pgn_file_size<<1 ];
@@ -1165,7 +1179,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		dist = 8000;	// canvas after each 8k characters 
 		canvSize = 200;	// 200px
 		tabs = false;
-		AddEmptySubTreeArray(0);
+		
 		fsort = false;
 		rf = 1;			// default to html
 		tooLarge = false;
