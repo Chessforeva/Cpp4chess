@@ -1,13 +1,16 @@
 <?
+
 //
 // Splits large PGN files.
 // Generates HTML index and browsable chess pages
 //
-// Extender for c1_chess
+// Extender for c1_chess.exe that should be in current folder!
 // Compile to exe with BamCompile
 //
+// Place PGN files in current folder and start this tool to generate browsables.
 //
-//
+
+$DOMAIN_LOCAL = false;
 
 $GAMES_PER_BROWSABLE = 100;
 
@@ -25,9 +28,13 @@ $path = $cur."/".$web."/";
 $I = fopen ($path."index.htm", "w");
 fputs($I,"<html><body>".$CR);
 
-$fc = 0;
+$cnt = 0;
+$c1 = false;
+
 while (false !== ($entry = $dir->read()))
 {
+    if($entry=="c1_chess.exe") $c1 = true;
+
     if( substr($entry,0,1)!="." && !(is_dir($cur."/".$entry)) )
     {
 
@@ -35,8 +42,7 @@ while (false !== ($entry = $dir->read()))
     $ext = ( $ax>0 && $ax == strlen($entry)-4 ? substr($entry,$ax+1) : "" );
 
     if( strlen($ext)==0 || strpos("{exe}{dll}{com}",$ext)==false)
-    {
-    $fc++;          
+    {          
     $f = fopen ($cur."/".$entry, "r");
     $h = false;
     $hev = false;
@@ -62,6 +68,7 @@ while (false !== ($entry = $dir->read()))
                     {
                     $h=true;
                     echo $entry."\n";
+                    $cnt++;
                     }
                 }
             if(!$h) break;           // this is not a pgn file
@@ -130,7 +137,7 @@ while (false !== ($entry = $dir->read()))
                             ($r2>$r1 ? "-".$r2 : "" ).'</a> ');
                     $r1 = 0;
                     $r2 = 0;
-                    exec("c1_chess.exe ".$path.$fn." /C=400");
+                    exec("c1_chess.exe ".$path.$fn." /C=400".($DOMAIN_LOCAL ? " /D" : ""));
                     unlink($path.$fn);
                     }
                               
@@ -167,7 +174,7 @@ while (false !== ($entry = $dir->read()))
         
         fputs($I,'<a href="'.$fname.'.htm">Round '.$r1.
                 ($r2>$r1 ? "-".$r2 : "" ).'</a> '."<br>");
-        exec("c1_chess.exe ".$path.$fn." /C=400");
+        exec("c1_chess.exe ".$path.$fn." /C=400".($DOMAIN_LOCAL ? " /D" : ""));
         unlink($path.$fn);
         }
      
@@ -175,14 +182,20 @@ while (false !== ($entry = $dir->read()))
     }
     }
 }
-$dir->close();
 
-if($fc==0)
+if($cnt<1)
     {
-    fputs($I,"Put PGN files in current folder and this tool will generate browsables.".$CR);
+    fputs($I,"Place PGN files in current folder and start this tool to generate browsables.<br>".$CR);
     }
+
+if(!$c1)
+    {
+    fputs($I,"There is no c1_chess.exe file in current folder?!<br>".$CR);
+    }
+
 fputs($I,"</body></html>".$CR);
 fclose($I);
+$dir->close();
 
 exec("start ".$path."index.htm");
 
