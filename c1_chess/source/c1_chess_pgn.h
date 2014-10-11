@@ -307,6 +307,8 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		int pc;			// count of current point
 		long pc_total;	// total for file
 
+		int rnDk;		// random number simply avoid html-bugs
+
 		/*Some tree functions*/
 	long AddEmptySubTreeArray( long addto ) {
 		Ttree *t = &Tr[tc];
@@ -674,7 +676,8 @@ class c1_pgn {			// ------------------start of c1_pgn class
 	startFEN = (strlen(p_FEN)>0 ? p_FEN : c1_chess_sFEN);
 	B2.setFEN( startFEN );
 	ns = 0;
-	G[gm].idkN = pc_total+pc;
+
+	G[gm].idkN = rnDk + pc_total+pc;
 
 	char tabspaces[1024<<2], m[50], nags[254], fen[100];
 
@@ -880,7 +883,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 								}
 
 							if(B2.sm>0) Mn++;
-							long pTp = pc_total+pc;
+							long pTp = rnDk + pc_total+pc;
 							Pt[pc].idk = G[gm].idkN;
 							sprintf(be,"<div class=\"_pgn1\" id=\"_pI%d\" onclick=\"_pOc(%d)\">%s</div>",
 								pTp, pTp, t); be+=strlen(be);
@@ -1114,7 +1117,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 
 				sprintf(ptbe,"i%dv%du%sz",(*p).idk, (*p).v, (*p).uci); ptbe+=strlen(ptbe);
 
-				long pTp = pc_total+k;
+				long pTp = rnDk + pc_total+k;
 				if(pTp == (*p).idk)
 					{
 					char m[20];
@@ -1179,6 +1182,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		dist = 8000;	// canvas after each 8k characters 
 		canvSize = 200;	// 200px
 		tabs = false;
+		rnDk = 0;	// bugs in multi-post blogs, javascript goes wrong, should be  rand()*999
 		
 		fsort = false;
 		rf = 1;			// default to html
