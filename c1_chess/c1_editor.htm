@@ -93,6 +93,8 @@ f_PREVIEW = (c==1);
 f_HTML = (c==2);
 f_BLOCK = (c==3 || c==1);
 
+if(c==3) _pgn_Rnd = parseInt( Math.random() * 999999);
+
 fl_Fast = (getSwitch(1)?0:1);
 fl_byRounds = getSwitch(2);
 fl_Compr = getSwitch(3);
@@ -102,6 +104,9 @@ fl_canvDist = getCanvDist();
 fl_inline = getSwitch(9);
 fl_diagram = getSwitch(7);
 CreaBrowsableGames();
+
+
+
 }
      
 /* Analyses div container for chess games and creates html as output */
@@ -148,6 +153,7 @@ function CreaBrowsableGames()
   _chHtml += scrBegin + 'src="' + _c1_domain + 'c1_chess.js">' + scrEnd;
 
  if(f_BLOCK) _chHtml += _css_src;
+
  
  _chHtml += '<table>';
  
@@ -241,12 +247,14 @@ function AddBrowsables()
     _chHtml+= '</table>';
     
     _pOcVar = '_c1_Pt_OnLd([' + _pOcVar + ']' + (fl_diagram?',1':'') + ')';
-    
+
+    var Rq = ( _pgn_Rnd>0 ? _pgn_Rnd : '' );
+
     if(!f_PREVIEW)
      {
      _chHtml+= scrBegin +'> _pgn_Pt=[];_c1_Pt_add("' ;
         
-     _pOcVar = 'function OnWinLd(){' + _pOcVar + '}';
+     _pOcVar = 'function OnWinLd'+Rq+'(){' + _pOcVar + '}';
    
      for(var k=0;k<_pgn_Pt.length;k++)
      {
@@ -264,11 +272,16 @@ function AddBrowsables()
              parseInt(p.idk)==k ?  (p.FEN == _c1.sFEN ? '0' : replaceAll(p.FEN,'/','')) : '');
       if(k%50==0) _chHtml+='i");_c1_Pt_add("';
      }
-     
-     _chHtml+='i");' + _pOcVar + 'var oOnLd=window.onload;' +
+
+     _chHtml+='i");';
+
+     if(_pgn_Rnd>0) _chHtml += '_c1_ML('+ _pgn_Rnd + ');';
+
+     _chHtml+= _pOcVar + 'var oOnLd'+Rq+'=window.onload;' +
         'if(typeof(window.onload)=="function") '+
-        'window.onload=function(){if(oOnLd) oOnLd();OnWinLd()};' +
-        'else window.onload=function(){OnWinLd()}' + scrEnd;
+        'window.onload=function(){if(oOnLd'+Rq+') oOnLd'+Rq+'();OnWinLd'+Rq+'()};' +
+        'else window.onload=function(){OnWinLd'+Rq+'()}' + scrEnd;
+     
 
      if(f_HTML) _chHtml+= '</body></html>';
 
@@ -289,7 +302,7 @@ function AddBrowsables()
      
      if(f_HTML) _ht += 'Copy/paste in a new text file, then save as .htm; Put on your server (or ' + 
 	'<a href="http://smecers.appspot.com/AddHtml.htm" target="_blank">here</a>).' + '<br>';
-     if(f_BLOCK) _ht += 'Copy/paste this block into body of other .htm. One per document!' + '<br>';
+     if(f_BLOCK) _ht += 'Copy/paste this block into body of other .htm' + '<br>';
  
     
     _chHtml = _ht + '<TEXTAREA COLS=90 ROWS=8 id="pgn_ResCode">' + _chHtml + '</TEXTAREA>';
@@ -297,6 +310,8 @@ function AddBrowsables()
     
     rDIV.innerHTML = _chHtml;
     _chHtml='';
+
+    if(_pgn_Rnd>0) { _c1_ML(_pgn_Rnd); _pgn_Rnd = 0; }
         
     if(f_PREVIEW) eval(_pOcVar);
 

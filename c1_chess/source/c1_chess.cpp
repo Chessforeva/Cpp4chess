@@ -21,6 +21,7 @@ long userFileLimitSize = 0;
 long userCanvasSize = 0;
 long userIntDist = 0;
 bool userNoDomainOption = false;
+bool userSafe4multiPosts = false;
 
 char filename[2048], resname[2048];
 
@@ -47,6 +48,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		printf("   /C=300 - set board canvas size to 300px (default is 200px)\n");
 		printf("   /I=2k - more board canvases 2000 chars inbetween (default is 8000)\n");
 		printf("   /D - remove domain to use locally or on other server\n");
+		printf("   /M - multi-posting safe\n");
 		printf("\nSample to process all pgn-files of current folder:\n");
 		printf("   c1_chess  *.pgn /T /L=1 /C=400\n\n");
 		printf("Free source at: http://github.com/Chessforeva/Cpp4chess\n");
@@ -92,6 +94,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					if(a[2]=='=') userIntDist = atoi(&a[3]) * 1000;			// ts.
 					}
 				else if(c=='D' || c=='d') userNoDomainOption = true;
+				else if(c=='M' || c=='m') userSafe4multiPosts = true;
 				}
 			}
 

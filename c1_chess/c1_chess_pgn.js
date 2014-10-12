@@ -15,6 +15,7 @@ s=p.uciMoves()            - obtains uci string of moves from tree of pgn object 
 /* PGN object */
 /* for PGN() function usage */
 
+
 _pgn = {
         
     t: [],  /*tree*/
@@ -83,7 +84,10 @@ _pgn = {
    
     PGN:function(s_pgn) {      /* analyses PGN string and generates the tree */
     
-    if(this.idk.length==0) this.idk=_pgn_Pt.length.toString();
+    if(this.idk.length==0)
+	{
+	this.idk= (_pgn_Rnd + _pgn_Pt.length).toString();
+	}
 
     var B2 = _c1.clone();
     
@@ -282,7 +286,7 @@ _pgn = {
         B2.mkmove(k);
         B2.movegen();
         if(B2.sm>0) Mn++;
-        var p = _pgn_Pt.length.toString();       
+        var p =  (_pgn_Rnd + _pgn_Pt.length).toString();       
         this.shtm+='<div class="_pgn1" id="_pI'+p+'" onclick="_pOc('+p+')">' +
                      s.substr(i,t.length) + '</div>';
         
@@ -522,6 +526,7 @@ function _c1_ecd(s)     /* encode compressed html */
  return w;
 }
 
+
 /* Array of NAG codes */
 _ngWrds=["has", "Black", "White", "advantage", "the", "played", "control", "well",
  "placement", "very", "poorly", "moderate", "decisive", "slight", "good", "poor",
@@ -589,3 +594,6 @@ function prepare_ngArr()
     }
 }
 prepare_ngArr();
+
+_pgn_Rnd = 0;	// bugz on multi-post blogs...
+

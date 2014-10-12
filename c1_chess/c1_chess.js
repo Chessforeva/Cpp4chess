@@ -67,8 +67,7 @@ attach click listener, if necessary.
 
 /* some functions */
 
-var _c1_domain = 'http://chessforeva.appspot.com/';
-	// where the images,css and htm files are
+var _c1_domain = 'http://chessforeva.appspot.com/';     // where the images,css and htm files are
 _c1_domain = '';           // locally
 
 var CrLf_ = String.fromCharCode(13)+String.fromCharCode(10);
@@ -877,7 +876,9 @@ function _c1_dcd(s)     /* decode compressed html */
  return w;
 }
 
+
 var _pgn_Pt = [];           /* contains FEN positions for onclick */
+
 var _pgn_Pt_pr = -1;        /* which was the last pressed move by user? */
 
 /* to set position without a move */
@@ -889,7 +890,10 @@ function _pOc0(n)
 /* onclick function */
 function _pOc(n,flg,no_move)
 {
- if(!flg && _c1_AutoPlay>0) _c1_AutoPlay = -1;  // stop 
+ n = _c1_upd_multi_by(n);
+
+ if(!flg && _c1_AutoPlay>0) _c1_AutoPlay = -1;  // stop
+
  if(n==_pgn_Pt_pr || n>_pgn_Pt.length) return;
  
  var B = _c1.clone();
@@ -928,7 +932,7 @@ function _pOc(n,flg,no_move)
     }
   }
 
- if(no_move) _c1_AutoPl_1stmv += '[' + n + ']';
+ if(no_move) _c1_AutoPl_1stmv += '[' + (_c1_multi+n) + ']';
    
  var idk = _pgn_Pt[n].idk;
 
@@ -941,7 +945,8 @@ function _pOc(n,flg,no_move)
    {
    if(_pgn_Pt_pr>=0)
     {
-    div = document.getElementById('_pI'+_pgn_Pt_pr);
+    var ID = _pgn_Pt_pr + _c1_multi.cur;
+    div = document.getElementById('_pI'+ID);
     if(div!=null)
         {
         dt = div.innerHTML;
@@ -970,6 +975,8 @@ function _c1_DgL(c,idk,B,flg)   /* loop canvas for the game */
 
 function _c1_onCanvasClick(idk) /* onclick event */
 {
+ _c1_upd_multi_by(idk);
+
  var p = {idk:-1}; var i=_pgn_Pt_pr;
  if(i>=0 && i<_pgn_Pt.length) p = _pgn_Pt[i];
  if(p.idk!=idk) _pOc(idk,1); 
@@ -984,6 +991,7 @@ var _c1_AutoPl_1stmv = '';
 
 function _c1_startAutoPlay()
 {
+
  var f=(_c1_AutoPlay<0);
  _c1_AutoPlay = 0;
 
@@ -991,7 +999,7 @@ function _c1_startAutoPlay()
  {
  var i=_pgn_Pt_pr;
 
- var c = '[' + i + ']';
+ var c = '[' + (_c1_multi.cur+i) + ']';
  if(_c1_AutoPl_1stmv.indexOf(c)>=0)
   {
    _c1_AutoPl_1stmv = replaceAll(_c1_AutoPl_1stmv, c, '');
@@ -1035,6 +1043,35 @@ function _c1_Pt_add(s)
      _pgn_Pt.push({idk:parseInt(idk), v:parseInt(vr), uci:uci, FEN:fen});
     }
   }
+}
+
+// MULTI-POSTS safe code updated Oct.2014
+if(typeof(_c1_multi)=="undefined")
+ {
+ var _c1_multi = {cur:0, a:[] };// saves data for multi-post blogs
+ }
+
+function _c1_ML(n0)
+{
+  _c1_multi.a.push({N:n0, p: clone(_pgn_Pt)});	// save
+}
+
+function _c1_upd_multi_by(N)  // simply sets pointer to array from multi-list
+{
+ var l = _pgn_Pt.length;
+ for(var i=0;i<_c1_multi.a.length;i++)
+  {
+   var o = _c1_multi.a[i];
+   if( N>(o.N-100) && N<(o.N+9999) )
+    {
+     _pgn_Pt = o.p;
+     _c1_multi.cur = o.N;
+     N -= o.N;
+     if(_pgn_Pt.length!=l) _pgn_Pt_pr = -1;
+     break;
+    }
+  }
+ return N;
 }
 
 // draws initial diagrams on load, adds event listeners

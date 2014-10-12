@@ -11,6 +11,13 @@
 <font size="4">
 <font color="white">Description:</font><br>
 Creates a browsable web-page from a pgn-notation of chess games.<br>
+Samples:
+<ul>
+<a href="http://bezjega.blogspot.com/2014/10/bilbao-masters-2013-chess-tournament.html">Bilbao Masters 2013 tournament</a><br>
+annotated <a href="http://smecers.appspot.com/html/ImmortalChessGames">Immortal chess games</a><br>
+browsable large tournament <a href="http://smecers.appspot.com/Pardubice_2014/Pardubice_chess_2014.htm">Pardubice Chech 2014</a><br>
+game collection <a href="http://smecers.appspot.com/Garry_Kasparov_Chess_Games.htm">Garry Kasparov games</a><br>
+</ul>
 <br>
 <font color="white">Tools:</font><br>
 Online editor <a href="c1_editor.htm">c1_editor</a> or windows cmd-tool 
@@ -22,7 +29,7 @@ Put the pgn notation of chess tournament by copy+paste into text area. Click on
 Click on <div class="_pgn1">[html]</div> 
 when ready to generate code for web-page.<br>
 Click on <div class="_pgn1">[block]</div> 
-if the code will be placed in other html (as blog section).<br>
+if the code will be placed in other html (as blog section). Multi-posting safe, more than one code per html document.<br>
 If pgn contains annotations, comments or variants then use styling <div class="_pgn1">[inline]</div> checkbox.<br> 
 Remove variants by clicking on <div class="_pgn1">[variants]</div> checkbox.<br> 
 Sorting by rounds takes place, otherwise click <div class="_pgn1">[sort rounds]</div>.<br>
@@ -35,6 +42,7 @@ On diagrams no first move is set by <div class="_pgn1">[0mv]</div> checkbox.<br>
 <font color="white">Notes:</font><br>
 Some browsers as Firefox may not work locally on previews.<br>
 The editor is good for annotating. Javascript is much slower than application. Use tool <a href="http://github.com/Chessforeva/Cpp4chess">c1_chess.exe</a> to batch the process.<br>
+The tool <font color="green">c1_large.exe (++2014.oct)</font> prepares large PGN files for c1_chess.<br>
 <br>
 <font color="white">c1_chess options:</font><br>
 <pre>
@@ -51,14 +59,40 @@ usage: c1_chess <pgn file(s) to parse> [options]
    /C=300 - set board canvas size to 300px (default is 200px)
    /I=2k - more board canvases 2000 chars inbetween (default is 8000)
    /D - remove domain to use locally or on other server
+   /M - multi-posting safe
 
 Sample to process all pgn-files of current folder:
    c1_chess  *.pgn /T /L=1 /C=400
 
+</pre>
+
+<b>How to create an offline version, or prepare for domain.</b><br>
+<ul>
+1. use c1_chess.exe with /D option, copy results to web-folder<br>
+2. copy "d_img" folder of images to the web-folder<br>
+3. copy c1_chess.js, c1_chess_pgn.js, c1_chess.css to the web-folder<br>
+</ul>
+
+<br>
+<br>
+<font color="white">c1_large options:</font><br>
+<pre>
+Creates a bunch of compact-browsables. Start this at first. Analyses best fit.
+
+Usage: c1_large [options]
+  options list:
+  /G=100 - count of games per browsable
+  /E - single event file, no sorting
+  +other c1_chess options
+
+Sample to process all pgn-files of current folder:
+   c1_large /C=600
+
+</pre>
+
 Free source at: <a href="http://github.com/Chessforeva/Cpp4chess">link</a>
 Blog at: <a href="http://chessforeva.appspot.com/c1_chess.htm">link</a>
 
-</pre>
 
 </font>
 </BODY>

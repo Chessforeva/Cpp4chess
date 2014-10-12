@@ -1089,10 +1089,16 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		ptbeAddMousePointers();
 		sprintf(ptbe,"i\");"); ptbe+=strlen(ptbe);
 
-		sprintf(ptbe,"function OnWinLd(){_c1_Pt_OnLd([%s])}",(++pobe)); ptbe+=strlen(ptbe);
-		sprintf(ptbe,"var oOnLd=window.onload;if(typeof(window.onload)==\"function\") "); ptbe+=strlen(ptbe);
-        sprintf(ptbe,"window.onload=function(){if(oOnLd) oOnLd();OnWinLd()};"); ptbe+=strlen(ptbe);
-		sprintf(ptbe,"else window.onload=function(){OnWinLd()}%s", c1_scrEnd ); ptbe+=strlen(ptbe);
+		char Q[30]; Q[0]=0;
+		if(rnDk>0)
+			{
+			sprintf(Q,"%d",rnDk);
+			sprintf(ptbe,"_c1_ML(%s);",Q); ptbe+=strlen(ptbe);
+			}
+		sprintf(ptbe,"function OnWinLd%s(){_c1_Pt_OnLd([%s])}",Q,(++pobe)); ptbe+=strlen(ptbe);
+		sprintf(ptbe,"var oOnLd%s=window.onload;if(typeof(window.onload)==\"function\") ",Q); ptbe+=strlen(ptbe);
+        sprintf(ptbe,"window.onload=function(){if(oOnLd%s) oOnLd%s();OnWinLd%s()};",Q,Q,Q); ptbe+=strlen(ptbe);
+		sprintf(ptbe,"else window.onload=function(){OnWinLd%s()}%s",Q, c1_scrEnd ); ptbe+=strlen(ptbe);
 		sprintf(be, "</table>%s", Bht2); be+=strlen(be);
 		sprintf(be, "</body></html>"); be+=strlen(be);
 
@@ -1156,11 +1162,13 @@ class c1_pgn {			// ------------------start of c1_pgn class
 	c1_pgn()
 	{
 		strcpy( c1_domain, c1_domain_c );	// main online domain
+		rnDk = 0;
 
 		/* --- remove these user option values when porting c_pgn class ---*/
 		if(userGamesCnt>0) c1_pgn_buffer_games_cnt = userGamesCnt;
 		if(userFileLimitSize>0) c1_pgn_file_size = userFileLimitSize;
 		if(userNoDomainOption) c1_domain[0]=0;	// no domain
+		if(userSafe4multiPosts) rnDk = rand()*999999;
 		/* ------- */
 
 
@@ -1182,7 +1190,6 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		dist = 8000;	// canvas after each 8k characters 
 		canvSize = 200;	// 200px
 		tabs = false;
-		rnDk = 0;	// bugs in multi-post blogs, javascript goes wrong, should be  rand()*999
 		
 		fsort = false;
 		rf = 1;			// default to html
