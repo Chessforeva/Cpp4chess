@@ -1,7 +1,7 @@
 <?
 
 //
-// Splits large PGN files.
+// Splits large PGN files (old version)
 // Generates HTML index and browsable chess pages
 //
 // Extender for c1_chess.exe that should be in current folder!
