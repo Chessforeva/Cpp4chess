@@ -24,6 +24,7 @@ int GAMES_PER_BROWSABLE = 100;			// default
 
 int SingleEvent = 0;
 int dont_set_CANVAS_SIZE = 0;
+int LOCAL_OR_NODOMAIN = 0;
 
 char c1_args[14][1024];
 int c1_argc = 0;
@@ -42,6 +43,7 @@ int main(int argc,char *argv[])
 		printf("  and generates browsable web versions.\n\n");
 		printf("Usage: c1_large [options]\n");
 		printf("  options list:\n");
+		printf("  /D - for local or other domain\n");
 		printf("  /G=100 - count of games per browsable\n");
 		printf("  /E - single event file, no sorting\n");
 		printf("  +other c1_chess options\n\n\n");
@@ -57,6 +59,12 @@ int main(int argc,char *argv[])
 				char *aS = argv[ argi ];
 				char *y = aS;
 
+
+				if( *(y++)=='/' && ((*y)=='D' || (*y)=='d' ) )
+				   	{
+					LOCAL_OR_NODOMAIN = 1;
+					}
+				y = aS;
 				if( *(y++)=='/' && ((*y)=='C' || (*y)=='c' ) )
 				   	{
 					dont_set_CANVAS_SIZE = 1;
@@ -437,6 +445,8 @@ int main(int argc,char *argv[])
 	fprintf(I,"</html>\n");
 	fclose(I);
 
+	int spw;
+
 	if(!c1_exist) printf("Error: c1_chess.exe does not exist\n");
 	else
 		{
@@ -468,7 +478,7 @@ int main(int argc,char *argv[])
 			sprintf( c1_args[0], "/C=400" );
 			}
 
-		int spw = _spawnv( _P_WAIT, cmd, argz );
+		spw = _spawnv( _P_WAIT, cmd, argz );
 		if( spw!=0 ) printf("Error: Can not execute c1_chess.exe with parameters\n");
 
 		}
@@ -483,14 +493,102 @@ int main(int argc,char *argv[])
 		remove( *foflist );
         foflist++;
     }
+	free(flist);
 
-    free(flist);
+	if(LOCAL_OR_NODOMAIN)		// let's do copying too
+		{
+		printf("Copying other files.\n" );
+
+		// copy pictures
+		char path_img[1024];
+		int fld_crea = 0;
+		sprintf(path_img,"%s\\d_img",path);
+
+		sprintf(filemask,"%s\\d_img\\*.*",cur);
+		flist = findfiles(filemask, FINDFILES_NODIRS);
+		foflist = flist;
+		while (*foflist) {
+			sprintf(Fname,*foflist);
+			sprintf(F,(char*)(Fname+strlen(cur)+1) );
+
+			if(!fld_crea)
+				{
+				mkdir (path_img);
+				fld_crea = 1;
+				}
+			sprintf(fnameR, "%s\\%s", path, F);
+			copyFile(Fname, fnameR);
+        	foflist++;
+    	}
+		free(flist);
+
+		// .css
+		sprintf(filemask,"%s\\*.css",cur);
+		flist = findfiles(filemask, FINDFILES_NODIRS);
+		foflist = flist;
+		while (*foflist) {
+			sprintf(Fname,*foflist);
+			sprintf(F,(char*)(Fname+strlen(cur)+1) );
+			sprintf(fnameR, "%s\\%s", path, F);
+			copyFile(Fname, fnameR);
+        	foflist++;
+    	}
+		free(flist);
+
+		// .css
+		sprintf(filemask,"%s\\*.js",cur);
+		flist = findfiles(filemask, FINDFILES_NODIRS);
+		foflist = flist;
+		while (*foflist) {
+			sprintf(Fname,*foflist);
+			sprintf(F,(char*)(Fname+strlen(cur)+1) );
+			sprintf(fnameR, "%s\\%s", path, F);
+			copyFile(Fname, fnameR);
+        	foflist++;
+    	}
+		free(flist);
+
+		}
+
+	int isBrowser = 0;
+	char *BROWpath[6];
+	BROWpath[0]= "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+	BROWpath[1]= "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+	BROWpath[2]= "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
+	BROWpath[3]= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+	BROWpath[4]= "C:\\Program Files (x86)\\Internet Explorer\\iexplore.exe";
+	BROWpath[5]= "C:\\Program Files\\Internet Explorer\\iexplore.exe";
+
+	char *argb[3];
+	argb[0] = (const char *)indxfile;
+	argb[1] = (const char *)indxfile;
+	argb[2] = NULL;
+
+	for(int z=0;z<6;z++)
+		{
+		flist = findfiles(BROWpath[z], FINDFILES_NODIRS);
+		foflist = flist;
+		while (*foflist) {
+
+			char spwnFile[1024];
+			sprintf(spwnFile,"%s",BROWpath[z]);
+
+			spw = execv( spwnFile, argb );
+			if( spw == 0 ) isBrowser = 1;
+			break;
+			foflist++;
+    	}
+		free(flist);
+		}
 
 	printf("Done.\n" );
+
+	if(!isBrowser) printf("See %s\\index.htm page!\n", web);
 
 	// wait keypress
 	printf("Press key to exit.");
 	getch();
+
 	return 0;
 }
 
@@ -547,4 +645,18 @@ int readDatas( FILE *fi, char *buf, int maxLen )
 		}
 	spcAlltrim( buf );
 	return l;
+}
+
+void copyFile( char *from, char *to )	// copies files
+{
+	FILE *in = fopen( from, "rb" );
+	FILE *ou = fopen( to, "wb" );
+	for( ; !feof(in) ; )
+		{
+		char c;
+		int n = fread(&c, 1, 1, in);
+		if(n>0) fprintf(ou, "%c",c);
+		}
+	fclose(in);
+	fclose(ou);
 }

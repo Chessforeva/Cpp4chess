@@ -62,7 +62,10 @@ usage: c1_chess <pgn file(s) to parse> [options]
    /M - multi-posting safe
 
 Sample to process all pgn-files of current folder:
-   c1_chess  *.pgn /T /L=1 /C=400
+   c1_chess *.pgn /T /L=1 /C=400
+
+Sample to create offline version
+   c1_chess bilbaomast13.pgn /D
 
 </pre>
 
@@ -81,12 +84,13 @@ Creates a bunch of compact-browsables. Start this at first. Analyses best fit.
 
 Usage: c1_large [options]
   options list:
+  /D - for local or other domain
   /G=100 - count of games per browsable
   /E - single event file, no sorting
   +other c1_chess options
 
 Sample to process all pgn-files of current folder:
-   c1_large /C=600
+   c1_large /D /C=600
 
 </pre>
 
