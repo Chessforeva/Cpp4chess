@@ -269,12 +269,14 @@ int main(int argc,char *argv[])
 					if(gm) if(!sk) cx++;
 
 					int t, w, m, r, gk, i=0, k=0, si=0;
-					if(!SingleEvent)
+					if(SingleEvent)
 						{
+						printf("No presorting\n");
 						for(k=0; k<cx; k++ ) S[k]=k;	// no sorting
 						}
 					else
 						{
+						printf("Presorting\n");
 						for(k=0; k<cx; k++ )		// bubble sorting
 							{
 							si=-1;
