@@ -968,7 +968,11 @@ function _c1_DgL(c,idk,B,flg)   /* loop canvas for the game */
   var cID = '_pgn_D_'+idk+k.toString()
   var canv = document.getElementById(cID);
   if(canv==null) break;
-  if(c==0) canv.addEventListener('click',function (e) { _c1_onCanvasClick(idk) });
+  if(c==0)
+   {
+    canv.addEventListener('click',function (e) { _c1_onCanvasClick(idk) });
+    canv.style.cursor = "pointer";
+   }
   else if(c==1) _b2D_canvas.drawCanvasBoard( B, cID, flg );
   }
 }
