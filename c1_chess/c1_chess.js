@@ -68,7 +68,7 @@ attach click listener, if necessary.
 /* some functions */
 
 var _c1_domain = 'http://chessforeva.appspot.com/';     // where the images,css and htm files are
-_c1_domain = ''; //          // locally
+_c1_domain = ''; // locally
 
 
 var CrLf_ = String.fromCharCode(13)+String.fromCharCode(10);
@@ -1194,8 +1194,9 @@ _b2D_canvas =
     
     isLoaded: function() {
         var i,f=1;
-        for(i in this.imgs)
-         if(!IsImgLoaded(this.imgs[i])) { f=0; break; }
+        var a=[ this.id0, this.idv, this.idh, this.wbg, this.bbg ].concat(this.imgs);
+        for(i in a)
+         if(!IsImgLoaded(a[i])) { f=0; break; }
         return f;
       },
       
