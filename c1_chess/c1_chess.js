@@ -68,7 +68,8 @@ attach click listener, if necessary.
 /* some functions */
 
 var _c1_domain = 'http://chessforeva.appspot.com/';     // where the images,css and htm files are
-_c1_domain = '';           // locally
+_c1_domain = ''; //          // locally
+
 
 var CrLf_ = String.fromCharCode(13)+String.fromCharCode(10);
 
@@ -171,6 +172,11 @@ for(var i=0;i<s.length;i++)
 return w;
 }
 
+// detects if image is loaded and ready for displaying
+function IsImgLoaded(img)
+{
+ return !((!img.complete) || (typeof img.naturalWidth !== "undefined" && img.naturalWidth === 0));
+}
 
 _c1c = {
     N0: [],
@@ -1184,6 +1190,13 @@ _b2D_canvas =
           this.imgs[i<<1].src = iSrc + 'w.jpg';
           this.imgs[(i<<1)+1].src = iSrc + 'b.jpg';
          }
+      },
+    
+    isLoaded: function() {
+        var i,f=1;
+        for(i in this.imgs)
+         if(!IsImgLoaded(this.imgs[i])) { f=0; break; }
+        return f;
       },
       
     cs: null,
