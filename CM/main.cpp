@@ -114,6 +114,8 @@ int can_matenext( int d )
         }
     if(was) return 1;
 
+    int ret=0;
+
     // other cases
     for (G[d].i = 0; G[d].i<G[d].B.gc; G[d].i++)
         {
@@ -131,13 +133,14 @@ int can_matenext( int d )
             if(!m)
                 {
                 if(G[d].dma<PLYS-1) rmvHs(d-1);     // not these results
-                return 1;
+                if(ST==10) ret=1;
+                else return 1;
                 }
 
             }
         else G[d-1].dmi=PLYS;
         }
-    return 0;
+    return (ST==10 ? ret : 0);
 }
 
 // returns 1 if can escape or later
@@ -169,7 +172,7 @@ void MM( int st )
     wm = (B.sm>0 ? 1: 0);
     G[0].B.copy_pos_only(&B);
     G[0].B.moveGen();
-    if(ST==9 || ST==1 || ST==2)
+    if(ST>8 || ST==1 || ST==2)
     {
         ch = G[0].B.isCheck();
         if(!ch)
@@ -227,11 +230,11 @@ void MM( int st )
             Hc_o = Hc;
             if(Hc)
                 {
-                if(ST!=9 || (Q.f!=f || Q.t!=t || Q.p!=p)) sk++;
+                if(ST<=8 || (Q.f!=f || Q.t!=t || Q.p!=p)) sk++;
 
-                if(ST==9) { Q.f = f; Q.t = t; Q.p = p; }
+                if(ST>8) { Q.f = f; Q.t = t; Q.p = p; }
 
-                if(ST==9 && sk>1) break;
+                if(ST>8 && sk>1) break;
                 }
             }
         if(CDEPTH>1)
@@ -239,7 +242,7 @@ void MM( int st )
             G[0].B.unmkmove();
             }
         }
-    if((ST==9 || ST==1) && sk!=1) FF=1;
+    if((ST>8 || ST==1) && sk!=1) FF=1;
     if(ST==2 && sk!=0) FF=1;
 }
 
@@ -465,7 +468,7 @@ void CM_calculate()
           }
 
           o = rand32() % _pieMc;
-          q = _pieMas[o];
+          q = _pieMas[o];       // put this piece on random square
 
             if(q==4 || q==10)   // avoid same bishops
             {
@@ -548,7 +551,7 @@ void CM_calculate()
                 {
                 FF=0;
                 Q.f = -1; Q.t = -1; Q.p = -1;
-                MM(9);
+                MM(10);
                 f = 1-FF;
                 }
 
