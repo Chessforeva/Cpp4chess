@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "c1_chess.h"
 
-// Simple chess checkmate generator
+// A simple chess checkmate generator
 // Chessforeva, 2016
 // GCC
 
@@ -411,7 +411,7 @@ void prepMas()
 
 void CM_calculate()
 {
-    int r, r2, f, c, wk, bk, p=0, px=0,pv=0, o, opmove, i, q, cz, w, t, m;
+    int r, u, f, c, wk, bk, p=0, px=0,pv=0, o, opmove, i, q, cz, w, t, m;
     int kk, kx, kv, kd=0;
     char pc;
 
@@ -453,15 +453,20 @@ void CM_calculate()
           else
           {
                      // p - try closer to king
-            for(r2=0; r2<15; r2++)
+            for(u=0;;u++)
             {
             kd = (c<6 ? 3 : 1);
             px=((p++)& kd); pv=((p++) & kd);
-            px= kx + (r2&1 ? -kd : (kk&1 ? 0 : kd));
-            pv= kv + ((p+kk)&1 ? kd : ((r2+kk)&1 ? 0 : -kd));
+            px= kx + (u&1 ? -kd : (kk&1 ? 0 : kd));
+            pv= kv + ((p+kk)&1 ? kd : ((u+kk)&1 ? 0 : -kd));
             if((px>=0) && (px<8) && (pv>=0) && (pv<8))
                 {
                 p=(pv<<3)+px;
+                break;
+                }
+            if(u>30)
+                {
+                p = rand32() & 63; px = p&7; pv = p>>3;
                 break;
                 }
             }
@@ -584,7 +589,7 @@ static char *fnCONFIG = "CM_generator.ini";
 static char *cfgtxt[] = {
  ";",
  "; Configuration file for simple chess checkmate generator.",
- "; Absolute freeware by Chessforeva, 2016.",
+ "; Absolute freeware by Chessforeva, 2016",
  ";",
  "; Fast for M1(fast),M2(so,so),M3(slow),M4...",
  "; Each case has only one first move solution!",
