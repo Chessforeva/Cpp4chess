@@ -1,16 +1,11 @@
-#include <iostream>
 #include <stdio.h>
-#include <mem.h>
-#include <stdlib.h>
 #include "c1_chess.h"
 
 // A simple chess checkmate generator
 // Chessforeva, 2016
 // GCC
 
-using namespace std;
-
-// M1=1, M2=2, M3=3, ...
+// M1=1 (fast), M2=2, M3=3, M4=4 (got some in a long day), M5=5 (got none and never)
 int CDEPTH=1;
 
 // how much games to find
@@ -31,6 +26,7 @@ int HcMAX=6;
 int PLYS;   // 1 for M1, 3 for M2, 5 for M3,...;
 
 c1_chess B;
+
 
 FILE *fp;
 
@@ -60,6 +56,15 @@ int Hc;
 
 mo Q;
 
+#define strcpy_slow B.setString
+
+int startswith_slow( char *sstr, char *ssub )
+{
+ int f=1;
+ for(;(*ssub);) if(*(ssub++)!=*(sstr++)) { f=0; break; }
+ return f;
+}
+
 void writeMateVariant()
 {
  for(int k=0;k<PLYS;k++)
@@ -67,7 +72,7 @@ void writeMateVariant()
     H[Hc].m[k].f = G[k].B.genml[G[k].i].f;
     H[Hc].m[k].t = G[k].B.genml[G[k].i].t;
     H[Hc].m[k].p = G[k].B.genml[G[k].i].p;
-    strcpy(H[Hc].m[k].mv,G[k].mv);
+    strcpy_slow(H[Hc].m[k].mv,G[k].mv);
     //printf("%s ",G[k].mv);
     }
     Hc++;
@@ -310,7 +315,7 @@ void _dispH()
                 H[u-1].m[k].f = H[u].m[k].f;
                 H[u-1].m[k].t = H[u].m[k].t;
                 H[u-1].m[k].p = H[u].m[k].p;
-                strcpy(H[u-1].m[k].mv,H[u].m[k].mv);
+                strcpy_slow(H[u-1].m[k].mv,H[u].m[k].mv);
                 }
             Hc--;
             j--;
@@ -332,7 +337,7 @@ void _dispH()
                 H[u-1].m[k].f = H[u].m[k].f;
                 H[u-1].m[k].t = H[u].m[k].t;
                 H[u-1].m[k].p = H[u].m[k].p;
-                strcpy(H[u-1].m[k].mv,H[u].m[k].mv);
+                strcpy_slow(H[u-1].m[k].mv,H[u].m[k].mv);
                 }
             Hc--;
             j--;
@@ -649,13 +654,14 @@ void ReadConfig()
             }
             if(a>=0)
                 {
-                 val=atoi(&buff[a+1]);
-                 if(strncmp(buff,"CDEPTH",6)==0) CDEPTH=val;
-                 if(strncmp(buff,"PGN_COUNT",9)==0) PGN_COUNT=val;
-                 if(strncmp(buff,"RANDOMIZER",10)==0) RANDOMIZER=val;
-                 if(strncmp(buff,"PcMAX",5)==0) PcMAX=val;
-                 if(strncmp(buff,"TIMES_MORE_PIECES",17)==0) TIMES_MORE_PIECES=val;
-                 if(strncmp(buff,"HcMAX",5)==0) HcMAX=val;
+                 val=B.toUInt(&buff[a+1]);  // to integer
+
+                 if(startswith_slow(buff,"CDEPTH")) CDEPTH=val;
+                 if(startswith_slow(buff,"PGN_COUNT")) PGN_COUNT=val;
+                 if(startswith_slow(buff,"RANDOMIZER")) RANDOMIZER=val;
+                 if(startswith_slow(buff,"PcMAX")) PcMAX=val;
+                 if(startswith_slow(buff,"TIMES_MORE_PIECES")) TIMES_MORE_PIECES=val;
+                 if(startswith_slow(buff,"HcMAX")) HcMAX=val;
                 }
             }
         fclose(cfg);
