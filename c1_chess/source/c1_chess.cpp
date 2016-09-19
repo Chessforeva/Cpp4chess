@@ -15,13 +15,14 @@
 // user set options
 bool userSortOption = false;
 long userGamesCnt = 0;
-bool userToTxtOption = false;
+long userToTxtOption = 1;
 bool userTabsOption = false;
 long userFileLimitSize = 0;
 long userCanvasSize = 0;
 long userIntDist = 0;
 bool userNoDomainOption = false;
 bool userSafe4multiPosts = false;
+bool userUnicpdeSymb = false;
 
 char filename[2048], resname[2048];
 
@@ -35,7 +36,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	if(argc<2)
 		{
-		printf("Chess logic processing utility v1.0, 2014\n\n");
+		printf("Chess logic processing utility v1.1, 2014-2016\n\n");
 		printf("Creates a browsable web-page from pgn-file (optional sorting by rounds)\n");
 		printf("or creates a txt-file of all boards and moves for chess games from pgn-file\n\n");
 		printf("usage: c1_chess <pgn file(s) to parse> [options]\n");
@@ -43,11 +44,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		printf("   /S=2k - big event of 2000 games, sorted by rounds\n");
 		printf("            (default is unsorted, for fast processing on low memory usage)\n");
 		printf("   /2 - output positions and moves to txt-files (default is html)\n");
+		printf("   /3 - long notation to txt-files (min.size)\n");
 		printf("   /T - use tabs in annotations (default is inline)\n");
 		printf("   /L=4 - set limit of htm-file to 4Mb (default is 2Mb)\n");
 		printf("   /C=300 - set board canvas size to 300px (default is 200px)\n");
 		printf("   /I=2k - more board canvases 2000 chars inbetween (default is 8000)\n");
 		printf("   /D - remove domain to use locally or on other server\n");
+		printf("   /U - unicode chess symbols for pieces\n");
 		printf("   /M - multi-posting safe\n");
 		printf("\nSample to process all pgn-files of current folder:\n");
 		printf("   c1_chess  *.pgn /T /L=1 /C=400\n\n");
@@ -79,7 +82,8 @@ int _tmain(int argc, _TCHAR* argv[])
 					userSortOption = true;
 					if(a[2]=='=') userGamesCnt = atoi(&a[3]) * 1000;			// ts.
 					}
-				else if(c=='2') userToTxtOption = true;
+				else if(c=='2') userToTxtOption = 2;
+				else if(c=='3') userToTxtOption = 3;
 				else if(c=='T' || c=='t') userTabsOption = true;
 				else if(c=='L' || c=='l')
 					{
@@ -94,6 +98,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					if(a[2]=='=') userIntDist = atoi(&a[3]) * 1000;			// ts.
 					}
 				else if(c=='D' || c=='d') userNoDomainOption = true;
+				else if(c=='U' || c=='u') userUnicpdeSymb = true;
 				else if(c=='M' || c=='m') userSafe4multiPosts = true;
 				}
 			}
@@ -136,8 +141,9 @@ int _tmain(int argc, _TCHAR* argv[])
 					P.c1_0();	// clear counters
 
 					if(userSortOption) P.fsort = true;
-					if(userToTxtOption) P.rf = 2;
+					P.rf = userToTxtOption;
 					if(userTabsOption) P.tabs = true;
+					if(userUnicpdeSymb) P.ucdsymb = true;
 					if(userCanvasSize>0) P.canvSize = userCanvasSize;
 					if(userIntDist>0) P.dist = userIntDist;
 					// for other options look in pgn class constructor
@@ -153,7 +159,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					if(k<0) p = &b[l];
 					for(;;)
 						{
-						sprintf(p, ".%s", ( userToTxtOption ? "txt" : "htm" ));
+						sprintf(p, ".%s", ( userToTxtOption>1 ? "txt" : "htm" ));
 						if( strcmp( resname, filename )==0 ) p = &b[l];
 						else break;
 						}

@@ -265,8 +265,10 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		char *reader_buf;	// buffer for reading files
 
 		int rf;			// result flags for ParsePgn function
-						// &1 = to browsable html file
-						// &2 = boards to text file
+						// 1 = to browsable html file
+						// &2 = boards to text file (3-long notation only)
+
+		bool ucdsymb;	// use unicode symbols (longer)
 
 						// buffers where to compose
 		char *Bhtm, *Bht2, *Bht3, *Btbl, *Benc;
@@ -535,6 +537,24 @@ class c1_pgn {			// ------------------start of c1_pgn class
      
     };
 
+	void move2unicode(bool unicoded, char *mto, char *m, char c, int k) {       /* converts to unicode symbols */
+
+	if(!unicoded) strcpy(mto,m);
+    else
+	 {
+	  int i, j, a=c1_chess::indexOfchar(c1_chess_S,c);
+	  sprintf(mto,"&#98%d;%s",11+a,
+		  &m[ (k>0||((c=='P'||c=='p')&&m[1]!='x') ? 0 : 1 ) ]);
+	  i=c1_chess::indexOfchar(mto,'=');
+	  if(i>0)	// if promotion then convert promoted piece too
+		{
+		strcpy(&mto[35],&mto[i+2]);		// 35+...
+		j=c1_chess::indexOfchar(c1_chess_S, mto[i+1] );
+		sprintf(&mto[i+1],"&#98%d;%s",11+j+(a<7?0:6), &mto[35]);
+		}
+	
+	 }
+    };
 
 	//=============================== PARSE PGN OF A GAME
 
@@ -641,7 +661,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 
 	char *be_0 = &Bhtm[ strlen(Bhtm) ], *tbbe_0 = Btbl;
 
-	int q=0,f=0,Mn = 0;
+	int q=0,f=0,Mn = 0,ff=1;
 	bool vf = false;
 	Ttree Tw;
 	int i,u,w,k,nI, cId=0;
@@ -698,7 +718,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		if(strchr(c1_pgn_p1s,c)!=NULL) { *(be++)=c; continue; }
 		if(c=='<') { sprintf(be,"&lt;"); be+=strlen(be); continue; }
 		if(c=='>') { sprintf(be,"&gt;"); be+=strlen(be); continue; }
-		char t[50], th[50];
+		char t[50], th[50], tu[50];
 		cutword( &p[i], t );
 		int t1=strlen(t);
 		sprintf(th," %s ",t);
@@ -875,18 +895,42 @@ class c1_pgn {			// ------------------start of c1_pgn class
 							c1_chess::hlist *h = &B2.hist[B2.mc-1];
 							if((*h).e>0) strcpy( &m[ strlen(m) ], c1_pgn_ep ); 
 
-							if((rf&2)>0 && vc==0)
+							if(vc==0)
+							{
+							 if(rf==2)
 								{
 								sprintf(tbbe,"%s\n\n",fen); tbbe+=strlen(tbbe);
 								sprintf(tbbe,"%d%s%s\n", Mn, (B2.sm<0 ? "." : "..."), m); tbbe+=strlen(tbbe);
 								B2.sPrintBoard( tbbe ); tbbe+=strlen(tbbe);
 								}
+							 if(rf==3)
+								{
+								if(ff>0)
+									{
+									if(strcmp(fen,c1_chess_sFEN)!=0)
+										{
+										sprintf(tbbe,"%s\n",fen); tbbe+=strlen(tbbe);
+										B2.sPrintBoard( tbbe ); tbbe+=strlen(tbbe);
+										}
+									}
+								if(B2.sm<0 || ff>0)
+									{
+									sprintf(tbbe,"%d%s", Mn, (B2.sm<0 ? "." : "..."));
+									tbbe+=strlen(tbbe);
+									}
+								sprintf(tbbe,"%s ",m); tbbe+=strlen(tbbe);
+								ff=0;
+								}
+							}
 
 							if(B2.sm>0) Mn++;
 							long pTp = rnDk + pc_total+pc;
 							Pt[pc].idk = G[gm].idkN;
+
+							move2unicode(ucdsymb, tu, t, (*h).m.z , (*h).m.k );
+
 							sprintf(be,"<div class=\"_pgn1\" id=\"_pI%d\" onclick=\"_pOc(%d)\">%s</div>",
-								pTp, pTp, t); be+=strlen(be);
+								pTp, pTp, tu ); be+=strlen(be);
 
 							strcpy( Pt[pc].uci, Tr[j].uci );
 							Pt[pc].v = vc; Pt[pc].vf = vf;
@@ -912,8 +956,11 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		if((rf&2)>0)
 			{
 			B2.getFEN( fen );
-			sprintf(tbbe,"%s\n",fen); tbbe+=strlen(tbbe);
-			sprintf(tbbe,"%s\n\n\n", p_result); tbbe+=strlen(tbbe);
+			if((rf&2)>0)
+				{
+				if(rf==2) sprintf(tbbe,"%s\n",fen); tbbe+=strlen(tbbe);
+				sprintf(tbbe,"%s\n\n\n", p_result); tbbe+=strlen(tbbe);
+				}
 			l2 = strlen(be_0);
 
 			fprintf(out,"%s", tbbe_0);		// simply flush txt file
@@ -1193,6 +1240,7 @@ class c1_pgn {			// ------------------start of c1_pgn class
 		
 		fsort = false;
 		rf = 1;			// default to html
+		ucdsymb = false;
 		tooLarge = false;
 	};	// on object creation
 
