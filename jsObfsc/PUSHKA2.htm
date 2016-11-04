@@ -1,0 +1,14 @@
+﻿<HTML>
+<head>
+<title>PUSHKA JS-GAME, obfuscated with jsObfsc v1</title>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+</head>
+<BODY onload = "z()">
+
+<canvas id="Pushka" width="600" height="400" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script type="text/javascript">var cs,cx,XX,YY,Xo,Yo;var PI=Math.PI;var n=PI/180;var a=0;var b=a;var p=0;var g=0;var o=[];var e=[];var u=['#2EFE64','#F5A9A9','#58FAF4','#A9F5E1','#F3F781','#F3E2A9','#F781F3','#A9A9F5'];function z(){cs=document.getElementById('Pushka');cx=cs.getContext('2d');XX=cs.width;YY=cs.height;Xo=(XX/2);Yo=(YY-10);cs.addEventListener("mousedown",B,false);setInterval('A()',50)}function B(event){var x=event.pageX;var y=event.pageY;var L=Math.atan((Yo-y)/(x-Xo));b=(x>Xo?L:PI+L);v();g=-1}function v(){var w;var m=5*n;var J=b;J=Math.min(J,PI-m);J=Math.max(J,m);w=(b!=J);b=J;return w}function A(){C();D();E();F()}function C(){cx.beginPath();cx.strokeStyle='green';cx.fillStyle='#ccffff';cx.fillRect(0,0,XX,Yo+2);cx.fillStyle='#005500';cx.fillRect(0,Yo+2,XX,YY);cx.stroke()}function D(){if(g>=0){b+=((g==0?1:-1)*3*n);if(v())g=((++g)%2);a=b}if(b>a){a+=10*n;if(a>b)a=b}else if(b<a){a-=10*n;if(a<b)a=b}cx.beginPath();cx.strokeStyle='black';cx.fillStyle='#cc99ff';var dx=(6)*Math.cos(a+(PI/2));var dy=(-6)*Math.sin(a+(PI/2));var q=(20)*Math.cos(a);var r=(-20)*Math.sin(a);var x1=Xo+(dx/2)+q;var y1=Yo+(dy/2)+r;cx.moveTo(x1,y1);x1+=q;y1+=r;cx.lineTo(x1,y1);x1-=dx;y1-=dy;cx.lineTo(x1,y1);x1-=q;y1-=r;cx.lineTo(x1,y1);x1+=dx;y1+=dy;cx.lineTo(x1,y1);cx.fill();cx.stroke();cx.beginPath();cx.strokeStyle='black';cx.fillStyle='#336633';cx.arc(Xo,Yo+2,20,PI,0);cx.moveTo(Xo-20,Yo+2);cx.lineTo(Xo+20,Yo+2);cx.fill();cx.stroke()}function E(){p--;if(p<0){var dx=(40)*Math.cos(a);var dy=(-40)*Math.sin(a);e.push({L:a,X:Xo+dx,Y:Yo+dy});p=4}for(var i=0;i<e.length;i++){var d=e[i];d.X+=(4)*Math.cos(d.L);d.Y+=(-4)*Math.sin(d.L);if(d.X<0||d.X>XX||d.Y<0||d.Y>YY)e.splice(i,1);else    {cx.beginPath();cx.strokeStyle='red';cx.fillStyle='brown';cx.arc(d.X,d.Y,2,0,2*PI);cx.fill();cx.stroke()}}}function F(){if((Math.random()*30)<1){var x=XX*Math.random();var G=u[parseInt(Math.random()*u.length)];o.push({X:x,Y:0,l:0,c:G})}for(var i=0;i<o.length;i++){var BO=o[i];BO.Y++;if(BO.l>0){BO.l++;var t=BO.l*2;for(var k=0;k<t;k++){cx.beginPath();cx.strokeStyle='blue';cx.fillStyle=BO.c;var xb=BO.X+2*t*Math.cos(k*(2*PI/t));var yb=BO.Y+2*t*Math.sin(k*(2*PI/t));cx.arc(xb,yb,16/t,0,2*PI);cx.fill();cx.stroke()}if(BO.l>10)o.splice(i,1)}else   {var s=false;for(var j=0;!s&&j<e.length;j++){var L=e[j];var lx=Math.abs(L.X-BO.X);var ly=Math.abs(L.Y-BO.Y);s=((lx*lx)+(ly*ly))<100}if(s||(BO.Y>Yo-8)){BO.l=1}else    {cx.beginPath();cx.strokeStyle='blue';cx.fillStyle=BO.c;cx.arc(BO.X,BO.Y,10,0,2*PI);cx.fill();cx.stroke()}}}}</script>
+
+</BODY>
+</HTML>
