@@ -109,7 +109,7 @@ void CkJS()
 void Minfy( CHAR* dst, CHAR* src, BOOL R0932, BOOL R1310, BOOL Rcmnt, BOOL Rsmrt )
 {
  CHAR c,*u, q;
- BOOL b;
+ BOOL b,z;
  UINT n13=0;
  mS1 = FALSE; mS2 = FALSE; mS3 = FALSE;
  mSp=src; mTp=dst; mPre = mSp;
@@ -185,11 +185,11 @@ void Minfy( CHAR* dst, CHAR* src, BOOL R0932, BOOL R1310, BOOL Rcmnt, BOOL Rsmrt
 		u = mSp; mSp = mPre+1;
 		if(comesafter("else")) *(mTp++)=32;
 		mSp = u; c=*mSp;
-		
-     	b = (c==13 && *(++mSp)==10);
+		z = (c==13);
+     	b = (z && *(++mSp)==10);
      	if((++n13)<12)
      	 {
-				if(!b) mSp--;
+				if(z && !b) mSp--;
 				continue;
      	 }    	
      	n13=0;

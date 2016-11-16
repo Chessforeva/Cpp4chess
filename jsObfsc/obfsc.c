@@ -90,7 +90,7 @@ void GenNwCode()
 		case '9': { *p='a'; break; }
 		default: { *p=(++c); break; }
 		}
-		if(*p=='a') *(--p)='a';
+		if(*p=='a') { if(*(--p)==' ') *p='a'; }
 		else break;
 	}
 }
