@@ -8,7 +8,7 @@ char *AboutTxt = "This is a free source win32 tool that reduces\n"
 	" non-readable for developer anymore.\n\n"
 	"Written for TinyC small C compiler,\n"
 	" much thanks to http://www.tinycc.org\n\n"
-	"Steps 1-3. minifier (removes redundances)\n"
+	"Steps 1-3. minifier (removes redundancies)\n"
 	"Steps 4-6. obfuscator (shortens names),\n\n"
 	"by Chessforeva, 2016\n"
 	"http://github.com/Chessforeva/Cpp4chess\n";
@@ -50,7 +50,8 @@ enum
 UINT BSize;											// buffer size
 CHAR *SrcPtr, *DstPtr, *Ptr, *KwlPtr;			// pointers to buffers
 char buf[1024];
-int i,pi;								// some loop variables
+int i,pi;						// some loop variables
+BOOL kwd2rd;
 
 //======== useful globals
 HINSTANCE hinst;    /* This hinstance */
@@ -313,7 +314,7 @@ void CreaTexts()
  hwM0 = addCheckBox("remove redundant spaces and tabs", 10,90,WINW3,30, TRUE);
  hwM1 = addCheckBox("reduce linebreaks", 10,120,WINW3,30, TRUE);
  hwM2 = addCheckBox("remove comments", 10,150,WINW3,30, TRUE);
- hwM3 = addCheckBox("some other", 10,180,WINW3,30, TRUE);
+ hwM3 = addCheckBox("remove (;)s", 10,180,WINW3,30, TRUE);
  BtMinfy  = addButton(ID_MINFY, "Minify", 10,220,100,30);
 
  //Step3
@@ -419,8 +420,10 @@ LPDWORD Fsz;
 OVERLAPPED ol = {0};
 
 CHAR* FileWld = "Javascript\0*.js\0Html\0*.htm*\0All\0*.*\0";
+CHAR* FileKwd = "Keyword\0*.kwd\0";
 
-CHAR Ext[9] = {0};			// extenstion
+
+CHAR Ext[9] = {0};			// extension
 
 void GetExtns()
 {
@@ -433,6 +436,7 @@ void GetExtns()
 
 void UserOpenFile()
 {
+UINT tab = TabCtrl_GetCurSel(hwTab);
 
 // Initialize OPENFILENAME
 ZeroMemory(&ofn, sizeof(ofn));
@@ -441,7 +445,7 @@ ofn.hwndOwner = hwnd;
 ofn.lpstrFile = szFile;
 ofn.lpstrFile[0] = '\0';
 ofn.nMaxFile = sizeof(szFile);
-ofn.lpstrFilter = FileWld;
+ofn.lpstrFilter = ( tab == 4 ? FileKwd : FileWld );
 ofn.nFilterIndex = 1;
 ofn.lpstrFileTitle = NULL;
 ofn.nMaxFileTitle = 0;
@@ -474,14 +478,18 @@ if (GetOpenFileName(&ofn)==TRUE)
 
     if( ReadFileEx(hf, SrcPtr, sz, &ol, NULL) )     // read file in buffer
         {
-        setText( hwSrcEdit, SrcPtr );   // Set text in Edit control
-		ClearListbox(hwKwGrid);
-		setText(hwMResEdit,"");		// clear previous
-		setText(hwOResEdit,"");
+	if(tab == 4) kwd2rd = TRUE;
+	else
+		{
+		setText( hwSrcEdit, SrcPtr );   // Set text in Edit control
+			ClearListbox(hwKwGrid);
+			setText(hwMResEdit,"");		// clear previous
+			setText(hwOResEdit,"");
+		}
         }
     }
     CloseHandle(hf);
-    free(SrcPtr);       // release memory block
+    if(tab != 4) free(SrcPtr);       // release memory block
   }
  }
 
@@ -492,19 +500,24 @@ int selSaveTab()
 {
  UINT rTab=2;
  UINT step = TabCtrl_GetCurSel(hwTab);
- if(step==2||step==5) rTab = step;
+ if(step==2||step==4||step==5) rTab = step;
  else
   if((WPARAM)SendMessage(hwOResEdit,WM_GETTEXTLENGTH,0,0)>0) rTab=5;
  return rTab;
 }
-	
+
 //======== File Save functions
 
 void UserSaveFile()
 {
-HWND H = (TabCtrl_GetCurSel(hwTab) == 5 ? hwOResEdit : hwMResEdit );
+HWND H;
 
-(LRESULT)BSize = (WPARAM)SendMessage(H,WM_GETTEXTLENGTH,0,0);
+UINT tab = TabCtrl_GetCurSel(hwTab);
+if(tab!=4)
+ {
+ H = ( tab == 5 ? hwOResEdit : hwMResEdit );
+ (LRESULT)BSize = (WPARAM)SendMessage(H,WM_GETTEXTLENGTH,0,0);
+ }
  
 if(BSize>0)
 {
@@ -516,7 +529,7 @@ ofn.hwndOwner = hwnd;
 ofn.lpstrFile = szFile;
 ofn.lpstrFile[0] = '\0';
 ofn.nMaxFile = sizeof(szFile);
-ofn.lpstrFilter = FileWld;
+ofn.lpstrFilter = ( tab == 4 ? FileKwd : FileWld );
 ofn.nFilterIndex = 1;
 ofn.lpstrFileTitle = TEXT("Save File As");
 ofn.nMaxFileTitle = 0;
@@ -527,7 +540,9 @@ ofn.Flags = OFN_HIDEREADONLY;
 
 if (GetSaveFileName(&ofn)==TRUE)
  {
- 	if(strlen(Ext)==0) strcat(Ext,".js");
+ 	if( tab == 4 ) strcpy(Ext, ".kwd");
+	else if(strlen(Ext)==0) strcat(Ext, ".js");
+
  	if( strstr(szFile,Ext)==NULL ) strcat(szFile,Ext);
 
  	
@@ -558,9 +573,13 @@ if (GetSaveFileName(&ofn)==TRUE)
   }
  else
   {
-  	SrcPtr = malloc(BSize+1);
-  	SendMessage(H,WM_GETTEXT,BSize+1,SrcPtr);
-  	BSize = strlen(SrcPtr);	// recount
+  	if(tab!=4)
+		{
+		SrcPtr = malloc(BSize+1);
+		SendMessage(H,WM_GETTEXT,BSize+1,SrcPtr);
+		BSize = strlen(SrcPtr);	// recount
+		}
+
     if( WriteFileEx(hf, SrcPtr,  BSize, &ol, NULL) ){};     // write buffer to file
     CloseHandle(hf);
     free(SrcPtr);       // release memory block
@@ -604,6 +623,11 @@ ClearDispNo();
 void ShowHideAll( UINT step )
 {
  UINT curTab = TabCtrl_GetCurSel(hwTab);
+ if(kwd2rd)
+  {
+  step = curTab;
+  kwd2rd = FALSE;
+  }
  if(curTab!=step) TabCtrl_SetCurSel(hwTab,step);
 
     // Step1
@@ -715,12 +739,11 @@ void GetListBoxItem( CHAR *indst )
  lvi.mask = 0;
  lvi.iSubItem = 0;
 }
-
+ 
 /* Obfuscates as in grid  table */
 void Call_Obfuscate()
 {
  CHAR kwrd[100],nwkw[100];
-
  (LRESULT)BSize = (WPARAM)SendMessage(hwMResEdit,WM_GETTEXTLENGTH,0,0);
  BSize++;
  SrcPtr = malloc(BSize*2);			// +some reserve
@@ -742,6 +765,64 @@ void Call_Obfuscate()
 	}
  setText(hwOResEdit,SrcPtr+1);
  free(SrcPtr);
+}
+
+// --------
+// User can save table of keywords
+//  (added 02.2017)
+// ------
+void toSaveKwrds()
+{
+ UINT tab = TabCtrl_GetCurSel(hwTab);
+ UINT n;
+ CHAR *p;
+ if( tab==4 )
+ {
+ SrcPtr = malloc(524288);			//  512Kb buffer
+ p = SrcPtr; *p = 0;
+ for(pi=-1;;)
+	{
+	if((pi = ListView_GetNextItem(hwKwGrid, pi, LVNI_ALL ))<0) break;
+	i=0;
+	for(n = 4; n>0; n-- )	// new keyword,keyword,cnt,descr.
+		{
+		GetListBoxItem(buf);
+		strcpy(p,buf); p+=strlen(buf);
+		*(p++)=13;
+		}
+	}
+ *(p++)=0;
+ BSize = strlen(SrcPtr);
+ }
+}
+
+// and read from file keywords prepared before
+void toReadKwrds()
+{
+ UINT tab = TabCtrl_GetCurSel(hwTab);
+ UINT n, L=0;
+ CHAR *p, *q, c;
+ if( tab==4 && kwd2rd )
+ {
+  ClearListbox(hwKwGrid);
+  p = SrcPtr;
+  while(*p!=0 && L<sz)
+	{
+	AddRow(hwKwGrid);
+	for(i=0;*p!=0 && i<4;i++)
+		{
+		q = buf;
+		for(c=1; c; q++,p++,L++)
+			{
+			c = *p;
+			if(c==13) c = 0; 
+			*q = c;
+			}	
+		SetColValue(hwKwGrid,i,buf);
+		}
+	}
+  free(SrcPtr);	
+ }
 }
 
 #define GetLbStr(x,v) { ListView_GetItemText(hwKwGrid, x, lParamSort, buf, 999 ); \
@@ -831,7 +912,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     hwnd = CreateWindowEx (
            0,                   /* Extended possibilites for variation */
            szClassName,         /* Classname */
-           "jsObfsc v1 - a simple javascript code minifier+obfuscator",       /* Title Text */
+           "jsObfsc v1.2 - a simple javascript code minifier+obfuscator",       /* Title Text */
            WS_OVERLAPPEDWINDOW, /* default window */
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
@@ -893,73 +974,75 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 			switch(LOWORD(wParam))
 			{
 				case ID_OPEN:
+					kwd2rd = FALSE;
 					UserOpenFile();
-                    ShowHideAll(0);
-                    break;
+					toReadKwrds();					
+ 					ShowHideAll( 0);
+					break;
 				case ID_SAVE:
 					ShowHideAll( selSaveTab() );
+					toSaveKwrds();
 					UserSaveFile();
-                    break;
+					break;
 				case ID_QUIT:
 					PostMessage(hwnd, WM_CLOSE, 0, 0);
-                    break;
+					break;
 				case ID_MINFY:
-                    ShowHideAll(2);
-                    Call_Minify();
-                    break;
+					ShowHideAll(2);
+					Call_Minify();
+					break;
 				case ID_PREOKW:
 					requireMinified();
-                    ShowHideAll(4);
-                    Call_PrepKeywords();
+					ShowHideAll(4);
+					Call_PrepKeywords();
 					break;
 				case ID_OBFSC:
 					requirePrepKW();
-                    ShowHideAll(5);
-                    Call_Obfuscate();
+					ShowHideAll(5);
+					Call_Obfuscate();
 					break;
 				case ID_ABOUT:
-                    MessageBox(hwnd, AboutTxt, "About", MB_OK);
-                    break;
+					MessageBox(hwnd, AboutTxt, "About", MB_OK);
+					break;
 			}
-            break;
+			break;
 
-    case WM_TIMER: 
+		case WM_TIMER: 
  
-        switch (wParam) 
-        { 
-        case IDT_TIMER1: 
-            // process 1/5 second timer 
-            DispLineNo();
-            break;
-        }
+			switch (wParam) 
+			{ 
+			case IDT_TIMER1: 
+			// process 1/5 second timer 
+			DispLineNo();
+			break;
+			}
             
  		case WM_NOTIFY:
  		
 			if( wParam == ID_KWDGRID) return GridNotify( wParam, lParam );
            
-            switch (HIWORD(wParam)) {
-            case 0:
-                // menu command processing
-            case TCN_SELCHANGE:
+			switch (HIWORD(wParam))
+			{
+			case 0:
+			// menu command processing
+			case TCN_SELCHANGE:
 				{
-                /* Display fields according to tab selected */
-                ShowHideAll( TabCtrl_GetCurSel(hwTab) );
-                }
-                break;
+			/* Display fields according to tab selected */
+			ShowHideAll( TabCtrl_GetCurSel(hwTab) );
+			}
+			break;
         		
-            }
-
+			}
 
 		case WM_SIZE:
 
-            AdjSize(hwTab,0,0);
-            AdjSize(hwSrcEdit,10,80);
-            AdjSize(hwMResEdit,10,80);
-            AdjSize(hwKwGrid,10,100);
-            AdjSize(hwOResEdit,10,80);
-            GetClientRect(hwnd, &hwrect);
-            break;
-
+			AdjSize(hwTab,0,0);
+			AdjSize(hwSrcEdit,10,80);
+			AdjSize(hwMResEdit,10,80);
+			AdjSize(hwKwGrid,10,100);
+			AdjSize(hwOResEdit,10,80);
+			GetClientRect(hwnd, &hwrect);
+			break;
 
 		case WM_CLOSE:
 			DestroyWindow(hwnd);

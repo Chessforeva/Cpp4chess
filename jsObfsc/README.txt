@@ -1,9 +1,10 @@
 
- jsObfsc v1
+ jsObfsc v1.2
  
 A simple win32 tool for javascript code:
- a) minifier - reduces spaces, tabs and linebrakes
- b) obfuscator - renames variables and functions, tool to do that.
+ a) minifier - reduces spaces, tabs and linebrakes, reduces ";"
+ b) obfuscator - renames variables and functions,
+ a helping tool to do this.
 
 
 Example:
@@ -43,3 +44,8 @@ Uses win32 dlls, no other GUI
 
 Compile.bat
 c:\tcc\tcc.exe jsObfsc.c -IINCLUDE -lcomdlg32 -lgdi32 -luser32 -lkernel32 -lcomctl32 -mwindows
+
+
+
+New:
+02.2017 - added keywords save/open feature for larger project

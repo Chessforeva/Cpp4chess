@@ -92,6 +92,18 @@ void CkJS()
  }
 }
 
+// avoid for(;;) case
+BOOL notFOR()
+{
+ CHAR *p = mTp-1,c;
+ while(1)
+ {
+  c = *((--p));
+  if(!c || c==';') return TRUE;
+  if(memcmp(p,"for",3)==0) return FALSE;
+ }
+}
+
 /* code minifier
 
  Params: strings dst,src are javascript texts
@@ -105,7 +117,7 @@ void CkJS()
   This is a very simple program, nothing smart.
   May cause javascript errors, so, should be debugged in browser's developer tools.
  */
-
+ 
 void Minfy( CHAR* dst, CHAR* src, BOOL R0932, BOOL R1310, BOOL Rcmnt, BOOL Rsmrt )
 {
  CHAR c,*u, q;
@@ -139,12 +151,10 @@ void Minfy( CHAR* dst, CHAR* src, BOOL R0932, BOOL R1310, BOOL Rcmnt, BOOL Rsmrt
     {
     if(Rsmrt)
 			{
-			q = *mPre;
-			if( q==';' )
-			 {
-			 	if( c==';' ) continue;
-			 	if( c=='}' && *(mTp-1)==q ) { *(mTp-1)=c; continue; }  
-			 }
+			q = *(mTp-1);
+			if( q==';' && c==';' && notFOR() ) continue;
+			if( q==';' && c=='}' ) { *(mTp-1)=c; continue; }
+			//if( q=='}' && c==';' ) continue;	
 			}
 
 			// remove comments
@@ -217,7 +227,7 @@ void Minfy( CHAR* dst, CHAR* src, BOOL R0932, BOOL R1310, BOOL Rcmnt, BOOL Rsmrt
         comesafter("continue");
       if(!b)
          {
-         	if((mSp==u) && comesafter("in"))
+         	if((mSp==u) && (comesafter("in") || comesafter("of")))
          	 {
          	 	*(mTp++)=c;
          	 	continue;

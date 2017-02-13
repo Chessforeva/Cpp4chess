@@ -90,9 +90,21 @@ void GenNwCode()
 		case '9': { *p='a'; break; }
 		default: { *p=(++c); break; }
 		}
-		if(*p=='a') { if(*(--p)==' ') *p='a'; }
+		if(*p=='a') { if(*(--p)==' ') { *p='a'; if(*(p-1)==' ') break; } }
 		else break;
 	}
+}
+// gen. and validate for known 2 byte keywords
+void GenValidNwCode()
+{
+ CHAR *p;
+ for(;;)
+  {
+  GenNwCode();
+  p = gencd;
+  while(*p==' ') p++;
+  if(strcmp(p,"in")!=0 && strcmp(p,"of")!=0 && strcmp(p,"if")!=0) break;
+  } 
 }
 
 // generates all new keywords
@@ -115,7 +127,7 @@ void genKwNwCodes()
 		strcpy(gcdp,gencd);				// save
 		for(u=GKp;;)				// loop till code is not in list
 			{
-			GenNwCode();
+			GenValidNwCode();
 			for(q=gencd,w=keyword,c=*q;;c=*(++q))		// copy to keyword without spaces
 				{
 				if(c!=' ') *(w++)=c;
