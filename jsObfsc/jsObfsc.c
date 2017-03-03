@@ -1,3 +1,12 @@
+
+// Tiny C support for LinkRes2Exe
+#ifdef __TINYC__
+  int dummy __attribute__ ((section(".rsrc")));
+#endif
+#define Icon_Resourced 30500
+// if compile without resource then set LoadIcon as it is in comments
+
+
 #include <windows.h>
 #include <memory.h>
 #include <string.h>
@@ -893,8 +902,11 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     wincl.cbSize = sizeof (WNDCLASSEX);
 
     /* Use default icon and mouse-pointer */
-    wincl.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wincl.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+    
+		// or without resource LoadIcon(NULL,IDI_APPLICATION)
+    wincl.hIcon = LoadIcon(hThisInstance, Icon_Resourced);
+    wincl.hIconSm = LoadIcon(hThisInstance, Icon_Resourced);
+    
     wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
     wincl.lpszMenuName = MAKEINTRESOURCE(IDR_MYMENU);                 /* menu */
     wincl.cbClsExtra = 0;                      /* No extra bytes after the window class */
@@ -906,7 +918,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     if (!RegisterClassEx (&wincl))
         return 0;
         
-		InitCommonControls();
+	InitCommonControls();
 		
     /* The class is registered, let's create the program*/
     hwnd = CreateWindowEx (

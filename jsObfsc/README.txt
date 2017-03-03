@@ -41,11 +41,29 @@ Uses win32 dlls, no other GUI
 
 3 files: jsObfsc.c, minfy.c, obfsc.c
 
+Also an icon and resource file, if need
 
-Compile.bat
+
+Compiling (Compile.bat)
+-----------------------
+1.Create jsObfsc.exe by
+
 c:\tcc\tcc.exe jsObfsc.c -IINCLUDE -lcomdlg32 -lgdi32 -luser32 -lkernel32 -lcomctl32 -mwindows
+
+
+(optional: icon build-in)
+2.Compile icon in resource to rsrc.RES file
+
+c:\\masm32\bin\rc rsrc.rc
+
+3.Add resource to exe, using tool
+LinkRes2Exe.exe rsrc.RES jsObfsc.exe
+
+
 
 
 
 New:
 02.2017 - added keywords save/open feature for larger project
+03.2017 - added icon resource by masm32 resource builder and LinkRes2Exe tool (Much thanks).
+
