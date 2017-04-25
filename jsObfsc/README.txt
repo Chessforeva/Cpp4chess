@@ -66,4 +66,4 @@ LinkRes2Exe.exe rsrc.RES jsObfsc.exe
 New:
 02.2017 - added keywords save/open feature for larger project
 03.2017 - added icon resource by masm32 resource builder and LinkRes2Exe tool (Much thanks).
-
+04.2017 - added rare "const" keyword case

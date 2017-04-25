@@ -216,6 +216,7 @@ void Minfy( CHAR* dst, CHAR* src, BOOL R0932, BOOL R1310, BOOL Rcmnt, BOOL Rsmrt
 			b =
         comesafter("function") ||
         comesafter("var") ||
+        comesafter("const") ||
         comesafter("typeof") ||
         comesafter("instanceof") ||
         comesafter("return") ||
