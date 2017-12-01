@@ -432,13 +432,17 @@ CHAR* FileWld = "Javascript\0*.js\0Html\0*.htm*\0All\0*.*\0";
 CHAR* FileKwd = "Keyword\0*.kwd\0";
 
 
-CHAR Ext[9] = {0};			// extension
+CHAR Ext[50];			// extension
 
 void GetExtns()
 {
-	CHAR *p=szFile,c;
-	for(c=*p; c!=0; c=*(++p))
-	 if(c=='.') memcpy(Ext,p,9);
+ CHAR *p=szFile,c,*q=Ext;
+ *q=0;
+ for(c=*p; c!=0; c=*(++p))
+  {
+  if(c=='.') memcpy(q,p,49);
+  if(c=='/' || c=='\\') *q=0;
+  }
 }
 
 //======== File Open functions
@@ -549,10 +553,11 @@ ofn.Flags = OFN_HIDEREADONLY;
 
 if (GetSaveFileName(&ofn)==TRUE)
  {
- 	if( tab == 4 ) strcpy(Ext, ".kwd");
-	else if(strlen(Ext)==0) strcat(Ext, ".js");
+  GetExtns();		// obtain extension
+  if( tab == 4 ) strcpy(Ext, ".kwd");
+  else if(strlen(Ext)==0) strcat(Ext, ".js");
 
- 	if( strstr(szFile,Ext)==NULL ) strcat(szFile,Ext);
+  if( strstr(szFile,Ext)==NULL ) strcat(szFile,Ext);
 
  	
   // verify existance
@@ -924,7 +929,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     hwnd = CreateWindowEx (
            0,                   /* Extended possibilites for variation */
            szClassName,         /* Classname */
-           "jsObfsc v1.2 - a simple javascript code minifier+obfuscator",       /* Title Text */
+           "jsObfsc v1.2a - a simple javascript code minifier+obfuscator",       /* Title Text */
            WS_OVERLAPPEDWINDOW, /* default window */
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
