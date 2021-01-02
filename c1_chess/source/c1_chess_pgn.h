@@ -29,7 +29,7 @@ static char *c1_pgn_p1s = "\\ ,.+=-/\0", *c1_pgn_ctwrd = " .,;)(}{][\0", *c1_pgn
 	*c1_elim_br = "<br>\0", *c1_elim_nspc = "&nbsp;\0",
 	*c1_elim_div0 = "<div\0", *c1_elim_div1 = "</div>\0"; 
 
-static char *c1_domain_c = "http://chessforeva.appspot.com/\0",
+static char *c1_domain_c = "https://chessforeva.gitlab.io/\0",
 	*c1_scrBegin = "<script type=\"text/javascript\" \0", *c1_scrEnd = "</script>",
 	*c1_htmcss0 = "<link rel=\"StyleSheet\" href=\"\0", *c1_htmcss1 = "c1_chess.css\" type=\"text/css\">\0";
 char c1_domain[1024];
