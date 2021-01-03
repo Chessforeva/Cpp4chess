@@ -1,8 +1,8 @@
-<!DOCTYPE HTML>
+<HTML>
 <HEAD>
 <title>Help on chess PGN to HTML tools</title>
-<link rel="shortcut icon" href="/f.txt" type="image/vnd.microsoft.icon"/>
-<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="chess js library version 2" content="http:/chessforeva.blogspot.com" />
 <link rel="StyleSheet" href="c1_chess.css" type="text/css">
 </HEAD>
@@ -13,10 +13,18 @@
 Creates a browsable web-page from a pgn-notation of chess games.<br>
 Samples:
 <ul>
-<a href="http://bezjega.blogspot.com/2014/10/bilbao-masters-2013-chess-tournament.html">Bilbao Masters 2013 tournament</a><br>
-annotated <a href="http://smecers.appspot.com/html/ImmortalChessGames">Immortal chess games</a><br>
-browsable large tournament <a href="http://smecers.appspot.com/Pardubice_2014/Pardubice_chess_2014.htm">Pardubice Czech 2014</a><br>
-game collection <a href="http://smecers.appspot.com/Garry_Kasparov_Chess_Games.htm">Garry Kasparov games</a><br>
+<a href="https://chessforeva.bitbucket.io/htms/ListOfChessOpenings.htm">List of chess openings</a><br>,
+annotated <a href="https://chessforeva.bitbucket.io/htms/ImmortalChessGames.html">Immortal 35 chess games</a>,
+also <a href="https://chessforeva.bitbucket.io/htms/AlekhineAnnotated78g.htm">78 games annotated by Alekhine </a>,
+<a href="https://chessforeva.bitbucket.io/htms/ChernevLogicalMove33g.htm">Chernev Logical Move</a>
+<br>
+
+browsable chess games collection of:<br> 
+<a href="https://chessforeva.bitbucket.io/htms/Garry_Kasparov_Chess_Games.htm">Garry Kasparov games</a><br>
+<a href="https://chessforeva.bitbucket.io/htms/Bobby_Fischer_Chess_Games.htm">Bobby Fischer games</a><br>
+<a href="https://chessforeva.bitbucket.io/htms/Jose_Raul_Capablanca_Chess_Games.htm">Jose Raul Capablanca games</a><br>
+<a href="https://chessforeva.bitbucket.io/htms/Mikhail_Tal_Chess_Games.htm">Mikhail Tal games</a><br>
+
 </ul>
 <br>
 <font color="white">Tools:</font><br>
@@ -54,11 +62,13 @@ usage: c1_chess <pgn file(s) to parse> [options]
    /S=2k - big event of 2000 games, sorted by rounds
             (default is unsorted, for fast processing on low memory usage)
    /2 - output positions and moves to txt-files (default is html)
+   /3 - long notation to txt-files (min.size)
    /T - use tabs in annotations (default is inline)
    /L=4 - set limit of htm-file to 4Mb (default is 2Mb)
    /C=300 - set board canvas size to 300px (default is 200px)
    /I=2k - more board canvases 2000 chars inbetween (default is 8000)
    /D - remove domain to use locally or on other server
+   /U - unicode chess symbols for pieces
    /M - multi-posting safe
 
 Sample to process all pgn-files of current folder:
@@ -95,7 +105,7 @@ Sample to process all pgn-files of current folder:
 </pre>
 
 Free source at: <a href="http://github.com/Chessforeva/Cpp4chess">link</a>
-Blog at: <a href="http://chessforeva.appspot.com/c1_chess.htm">link</a>
+Usage howto at: <a href="https://chessforeva.gitlab.io/c1_chess.htm">link</a>
 
 
 </font>

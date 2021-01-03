@@ -67,8 +67,8 @@ attach click listener, if necessary.
 
 /* some functions */
 
-var _c1_domain = 'http://chessforeva.appspot.com/';     // where the images,css and htm files are
-_c1_domain = ''; // locally
+var _c1_domain = 'https://chessforeva.gitlab.io/';     // where the images,css and htm files are
+/*_c1_domain = '';*/	// locally
 
 
 var CrLf_ = String.fromCharCode(13)+String.fromCharCode(10);

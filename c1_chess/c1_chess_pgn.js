@@ -465,7 +465,7 @@ _pgn = {
      var c1 = c.charCodeAt(0);
      var i=CrLf_.indexOf(c);
      if(c1==10 || c1==13) s2+=' ';
-     else if(c=='–') s2+= '-';
+     else if(c=='ï¿½') s2+= '-';
      else s2+=c;
      }
     
