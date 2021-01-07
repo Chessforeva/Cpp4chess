@@ -15,10 +15,11 @@
 #define _INC_C1_CHESS
 
 // Some data strings
-static char *c1_chess_sFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\0",
-	*c1_chess_S = " KQRBNPkqrbnp\0", *c1_chess_Sw = "KQRBNP\0", *c1_chess_Sb = "kqrbnp\0",
-	*c1_chess_m = "O0KQRBN\0", *c1_chess_cs = "KQkq\0",
-	*c1_chess_OO = "0-0\0", *c1_chess_OOO = "0-0-0\0";
+static char *c1_chess_sFEN = (char *)"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\0",
+	*c1_chess_S = (char *)" KQRBNPkqrbnp\0",
+	*c1_chess_Sw = (char *)"KQRBNP\0", *c1_chess_Sb = (char *)"kqrbnp\0",
+	*c1_chess_m = (char *)"O0KQRBN\0", *c1_chess_cs = (char *)"KQkq\0",
+	*c1_chess_OO = (char *)"0-0\0", *c1_chess_OOO = (char *)"0-0-0\0";
 
 class c1_chess {				// ------------------[start of c1_chess class]
 
@@ -800,13 +801,13 @@ void c1_samples() {
 	c1_chess B;
 	B.setFEN( c1_chess_sFEN );
 
-	//B.uciMoves( "e2e4 c7c5 g2g3 b7b6 g1f3 c8b7 f1g2 b8c6 e1g1 d7d6 g1h1 d8d7 a2a3 e8c8");
-	//B.uciMoves( "e2e4 a7a6 e4e5 f7f5 e5f6");
-	//B.uciMoves( "b2b3 a7a5 b3b4 a5b4 a2a3 b4a3 c1b2 a3b2 h2h3 b2a1n h3h4 a1b3");
-	//B.uciMoves( "g2g4 e7e5 f2f4 d8h4" );
+	//B.uciMoves( (char *)"e2e4 c7c5 g2g3 b7b6 g1f3 c8b7 f1g2 b8c6 e1g1 d7d6 g1h1 d8d7 a2a3 e8c8");
+	//B.uciMoves( (char *)"e2e4 a7a6 e4e5 f7f5 e5f6");
+	//B.uciMoves( "(char *)b2b3 a7a5 b3b4 a5b4 a2a3 b4a3 c1b2 a3b2 h2h3 b2a1n h3h4 a1b3");
+	//B.uciMoves( "(char *)g2g4 e7e5 f2f4 d8h4" );
 
-	//B.uciMoves( "e2e4 c7c5 g2g3 b7b6 g1f3 c8b7 f1g2 b8c6");
-	B.uciMoves( "e2e4" );
+	//B.uciMoves( (char *)"e2e4 c7c5 g2g3 b7b6 g1f3 c8b7 f1g2 b8c6");
+	B.uciMoves( (char *)"e2e4" );
 
 	B.hist2uci( movesuci );
 	printf("Moves made in UCI standard:\n%s\n", movesuci );
@@ -816,7 +817,7 @@ void c1_samples() {
 	if(B.isCheckMate()) printf("Checkmate!\n");
 	if(B.isStaleMate()) printf("Stalemate!\n");
 	//B.unmkmove();
-	//B.uciMoves( "h7h6");
+	//B.uciMoves( (char *)"h7h6");
 
 	B.moveGen();
 
@@ -829,7 +830,7 @@ void c1_samples() {
 	B.sPrintGenMoves( possible );
 	printf("Moves possible now:\n%s\n", possible );
 
-	int k = B.movestr2I("O-O");
+	int k = B.movestr2I((char *)"O-O");
 	printf( "Move 0-0 element is %d\n", k );
 	getchar();
 };
