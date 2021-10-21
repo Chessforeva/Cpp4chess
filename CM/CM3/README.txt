@@ -1,8 +1,11 @@
 
-  CM version for TinyC, 2021.
-  Not a faster one, just other.
-  It can find M3 checkmates, but too slow for M4.
-    
+  CM - the fast version, for the gcc compiler.
+
+  This does fast math - magic bitboard move generator
+   from the BuzzChess, developed by Pradu Kannan (thanks).
+  
+  It can find M5 checkmate positions.
+  Chessforeva, 2021  
 
 -----------------------------
 
