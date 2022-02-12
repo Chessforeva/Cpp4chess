@@ -1,0 +1,423 @@
+<html>
+<head>
+<title>Chess int64 movegen tables</title>
+<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="site" content="chessforeva.blogspot.com" />
+</head>
+<!--
+	This generates tables of legal chess moves for bishops and rooks.
+	Intended for analysis and as ready data for building magic numbers generators,
+		or other tricky ways to avoid slow loops throughout the chess table.
+	Some people just have database-tables-relations vision. Can index on something.
+-->
+<body onload="Loaded()">
+
+<script src="uint64.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+function GE(id) { return document.getElementById(id); }
+
+var Board = {};		// int64 number = 1/0 for 64 squares
+
+var square = 0;		// A1
+
+var b_r = 1;		// 1-bishops case, 0-rooks case
+	
+function Gen_direction(dv,dh) {
+	var V=(square>>3),H=(square&7);
+	V+=dv; H+=dh;
+	while( (V>=0 && V<8) && (H>=0 && H<8) ) {
+		var sq = (V<<3)|H;
+		i64_bitset(Board, sq);
+		V+=dv; H+=dh;
+		}
+	}
+		// for known square
+function Gen_Bishop_Rays() {
+	Board = i64();
+	Gen_direction(-1,-1);
+	Gen_direction(+1,-1);
+	Gen_direction(-1,+1);
+	Gen_direction(+1,+1);
+	}
+
+		// for known square
+function Gen_Rook_Rays() {
+	Board = i64();
+	Gen_direction(-1,0);
+	Gen_direction(+1,0);
+	Gen_direction(0,+1);
+	Gen_direction(0,-1);
+	}
+
+
+var BI = [];		// Bishop masks for all 64 squares
+var RO = [];		// Rook masks for all 64 squares
+
+var stats = [[],[]];		// length of occupancies permutatins table for all 64 squares
+
+function prepare() {
+	for(square=0; square<64; square++) {
+		
+		b_r = 1;
+		Gen_Bishop_Rays();
+		BI[square] = { value: i64c(Board), permutate: null };
+		
+		b_r = 0;
+		Gen_Rook_Rays();
+		RO[square] = { value: i64c(Board), permutate: null };
+	}
+}
+
+_CR = String.fromCharCode(13);
+
+function display_rays() {
+
+	ckB2G7 = GE("b2g7_ck").checked;
+		
+	var s='';
+	var vs = (b_r?'bishop':'rook');
+	s+='// 64 masks as uint64 numbers' + _CR;
+	if(ckB2G7) {
+		s+='// &=0x007E7E7E7E7E7E00 done for b2g7 squares' + _CR;
+		}
+	s+='// chess ' + vs + ' moves for squares'+_CR;
+	for(square=0; square<64; square++) {
+		var vl = (b_r ? BI[square].value : RO[square].value);
+		if( ckB2G7 ) {
+			var Sq = i64();
+			i64_bitset( Sq, square );		// mask for b2g7 inner squares only
+			if(!i64_is0(i64_and(Sq,B2G7))) vl = i64_and( vl, B2G7 );
+			}
+		s+=i64_toString(vl)  + ', ';
+		}
+	s+=_CR+_CR;
+	GE("output1").value += s;
+}
+
+function display_Rays() {
+	var s='';
+	s+='// 64 squares as bit#: a1=0,...,h1=7,'+_CR;
+	s+='//  a2=8,...,a8=56,...,h8=63'+_CR+_CR;
+	GE("output1").value = s;
+	b_r = 1;
+	display_rays();	// display ray masks for bishops
+	b_r = 0;
+	display_rays();	// display .... rooks
+} 
+
+var Bo2 = {};		// board to generate legal moves
+
+function Legals_direction(dv,dh) {
+	var V=(square>>3),H=(square&7);
+	V+=dv; H+=dh;
+	while( (V>=0 && V<8) && (H>=0 && H<8) ) {
+		var sq = (V<<3)|H;
+		i64_bitset(Bo2,sq);
+		if( i64_bitat(Board,sq) ) {
+			return;		// stop this direction
+		}
+		V+=dv; H+=dh;
+		}
+	}
+
+		// for known square, Board as occupancies
+function Legals_Bishop() {
+	Legals_direction(-1,-1);
+	Legals_direction(+1,-1);
+	Legals_direction(-1,+1);
+	Legals_direction(+1,+1);
+	}
+
+		// for known square, Board as occupancies
+function Legals_Rook() {
+	Legals_direction(-1,0);
+	Legals_direction(+1,0);
+	Legals_direction(0,+1);
+	Legals_direction(0,-1);
+	}
+
+// finds board that contains only legal moves for given square and
+// occupancies as Board
+
+function find_LegalMoves() {
+		
+		Bo2 = i64();
+		
+		if(b_r) Legals_Bishop();
+		else  Legals_Rook();
+}
+
+
+// Does all the permutations for the current square and Board
+function Permutate() {
+	
+	ckB2G7 = GE("b2g7_ck").checked;
+	
+	var bits = [];					// This will contain square numbers
+	var n,sq;
+	for(n=0,sq=0;sq<64;sq++) {
+		if(i64_bitat(Board,sq)) bits[n++]=sq;
+		}
+	
+	var LEN = (1<<n);			// length of permutations table
+	var TABLE = [];
+	var t=0;
+	
+	for(var i=0;i<LEN;i++) {	// go through all the cases
+		for(var j=0;j<n;j++)	// scan as bits
+		{
+			sq = bits[j];
+					// set 0/1 bit on Board
+			if( i & (1<<j) ) i64_bitset(Board,sq);
+			else i64_bitclear(Board,sq);			
+		}
+		
+		var V = square>>3, H = square & 7;
+		var q,okFlag,G;
+		
+		okFlag = 1;
+		if(ckB2G7 && (V>0 && V<7 && H>0 && H<7)) {
+			Board = i64_and(Board,B2G7);
+			for(q=0; okFlag && q<t; q++) {
+				G = TABLE[q];
+				if( i64_eq( G.value, Board ) ) {
+					okFlag = 0;		// if already in list
+					}
+				}
+		}
+		
+		if(okFlag) {
+		
+			find_LegalMoves();		// prepare legal moves in Bo2
+		
+			okFlag = 1;
+		
+			if(Unique) {
+				for(q=0; okFlag && q<t; q++) {
+					G = TABLE[q];
+					if( i64_eq( G.legalmoves, Bo2 ) ) {
+						G.stats++;
+						okFlag = 0;		// if already in list
+						}
+					}
+			}
+		
+			if(okFlag) {
+				TABLE[t++] = { value: i64c(Board), legalmoves: i64c(Bo2), stats:1 }
+			}
+		}
+	}
+
+	return TABLE;
+} 
+
+var dispS = [];
+var Unique = 0;
+var ckB2G7 = 0;
+var B2G7 = {};
+
+function display_legals() {
+		var vs=(b_r ? 'bishop' : 'rook');
+		var s='// Square ' + square + ' ' + vs + _CR;
+		dispS.push(s);
+		var O = ( b_r ? BI[square] : RO[square] ).permutate;
+		var LEN = O.length;
+		for(var i=0; i<O.length; i++) {
+			var Q = O[i];
+			s=''+square+','+ b_r + ',';
+			s+=i64_toString( Q.value ) + ',' + i64_toString( Q.legalmoves ) + ',';
+			if(Unique) s+=Q.stats+',';
+			s+=_CR;
+			dispS.push(s);
+		}
+		s='// total cnt=' + LEN +_CR+_CR;
+		stats[b_r][square]=LEN;
+		dispS.push(s);
+}
+
+function bits2shift(V) {
+	var n=-1;
+	while(V) { V>>=1; n++; }
+	return n;
+}
+		
+	// display stats of lengths for bishops or rooks 
+function display_stats() {
+
+	var s='Stats for 64 squares:' + _CR;
+	var vs = (b_r ? 'bishops' :'rooks');
+	s+='Tables length for ' + vs + _CR;
+	if(Unique) s+='(unique results rows only)'+_CR;
+	else s+='(1<<N table)' + _CR
+	var tot = 0;
+	for(square=0; square<64; square++) {
+		
+		var len = stats[b_r][square];
+		
+		if(square%8==0) s+= _CR;
+		s+= ( Unique ? len : bits2shift(len) ) + ',';
+
+		tot+=len;
+	}
+	s+=_CR+_CR+'Total: '+tot+' ';
+			
+	s+= ( Unique ? '' : '(1<<' + bits2shift(tot)+ ') ' ) + _CR+_CR;
+	GE("output3").value+=s;
+}
+
+var CalcOk = 0xFF;		// calculate later
+
+// let's split tasks, calculate permutations
+function Calculate() {
+
+	for(square=0; !CalcOk && square<64; square++) {
+		
+		for( b_r = 1; b_r >= 0; b_r-- ) {
+			
+			var O = ( b_r ? BI[square] : RO[square] );
+			
+			if( O.permutate == null ) {
+				
+				GE("output2").innerHTML = 'Calculating square #' + square + ' to 63, so wait...';
+				
+				Board = i64c( O.value );
+				
+				O.permutate = Permutate();
+				display_legals();
+				
+				if(square==63 && b_r==0) {		// the last
+					setTimeout('DoDownload()',50);
+					GE("output2").innerHTML = 'preparing file...';
+					CalcOk = 1;
+					}
+				return;
+			};
+		}
+	}
+}
+
+function SetToCalulate() {
+
+	Unique = (GE("unique_ck").checked ? 1 : 0);
+	ckB2G7 = GE("b2g7_ck").checked;
+
+	CalcOk = 0;
+	
+	var s='CHESS BITBOARDS for move generators'+_CR;
+	s+='// Occupancy is the search-key'+_CR;
+	s+='// Mask as uint64 number of chess legal moves, for all 64 squares'+_CR;
+	if(ckB2G7) {
+		s+='// &=0x007E7E7E7E7E7E00 done for b2g7 squares' + _CR;
+		s+='// omit A1-H1,A8-H8,A1-A8,H1-H8, finds the same'+ _CR;
+		}
+	s+='// (square, 1-bishop/0-rook, ';
+	if(Unique) s+=' min.occupancy, unique moveToMask, cnt.stats';
+	else s+=' occupancy, moveToMask';
+	s+=')'+_CR;
+	s+='//-----------------------------'+_CR;
+	dispS.push(s);
+
+	setInterval('Calculate()',20);
+	GE("buttons1").style.visibility="hidden";
+}
+
+function Loaded() {
+
+	GE("unique_ck").checked=0;
+	GE("b2g7_ck").checked=0;
+	B2G7 = i64s("0x007E7E7E7E7E7E00");
+	
+	prepare();
+	display_Rays();
+	
+	var s='';
+	s+='// Squares as bit#: a1=0,...,h1=7,'+_CR;
+	s+='//  a2=8,...,a8=56,...,h8=63'+_CR+_CR;
+	dispS.push(s);
+}
+
+
+function DoDownload() {
+
+	b_r = 1;
+	display_stats();
+	b_r = 0;
+	display_stats();
+	
+	var s = dispS.join('');
+	download(s, "legalmoves" + (Unique ? "_unique" : "") + ".txt");
+	var kb=(1<<10),mb=(1<<20), l=s.length;
+	var ls=(l>mb ? ((l/mb)|0) +' M' : ((l/kb)|0) +' K')+'bytes';
+	GE("output2").innerHTML = 'Ready - (' + ls + ')';
+	};
+	
+function download(t, name) {
+
+    var d= GE("download_zone"); d.style.visibility = "visible";
+	var a= GE("download_file"), file = new Blob([t], {type: "text/plain"});
+    a.href = URL.createObjectURL(file);
+    a.download = name;
+    //a.click();
+}
+
+
+
+</script>
+
+<div id="output_div">
+<table>
+<tr>
+<td valign="top">
+<TEXTAREA id="output1" COLS=60 ROWS=32></TEXTAREA>
+</td>
+<td width="10"></td>
+<td valign="top">
+Table of legal moves for occupancies<br>
+int64 numbers for bishops and rooks<br>
+<br>
+<div id="buttons0">
+<input type="checkbox" id="b2g7_ck" size="3" onclick="display_Rays()">B2G7 mask to shorten table<br>
+...keys give same results, but must<br>
+...<font size="2">occ&=0x007E7E7E7E7E7E00 for squares inner B2G7</font>
+<br>
+occupancy - the b2-g7 blockers only<br>
+...as a key to lookup<br>
+<br>
+</div>
+<div id="buttons1">
+
+<input type="checkbox" id="unique_ck" size="3">Unique results to see cases statistics<br>
+...min(occ1,occ2,...,occ3) as unusable key<br>
+...to list possible legal move cases only<br>
+
+<br><br>
+<input type="button" value = "Calculate" onclick="SetToCalulate()">
+
+</div>
+
+<div id="output2"></div><br>
+
+<div id="download_zone" style="color:blue;display:inline;visibility:hidden">
+<a id="download_file" style="color:#0bbb;">
+Save file
+</a>
+</div>
+
+See Magics in action:<a href="sample_js.htm" target="blank">Javascript</a>
+
+<br>
+</td>
+<td>
+<TEXTAREA id="output3" COLS=40 ROWS=32></TEXTAREA>
+</td>
+</tr>
+
+</table>
+
+</div>
+
+</body>
+</html>
