@@ -8,7 +8,7 @@
 
 	Finds uint64 constants for bishops and rooks,
 	to calculate legal chess moves,
-	depeending on occupancy of pieces on board.
+	according to the occupancy of pieces on board.
 
 	Prepares C-code ready constants too.
 
