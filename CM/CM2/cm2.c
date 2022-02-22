@@ -518,13 +518,17 @@ void CM_calculate()
 
             if(q==3 || q==13)   // avoid same bishops
             {
-             t=(Chess.w ? 0 : 1);
+             t=(q==3 ? 0 : 1);
              if(V[q]==2) Bi[t] = (px+pv)&1;
-             else if(V[q]==1) if(Bi[t]==((px+pv)&1))
-             {
-                 p++; if(p==64) p=1;
-                 px = p&7; pv = p>>3;
-             }
+             else {
+				if(V[q]==1) {
+				  while(Bi[t]==((px+pv)&1))
+					{
+					p++; if(p==64) p=1;
+					px = p&7; pv = p>>3;
+					}
+				}
+			 }
             }
 
           if((q!=1 && q!=11 ) || (pv!=0 && pv!=7 && pv!=(q==1?6:1)))

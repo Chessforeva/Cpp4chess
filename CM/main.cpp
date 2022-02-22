@@ -254,11 +254,18 @@ void MM( int st )
 int _AbsDiff(int x,int y) { return (x>y ? x-y : y-x); }
 
 static unsigned int r_x = 30903, r_y = 30903, r_z = 30903, r_w = 30903, r_carry = 0;
-	unsigned int rand32() {   unsigned int t;
-	   r_x = r_x * 69069 + RANDOMIZER;   r_y ^= r_y << 13;
-	   r_y ^= r_y >> 17;   r_y ^= r_y << 5;   t = (r_w << 1) + r_z + r_carry;
-	   r_carry = ((r_z >> 2) + (r_w >> 3) + (r_carry >> 2)) >> 30;
-	   r_z = r_w;   r_w = t;   return r_x + r_y + r_w;
+unsigned int rand32()
+{
+   unsigned int t;
+   r_x = r_x * 69069 + RANDOMIZER;
+   r_y ^= r_y << 13;
+   r_y ^= r_y >> 17;
+   r_y ^= r_y << 5;
+   t = (r_w << 1) + r_z + r_carry;
+   r_carry = ((r_z >> 2) + (r_w >> 3) + (r_carry >> 2)) >> 30;
+   r_z = r_w;
+   r_w = t;
+   return r_x + r_y + r_w;
 }
 
 void _dispbo( int p )
@@ -422,7 +429,7 @@ void CM_calculate()
     {
     for(f=0;!f;)
     {
-        B.setFEN( (char *)"/////// w - - 1 0" );
+        B.setFEN( "/////// w - - 1 0" );
         B.sm = ( rand32()&1 ? 1 : -1);
 
         prepMas();
@@ -475,12 +482,16 @@ void CM_calculate()
 
             if(q==4 || q==10)   // avoid same bishops
             {
-             t=(B.sm>0 ? 0 : 1);
+             t=(q==4 ? 0 : 1);
              if(V[q]==2) Bi[t] = (px+pv)&1;
-             else if(V[q]==1) if(Bi[t]==((px+pv)&1))
-             {
-                 p++; if(p==64) p=1;
-                 px = p&7; pv = p>>3;
+             else {
+                if(V[q]==1) {
+                     while(Bi[t]==((px+pv)&1))
+                        {
+                        p++; if(p==64) p=1;
+                        px = p&7; pv = p>>3;
+                        }
+                    }
              }
             }
 
@@ -564,7 +575,7 @@ void CM_calculate()
 
                 _dispFen();
                 _dispH();
-                _dispbo(0);
+                //_dispbo(0);
                 r=0;
                 }
                 c++;
@@ -583,42 +594,42 @@ void CM_calculate()
 
 FILE *cfg;
 char buff[1000];
-static char *fnCONFIG = (char *)"CM_generator.ini";
+static char *fnCONFIG = "CM_generator.ini";
 static char *cfgtxt[] = {
- (char *)";",
- (char *)"; Configuration file for simple chess checkmate generator.",
- (char *)"; Absolute freeware by Chessforeva, 2016",
- (char *)";",
- (char *)"; Fast for M1(fast),M2(so,so),M3(slow),M4...",
- (char *)"; Each case has only one first move solution!",
- (char *)"; The algorithm reduces amount of needed pieces for each case.",
- (char *)"; Results will be written in PGN file in long notation format,",
- (char *)";  because for other software it's nice to have all data :)",
- (char *)";",
- (char *)";",
- (char *)"; Parameters:",
- (char *)"",
- (char *)"",
- (char *)"; Moves to mate M1=1, M2=2, M3=3, ...",
- (char *)"CDEPTH=1",
- (char *)"",
- (char *)"; Positions till stop, otherwise ctrl-break",
- (char *)"PGN_COUNT=10",
- (char *)"",
- (char *)"; Randomizer (any value) to get other results",
- (char *)"RANDOMIZER=1",
- (char *)"",
- (char *)"; Maximum pieces on board (- faster)",
- (char *)"PcMAX=8",
- (char *)"",
- (char *)"; Pieces n-times more to mate the king (+ faster)",
- (char *)"TIMES_MORE_PIECES=4",
- (char *)"",
- (char *)"; Maximum variants for each case in file",
- (char *)";  (not all, some other if possible)",
- (char *)"HcMAX=6",
- (char *)"",
- (char *)""
+ ";",
+ "; Configuration file for simple chess checkmate generator.",
+ "; Absolute freeware by Chessforeva, 2016",
+ ";",
+ "; Fast for M1(fast),M2(so,so),M3(slow),M4...",
+ "; Each case has only one first move solution!",
+ "; The algorithm reduces amount of needed pieces for each case.",
+ "; Results will be written in PGN file in long notation format,",
+ ";  because for other software it's nice to have all data :)",
+ ";",
+ ";",
+ "; Parameters:",
+ "",
+ "",
+ "; Moves to mate M1=1, M2=2, M3=3, ...",
+ "CDEPTH=1",
+ "",
+ "; Positions till stop, otherwise ctrl-break",
+ "PGN_COUNT=10",
+ "",
+ "; Randomizer (any value) to get other results",
+ "RANDOMIZER=1",
+ "",
+ "; Maximum pieces on board (- faster)",
+ "PcMAX=8",
+ "",
+ "; Pieces n-times more to mate the king (+ faster)",
+ "TIMES_MORE_PIECES=4",
+ "",
+ "; Maximum variants for each case in file",
+ ";  (not all, some other if possible)",
+ "HcMAX=6",
+ "",
+ ""
  };
 
 
@@ -649,12 +660,12 @@ void ReadConfig()
                 {
                  val=B.toUInt(&buff[a+1]);  // to integer
 
-                 if(startswith_slow(buff,(char *)"CDEPTH")) CDEPTH=val;
-                 if(startswith_slow(buff,(char *)"PGN_COUNT")) PGN_COUNT=val;
-                 if(startswith_slow(buff,(char *)"RANDOMIZER")) RANDOMIZER=val;
-                 if(startswith_slow(buff,(char *)"PcMAX")) PcMAX=val;
-                 if(startswith_slow(buff,(char *)"TIMES_MORE_PIECES")) TIMES_MORE_PIECES=val;
-                 if(startswith_slow(buff,(char *)"HcMAX")) HcMAX=val;
+                 if(startswith_slow(buff,"CDEPTH")) CDEPTH=val;
+                 if(startswith_slow(buff,"PGN_COUNT")) PGN_COUNT=val;
+                 if(startswith_slow(buff,"RANDOMIZER")) RANDOMIZER=val;
+                 if(startswith_slow(buff,"PcMAX")) PcMAX=val;
+                 if(startswith_slow(buff,"TIMES_MORE_PIECES")) TIMES_MORE_PIECES=val;
+                 if(startswith_slow(buff,"HcMAX")) HcMAX=val;
                 }
             }
         fclose(cfg);

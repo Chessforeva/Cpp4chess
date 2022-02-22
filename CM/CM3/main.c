@@ -542,13 +542,17 @@ void CM_calculate()
 
             if(q==4 || q==10)   // avoid same bishops
             {
-             t=(sm>0 ? 0 : 1);
+             t=(q==4 ? 0 : 1);
              if(V[q]==2) Bi[t] = (px+pv)&1;
-             else if(V[q]==1) if(Bi[t]==((px+pv)&1))
-             {
-                 p++; if(p==64) p=1;
-                 px = p&7; pv = p>>3;
-             }
+             else
+                if(V[q]==1) {
+                 while(Bi[t]==((px+pv)&1))
+                    {
+                    p++; if(p==64) p=1;
+                    px = p&7; pv = p>>3;
+                    }
+                }
+
             }
 
           if((q!=6 && q!=12 ) || (pv!=0 && pv!=7 && pv!=(q==6?6:1)))
