@@ -18,7 +18,7 @@
     Fast calculation for current check+,checkmate cases right in MoveGen.
 
     ----------------
-    for copy+paste on MS Studio C++, or GCC projects
+    for copy+paste on MS Studio C++, or GCC, or Clang projects
     take a look at_samples Sample1(),Sample2()
     no large memory allocation, but can be used easily
     no libraries to include at all
@@ -27,7 +27,7 @@
     *Note:
         Make sure the same variables are not declared elsewhere.
 
-Compiler: gcc, MS Visual Studio C++
+Compilers ok: gcc, clang, MS Visual Studio C++
 ---------------------------------------------
 */
 
@@ -290,20 +290,20 @@ U8 legalck = 0; // Calculate: 0-allmoves-rays, 1-legalmoves
 
 void gdir(int dv, int dh, U8 loop) {
 
-	int V=(SqI>>3),H=(SqI&7);
-	V+=dv; H+=dh;
-	while( (V>=0 && V<8) && (H>=0 && H<8) ) {
-		U8 sq = (V<<3)|H;
-		U64 B = (1LL<<sq);
-		if(legalck) {
+        int V=(SqI>>3),H=(SqI&7);
+        V+=dv; H+=dh;
+        while( (V>=0 && V<8) && (H>=0 && H<8) ) {
+                U8 sq = (V<<3)|H;
+                U64 B = (1LL<<sq);
+                if(legalck) {
             Bo2 |= B;
             if( Bo1 & B ) return;
-		}
-		else { Bo1|=B; }
+                }
+                else { Bo1|=B; }
         if(!loop) return;
-		V+=dv; H+=dh;
-		}
-	}
+                V+=dv; H+=dh;
+                }
+        }
 
 void gen2dir() {
 
@@ -361,32 +361,32 @@ void Permutate(U8 pawncase) {
     U16 idx_16;
     U8 idx_8;
 
-	U8 bits[64];
-	U8 n=0,sq=0;
-	for(;sq<64;sq++) {
-		if( Bo1 & (1LL<<sq) ) bits[n++]=sq;
-		}
+        U8 bits[64];
+        U8 n=0,sq=0;
+        for(;sq<64;sq++) {
+                if( Bo1 & (1LL<<sq) ) bits[n++]=sq;
+                }
 
-	U16 LEN = (1<<n);
-	for(U16 i=0;i<LEN;i++) {
+        U16 LEN = (1<<n);
+        for(U16 i=0;i<LEN;i++) {
 
         Bo1 = 0LL;
-        for(U8 j=0;j<n;j++)	// scan as bits
-		{
+        for(U8 j=0;j<n;j++)     // scan as bits
+                {
             if(i&(1<<j)) Bo1|=(1LL<<bits[j]);
-		}
+                }
 
-		Bo2 = 0LL;      // find legal moves for square, put in Bo2
+                Bo2 = 0LL;      // find legal moves for square, put in Bo2
 
-		if(pawncase)
+                if(pawncase)
             {
             mult = Bo1 * (b_w ? PawnMagicsBlack[SqI] : PawnMagicsWhite[SqI]);
             idx_8 = (U8)(mult >> 60);
             gen_pawnmoves();
             if(b_w) PawnBlackLegalsTable[SqI][idx_8] = Bo2;
             else PawnWhiteLegalsTable[SqI][idx_8] = Bo2;
-		}
-		else
+                }
+                else
             {
             mult = Bo1 * (b_r ? BishopMagics[SqI] : RookMagics[SqI]);
             idx_16 = (U16)(mult >> 48);
@@ -394,7 +394,7 @@ void Permutate(U8 pawncase) {
             if(b_r) BishopLegalsTable[SqI][idx_16] = Bo2;
             else RookLegalsTable[SqI][idx_16] = Bo2;
         }
-	}
+        }
 }
 
 void prepare_tables() {
@@ -1151,48 +1151,48 @@ void SetByFEN( char *pos ) {
 
     int i, j, y=7, x=0;
     U8 sq;
-	char c;
+        char c;
 
     WK=WQ=WR=WB=WN=WP=0LL;
     BK=BQ=BR=BB=BN=BP=0LL;
 
-	for(i=0;;i++)
-	{
-	c = pos[i];
-	if(c==' ') break;
-	if(c==0) return;
-	if(c!='/')
-		{
-		if(c>'0'&&c<'9') x+=(c-'1');
-		else if((c>'a'&&c<'z')||(c>'A'&&c<'Z')) {
-		    sq = ((y<<3)+x);
+        for(i=0;;i++)
+        {
+        c = pos[i];
+        if(c==' ') break;
+        if(c==0) return;
+        if(c!='/')
+                {
+                if(c>'0'&&c<'9') x+=(c-'1');
+                else if((c>'a'&&c<'z')||(c>'A'&&c<'Z')) {
+                    sq = ((y<<3)+x);
             for(j=0;j<14;j++) {
                 if(j==6) j=8;
                 if(pieces[j]==c) { *(PIECES[j])|=(1LL<<sq); }
                 }
             }
-		if(x>6) { x=0; y--; } else x++;
-		}
-	}
-	c = pos[++i];
-	ToMove = (c=='w'? 0: 1);
-	CASTLES = 0LL;
-	for(i+=2;;i++)
-	{
-	c = pos[i];
-	if(c==' ') break;
-	if(c==0) return;
-	if(c=='K') CASTLES|=castle_E1H1;
-	if(c=='Q') CASTLES|=castle_E1C1;
-	if(c=='k') CASTLES|=castle_E8H8;
-	if(c=='q') CASTLES|=castle_E8C8;
-	}
-	c = pos[++i];
-	ENPSQ = 0LL;
-	if((c!=0) && (c!='-')) {
+                if(x>6) { x=0; y--; } else x++;
+                }
+        }
+        c = pos[++i];
+        ToMove = (c=='w'? 0: 1);
+        CASTLES = 0LL;
+        for(i+=2;;i++)
+        {
+        c = pos[i];
+        if(c==' ') break;
+        if(c==0) return;
+        if(c=='K') CASTLES|=castle_E1H1;
+        if(c=='Q') CASTLES|=castle_E1C1;
+        if(c=='k') CASTLES|=castle_E8H8;
+        if(c=='q') CASTLES|=castle_E8C8;
+        }
+        c = pos[++i];
+        ENPSQ = 0LL;
+        if((c!=0) && (c!='-')) {
         sq = (((pos[i+1]-'1')<<3) | ((pos[i]-'a')&7));
         ENPSQ = (1LL<<sq);
-	}
+        }
 
     undo_p = undobuffer;
     mg_po = mg_cnt = mg_uci_list;
@@ -1204,16 +1204,16 @@ void SetByFEN( char *pos ) {
 */
 
 void sGetFEN( char *buffer ) {
-	int i=0, a, j, y, x;
-	char c, *s=buffer;
-	U8 sq;
+        int i=0, a, j, y, x;
+        char c, *s=buffer;
+        U8 sq;
     for(y=7; y>=0; y-- )
-		{
-		a=0;
-		for(x=0; x<8; x++ )
+                {
+                a=0;
+                for(x=0; x<8; x++ )
             {
-		    sq = ((y<<3)+x);
-		    c=0;
+                    sq = ((y<<3)+x);
+                    c=0;
             for(j=0;j<14;j++) {
                 if(j==6) j=8;
                 if( *(PIECES[j]) & (1LL<<sq) ) {
@@ -1222,34 +1222,34 @@ void sGetFEN( char *buffer ) {
                 }
             if(c==0) a++;
             else { if(a>0) s[i++]=('0'+a); a=0; s[i++]=c; }
-		}
-		if(a>0) s[i++]=('0'+a);
-		if(y>0) s[i++]='/';
-		}
+                }
+                if(a>0) s[i++]=('0'+a);
+                if(y>0) s[i++]='/';
+                }
     s[i++]=' ';
-	s[i++]=(ToMove?'b':'w');
-	s[i++]=' ';
+        s[i++]=(ToMove?'b':'w');
+        s[i++]=' ';
     if(!CASTLES) s[i++]='-';
     else
-		{
+                {
         if((CASTLES&castle_E1H1)==castle_E1H1) s[i++]='K';
         if((CASTLES&castle_E1C1)==castle_E1C1) s[i++]='Q';
         if((CASTLES&castle_E8H8)==castle_E8H8) s[i++]='k';
         if((CASTLES&castle_E8C8)==castle_E8C8) s[i++]='q';
-		}
+                }
     s[i++]=' ';
-	if(!ENPSQ) s[i++]='-';
-	else
-		{
-		sq = trail0(ENPSQ);
-		s[i++] = ('a'+(sq&7));
-		s[i++] = ('1'+(sq>>3));
-		}
-	s[i++]=' ';
-	s[i++]='0';
-	s[i++]=' ';
-	s[i++]='1';
-	s[i]=0;
+        if(!ENPSQ) s[i++]='-';
+        else
+                {
+                sq = trail0(ENPSQ);
+                s[i++] = ('a'+(sq&7));
+                s[i++] = ('1'+(sq>>3));
+                }
+        s[i++]=' ';
+        s[i++]='0';
+        s[i++]=' ';
+        s[i++]='1';
+        s[i]=0;
 }
 
 
