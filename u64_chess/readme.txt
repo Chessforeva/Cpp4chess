@@ -12,5 +12,7 @@ Added 03.2022:
 	stockfish position startpos moves e2e4 e7e5 ....
 Usage: pgn2uci <pgn-file> <output-uci-moves-textfile>
 
+Also there is c1_chess tool too, but not so fast.
+
 
 

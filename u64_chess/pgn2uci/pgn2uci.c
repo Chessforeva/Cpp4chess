@@ -181,7 +181,7 @@ void parse_pgn_string() {
             h = buf_header;
             m = buf_moves;
             u = buf_ucis;
-            *h = 0; *m = 0;
+            *h = 0; *m = 0; *u = 0;
             }
         St = 1;
         while(*s!=0) {
