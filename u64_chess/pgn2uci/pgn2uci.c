@@ -28,8 +28,6 @@ int GM;
 
 void parse_pgn_moves() {
 
-    char mbuf[1024];
-
     char *s=buf_moves;
     int q=0;
     int mn=1;
@@ -150,8 +148,7 @@ void parse_pgn_moves() {
                     *(u++) = ' ';
                     *u=0;
                     MoveGen(mv);
-                    sLegalMoves(mbuf,mv);
-                    if(ToMove==0) mn++;
+                    if(!ToMove) mn++;
                     break;
                     }
             po += 4;
