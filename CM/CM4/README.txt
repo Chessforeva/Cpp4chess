@@ -19,3 +19,5 @@
 
 
   Blog: http://chessforeva.blogspot.com/2016/01/gen-mates.html
+
+*18.06.22 added CM4_64bit.exe built in Visual Studio 2022 C++

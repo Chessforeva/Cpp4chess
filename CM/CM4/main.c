@@ -1,3 +1,11 @@
+//
+// for MS Studio projects should disable
+//   _CRT_SECURE_NO_WARNINGS
+// warning C4146: unary minus operator applied to
+//    unsigned type, result still unsigned
+// caused by: -unsigned & something...
+//
+//#pragma warning(disable:4146);
 
 #include <stdio.h>
 #include <stdlib.h>
