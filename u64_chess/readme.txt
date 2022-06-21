@@ -14,5 +14,7 @@ Usage: pgn2uci <pgn-file> <output-uci-moves-textfile>
 
 Also there is c1_chess tool too, but not so fast.
 
-
+Added 06.2022:
+  WebAssembly usage sample
+  https://chessforeva.codeberg.page/wasm/u64wasmSample.htm
 

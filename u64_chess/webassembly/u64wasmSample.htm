@@ -1,0 +1,99 @@
+<html>
+<head>
+<title>Webassembly u64chess sample that works</title>
+</head>
+<body onload='StartIt()'>
+This comes from WebAssembly:<br>
+<div id="output"></div>
+
+<script>
+/*
+https://github.com/Chessforeva/Cpp4chess     u64_chess
+*/
+
+// It is drawing in canvas sample, not a helloworld of printf to console
+
+function GE(id) { return document.getElementById(id) }
+function Output(str) { GE("output").innerHTML = str; }
+
+// to escape old browser errors
+function is_Wasm_supported() {
+    try {
+        if (typeof WebAssembly === "object"
+            && typeof WebAssembly.instantiate === "function") {
+            const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+            if (module instanceof WebAssembly.Module)
+                return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+        }
+    } catch (e) {
+    }
+    return false;
+}
+
+// WebAssembly objects, will be accessible
+var memSize = 0;
+var _memory = {};
+var _instance = {};
+var _wasm_ready = 0;
+var _done = 0;
+
+function LoadWasm() {
+
+
+	memSize = 256;
+	_memory = new WebAssembly.Memory({
+      initial: memSize,
+      maximum: memSize,
+	  shared:true
+    });
+
+(async () => {
+  const response = await fetch('u64wasmSample.wasm');
+  const bytes = await response.arrayBuffer();
+  const { instance } = await WebAssembly.instantiate(bytes, {
+    env: { memory: _memory }
+  });
+
+  _instance = instance;
+  _instance.exports._init();		// init chess in .wasm file
+  _wasm_ready = 1;
+
+})();
+
+}
+
+// Whenever ready, call a sample func. and show current moves for fool's checkmate
+function DoJob() {
+	if(_wasm_ready && !_done) {
+		_instance.exports._makeSomeMoves();		// sample in .wasm file		
+		Output( getStr() );				// read returned string from webassembly memory
+		_done = 1;						// That's it...
+	}
+}
+	
+// on loading
+function StartIt() {
+	if(is_Wasm_supported() && GE('output')!=null) {		// when good to load wasm
+		LoadWasm();
+		setInterval('DoJob()',100);
+		}
+	else {
+		Output("Sorry, Webassembly is not supported.");
+		}
+}
+
+// makes string by looping returned chars "ab...\0"
+function getStr() {
+	var s="",i=0;
+	for(;;) {
+		var c=_instance.exports._get(i++);
+		if(!c) break;
+		s+=String.fromCharCode(c);
+	}
+	return s;
+}
+
+</script>
+
+</body>
+</html>
