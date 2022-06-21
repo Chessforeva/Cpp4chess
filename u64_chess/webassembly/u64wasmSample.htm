@@ -39,12 +39,10 @@ var _done = 0;
 
 function LoadWasm() {
 
-
-	memSize = 256;
-	_memory = new WebAssembly.Memory({
+memSize = 256;
+_memory = new WebAssembly.Memory({
       initial: memSize,
-      maximum: memSize,
-	  shared:true
+      maximum: memSize
     });
 
 (async () => {
