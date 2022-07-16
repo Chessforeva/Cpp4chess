@@ -16,8 +16,8 @@ So, provide exact fullpath, or be sure there is no other file or folder with tha
 Also uppercases & lowercases are different filenames.
 
 Directory outputs can be copied to a single file:
-cmd> copy *.txt > output_all.txt
-This is better, avoid glitches in links.
+cmd> copy *.txt output_all.txt
+Or list multiple files, then it will try to read format (date,size,dots and commas) for each of them.
 
 That is all.
 

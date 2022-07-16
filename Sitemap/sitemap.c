@@ -30,7 +30,7 @@ int d_date, d_time, d_size, d_name;
 /* width in a row */
 int w_date, w_time, w_size;
 /* position of  ":" in file time */
-int p_time;
+int p_time, p_date;
 
 char *SzStr = " KMGTP   ";	// bytes, Kbytes, Mbytes, ...
 
@@ -331,7 +331,7 @@ void new_folder( char *name ) {
 */
 int read_dirfile( char *filename ) {
 
-	char *w, *ps, *fs, *p2, *g2, *g, *P;
+	char *w,*d, *ps, *fs, *p2, *g2, *g, *P;
 	int i, j;
 
 	if( (f = fopen(filename,"r"))==NULL ) return 0;
@@ -343,7 +343,7 @@ int read_dirfile( char *filename ) {
 	fclose(f);
 	*p = 0;
 	
-	d_date = d_time = d_size = d_name = p_time = -1;
+	d_date = d_time = d_size = d_name = p_time = p_date = -1;
 	w_date = w_time = w_size = 0;
 	
 	p = dir;
@@ -352,6 +352,7 @@ int read_dirfile( char *filename ) {
 		while(*g!=0) {
 			/* is it date? */
 			if(d_date==-1 && (*g=='.' || *g=='/' || *g=='-')) {
+				p_date = i;
 				v = g+3;
 				if(*v==*g) {
 					while(i>0 && *g!=32 && *g!=8 && *g!=13 && *g!=10) {
@@ -510,8 +511,8 @@ fprintf(fo, "</div>\n", c, w);
 				D = 0;
 				}
 			}
-		w = g+p_time;
-		if(*w==':')	{
+		w = g+p_time; d = g+p_date;
+		if(*w==':' && (*d=='.' || *d=='/' || *d=='-') )	{
 			/* this is a file or folder */
 			w = g+d_size;
 			F = ( *w=='<' ? 1 : 0);
