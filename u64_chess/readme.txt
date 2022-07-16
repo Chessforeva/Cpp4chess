@@ -18,3 +18,6 @@ Added 06.2022:
   WebAssembly usage sample
   https://chessforeva.codeberg.page/wasm/u64wasmSample.htm
 
+Added 06.2022
+  Webassembly ChessPuzzles tool (pz.c, pz.wasm)
+  http://chessforeva.blogspot.com/2022/07/chess-puzzles-tool.html
