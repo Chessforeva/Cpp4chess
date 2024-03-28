@@ -7,6 +7,10 @@ u64_chess is a base for next C projects.
 Chessforeva, feb.2022
 
 ----------------
+Added 03.2024
+
+ Bugfix version for pawns - other magics.
+
 Added 03.2022:
   pgn2uci tool prepares uci moves for chess engines
 	stockfish position startpos moves e2e4 e7e5 ....

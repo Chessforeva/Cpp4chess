@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
         printf("Aimed to analyse chess games and help searching positions.\n");
         printf("Note: pgn should be properly notated, fast chess movegen.\n");
         printf("\nUsage: pgn2uci <pgn-file> <output-file>\n\n");
-        printf("Chessforeva, mar.2022, v.1.0, opensource, gcc-compiled for Win32\n");
+        printf("Chessforeva, mar.2022,bugfix v.03.2024, opensource, gcc-compiled for Win32\n");
         printf("Also, c1_chess project is much sophisticated pgn parser.\n");
         printf("\n\nPress a key...\n");
         getch();
