@@ -23,6 +23,7 @@ Compiler: gcc
 #define U8 unsigned char
 
 #define MegaByte (1LL<<20)
+#define Mark0 0xFFFFFFFFFFFFFFFF
 
 // if user assigned
 int usr_b_r;
@@ -205,7 +206,12 @@ void find_Magics_pawns() {
 
             U64 *q=&result[index];
 
-            if( !(*q) ) *q = Bo2;
+            // There are blocked pawn cases when no legal move possible. Not as for bishops/rooks.
+            if( !(*q) ) *q = (Bo2 ==0 ? Mark0 : Bo2);
+
+            else if( *q == Mark0 && Bo2 == 0 ) {
+		// it is ok already
+		}
             else if( *q != Bo2 ) {
                 good=0;
                 break;
@@ -262,6 +268,8 @@ void welcome() {
     printf("  rN  - randomize number N\n");
     printf("  bN  - bits count N=4,...\n");
     printf("\n\nThere is no big reason in pawn magics, but it works anyway.\n");
+    printf("The bugfix version 03.2024.\n");
+
 }
 
 int main(int argc, char *argv[])

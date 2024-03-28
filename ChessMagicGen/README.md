@@ -21,7 +21,7 @@ Sample3.c	- various bit-shifts
 
 
 Other:
-pawnmagicgen.exe	- some magics for pawns too
+pawnmagicgen.exe	- some magics for pawns too (bugfix v.03.2024)
 pawnMagicGen.c		- with source
 pawnSample1.c		- and how to use it
 
