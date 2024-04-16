@@ -1,0 +1,221 @@
+//
+// Flutter file:
+//   main.dart
+//
+//
+//
+import 'dart:ffi'; // For FFI
+
+final DynamicLibrary ExeHandler = DynamicLibrary.open("ExeHandler64.dll");
+
+final Pointer<Uint8> Function(int) char_1kb_buffer =
+    ExeHandler.lookup<NativeFunction<Pointer<Uint8> Function(Int32)>>(
+            "char_1kb_buffer")
+        .asFunction();
+
+final int Function(
+    Pointer<Uint8>, Pointer<Uint8>) add_process = ExeHandler.lookup<
+            NativeFunction<Uint32 Function(Pointer<Uint8>, Pointer<Uint8>)>>(
+        "add_process")
+    .asFunction();
+
+final int Function(int) kill_process =
+    ExeHandler.lookup<NativeFunction<Uint32 Function(Uint32)>>("kill_process")
+        .asFunction();
+
+final int Function() release_all =
+    ExeHandler.lookup<NativeFunction<Uint32 Function()>>("release_all")
+        .asFunction();
+
+final int Function(int, Pointer<Uint8>) put_stdin =
+    ExeHandler.lookup<NativeFunction<Uint32 Function(Uint32, Pointer<Uint8>)>>(
+            "put_stdin")
+        .asFunction();
+
+final int Function(int, Pointer<Uint8>) get_stdout =
+    ExeHandler.lookup<NativeFunction<Uint32 Function(Uint32, Pointer<Uint8>)>>(
+            "get_stdout")
+        .asFunction();
+
+final int Function(int) get_status =
+    ExeHandler.lookup<NativeFunction<Uint32 Function(Uint32)>>("get_status")
+        .asFunction();
+
+
+StoreString(Pointer<Uint8> Arr, String S) { // String to Pointer
+  int i = 0;
+  for (; i < S.length; i++) {
+    Arr[i] = S.codeUnitAt(i);
+  }
+  Arr[i] = 0;
+}
+
+String ReadString(Pointer<Uint8> Arr) { // Pointer to String
+  String s = "";
+  for (int i = 0;; i++) {
+    int c = Arr[i];
+    if (c == 0) break;
+    s += String.fromCharCode(c);
+  }
+  return s;
+}
+
+// loop ~3 seconds
+Pause() {
+  for (int T = 0; T < 3; T++) {
+    DateTime now = DateTime.now();
+    while (now.second == DateTime.now().second) {}
+  }
+}
+
+void main() {
+  Pointer<Uint8> Prog = char_1kb_buffer(0);
+  Pointer<Uint8> Args = char_1kb_buffer(1);
+  StoreString(Prog, "crafty-22.0-win32.exe");		// use Crafty as a chess engine
+  StoreString(Args, "");
+  int Id = add_process(Prog, Args);			// start Crafty
+  print(Id);
+
+  Pause();
+
+  Pointer<Uint8> Stdin = char_1kb_buffer(2);
+  Pointer<Uint8> Stdout = char_1kb_buffer(3);
+
+  StoreString(Stdin,
+      "go" + String.fromCharCode(10) + "display" + String.fromCharCode(10));
+
+  int wrote1 = put_stdin(Id, Stdin);			// Go and search
+  print(wrote1);
+
+  Pause();
+
+  for (int T = 0; T < 500; T++) {
+    int read1 = get_stdout(Id, Stdout);
+    if (read1 > 0) print(ReadString(Stdout));		// display results
+  }
+
+  print(get_status(Id));
+
+  kill_process(Id);
+
+  Pause();
+
+  print(get_status(Id));				// show status of process
+
+  release_all();
+
+  runApp(MyApp());					// flutter thing, write own prog...
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: DoMyAppView....(),		// Just a sample here...
+    );
+  }
+}
+
+
+//------------------------------------------------------------------------------------------
+//
+//	Terminal console window:
+//
+
+
+Launching lib\main.dart on Windows in debug mode...
+Built build\windows\x64\runner\Debug\flutichess2.exe.
+Connecting to VM Service at ws://127.0.0.1:51744/1uxhwZRVQfE=/ws
+flutter: 6348
+flutter: 11
+flutter:
+
+Initializing multiple threads.
+
+System is SMP, not NUMA.
+
+unable to open book file [./book.bin].
+
+book is disabled
+
+unable to open book file [./books.bin].
+
+Crafty v22.0 PS (1 cpus)
+
+White(1):               time surplus   0.00  time limit 30.00 (+0.00) (3:30)
+
+              depth   time  score   variation (1)
+
+               10     0.28   0.12   1. d4 Nf6 2. Nc3 d5 3. Nf3 e6 4. Bg5
+
+                                    Nbd7 5. e3 Bd6
+
+               10     0.28   2/20*  1. Nf3     (737Knps)
+               10     0.31   3/20*  1. e4      (767Knps)
+               10     0.48   0.19   1. e4 d5 2. e5 Nc6 3. d4 Bf5 4. Nc3
+
+                                    e6 5. Nf3
+
+               10     0.48   4/20*  1. e3      (766Knps)
+               10     0.48   5/20*  1. d3      (771Knps)
+               10     0.48   6/20*  1. Nc3     (774Knps)
+               10     0.48   7/20*  1. g4      (775Knps)
+               10     0.48   8/20*  1. b3      (775Knps)
+               10     0.48   9/20*  1. g3      (776Knps)
+               10     0.48  10/20*  1. c4      (777Knps)
+               10     0.48  11/20*  1. Nh3     (777Knps)
+               10     0.48  12/20*  1. f4      (777Knps)
+               10     0.48  13/20*  1. h4      (778Knps)
+               10     0.48  14/20*  1. Na3     (778Knps)
+               10     0.48  15/20*  1. a4      (778Knps)
+               10     0.48  16/20*  1. f3      (778Knps)
+               10     0.48  17/20*  1. a3      (778Knps)
+               10     0.48  18/20*  1. h3      (779Knps)
+               10     0.48  19/20*  1. b4      (779Knps)
+               10     0.48  20/20*  1. c3      (779Knps)
+               10->   0.48   0.19   1. e4 d5 2. e5 Nc6 3. d4 Bf5 4. Nc3
+
+                                    e6 5. Nf3
+
+               11     0.48   1/20*  1. e4      (779Knps)
+               11     1.08   0.31   1. e4 Nc6 2. Nf3 e5 3. Nc3 Nf6 4. d4
+
+                                    Bb4 5. Bg5 h6 6. Bh4 exd4 7. Nxd4 Bxc3+
+
+                                    8. bxc3
+
+               11     1.08   2/20*  1. d4      (791Knps)
+               11     1.11   3/20*  1. Nf3     (796Knps)
+               11     1.13   4/20*  1. e3      (791Knps)
+               11     1.13   5/20*  1. d3      (793Knps)
+               11     1.14   6/20*  1. Nc3     (789Knps)
+               11     1.14   7/20*  1. g3      (792Knps)
+               11     1.14   8/20*  1. b4      (792Knps)
+               11     1.14   9/20*  1. Nh3     (792Knps)
+               11     1.14  10/20*  1. b3      (796Knps)
+               11     1.14  11/20*  1. f4      (796Knps)
+               11     1.14  12/20*  1. c4      (798Knps)
+               11     1.14  13/20*  1. Na3     (798Knps)
+               11     1.14  14/20*  1. c3      (798Knps)
+               11     1.16  15/20*  1. g4      (784Knps)
+               11     1.16  16/20*  1. a3      (785Knps)
+               11     1.16  17/20*  1. h3      (785Knps)
+               11     1.16  18/20*  1. f3      (785Knps)
+               11     1.16  19/20*  1. h4      (785Knps)
+               11     1.16  20/20*  1. a4      (785Knps)
+               11->   1.16   0.31   1. e4 Nc6 2. Nf3 e5 3. Nc3 Nf6 4. d4
+
+                                    Bb4 5. Bg5 h6 6. Bh4 exd4 7. Nxd4 Bxc3+
+
+                                    8. bxc3
+
+               12     1.16   1/20*  1. e4      (785Knps)
+               12     2.23   0.31   1. e4 e5 2. Nf3 Nf6 3. Nc3 Nc6 4. d4
+
+                                    Bb4 5. d5 <HT>
+
+               12     2.23   2/20*  1. d4      (819Knps)
+               12     2.27   3/20*  1. Nf3     (817Knps)
+
+flutter: 3
+flutter: 0
