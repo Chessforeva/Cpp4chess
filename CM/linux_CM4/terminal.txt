@@ -1,7 +1,7 @@
-$ gcc -Wall main.c -o ccc
+$ gcc -Wall main.c -o app
 $ ls
-ccc main.c u64_chess.h
-$ ccc
+app main.c u64_chess.h
+$ ./app
 A fast chess checkmate generator
 
 Searching...
