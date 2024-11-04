@@ -1,0 +1,10 @@
+# upload pgn2uci to Google Colab .ipynb new notebook
+
+# read a .pgn file from internet
+! wget 'https://theweekinchess.com/assets/files/pgn/chusa24.pgn'
+
+# grant permission
+! chmod 755 ./pgn2uci
+
+# parse pgn file to get uci in a.txt
+! ./pgn2uci chusa24.pgn aaa.txt
