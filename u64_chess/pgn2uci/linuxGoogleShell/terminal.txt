@@ -1,0 +1,19 @@
+$ gcc -Wall pgn2uci.c -o pgn2uci
+
+$ ls
+pgn2uci pgn2uci.c u64_chess.h sample.pgn
+
+$ ./pgn2uci
+A middleware tool prepares uci moves lists from pgn files.
+The resulting file contains stockfish ready chess moves in uci format
+  stockfish position startpos moves e2e4 e7e5 ....
+Aimed to analyse chess games and help searching positions.
+Note: pgn should be properly notated, fast chess movegen.
+
+Usage: pgn2uci <pgn-file> <output-file>
+
+Chessforeva, nov.2024, gcc-compiled for linux, Google Shell or Colab
+
+$ ./pgn2uci sample.pgn result-ucis.txt
+39
+Ok

@@ -1,65 +1,6 @@
-$ gcc -Wall main.c -o app
+$ gcc -Wall main.c -o cm4
+
 $ ls
-app main.c u64_chess.h
-$ ./app
-A fast chess checkmate generator
+cm4 CM_generator.ini main.c u64_chess.h
 
-Searching...
-1
-
-[FEN "7K/8/8/6r1/2k5/5n2/8/8 b - - 0 1"]
-
-1...Kc4-d5 2.Kh8-h7 Kd5-e6 3.Kh7-h6 Ke6-f7 4.Kh6-h7 Rg5-h5#
-
-{
-.......K
-........
-........
-......r.
-..k.....
-.....n..
-........
-........
-b 
-
-}
-2
-
-[FEN "6K1/8/8/2Q4P/8/8/7k/8 w - - 0 1"]
-
-1.Qc5-g5 Kh2-h1 2.h5-h6 Kh1-h2 3.h6-h7 Kh2-h1 4.h7-h8=Q#
-
-{
-......K.
-........
-........
-..Q....P
-........
-........
-.......k
-........
-w 
-
-}
-3
-
-[FEN "4n3/8/K7/6q1/8/8/4P3/3k4 b - - 0 1"]
-
-1...Qg5-c5 2.Ka6-b7
- (2.Ka6-b7 Ne8-d6+ 3.Kb7-a8 Qc5-d5+ 4.Ka8-a7 Qd5-b7#)
- (2.Ka6-b7 Ne8-d6+ 3.Kb7-b8 Qc5-c6 4.e2-e4 Qc6-b7#)
-2...Ne8-d6+ 3.Kb7-a6 Qc5-b5+ 4.Ka6-a7 Qb5-b7#
-
-{
-....n...
-........
-K.......
-......q.
-........
-........
-....P...
-...k....
-b 
-
-}
-Finished
+$ ./cm4
