@@ -8,6 +8,12 @@
 
 Compiler: gcc
 
+
+
+for MSVC
+#pragma warning(disable:4996);
+
+
 */
 
 #include <string.h>
@@ -59,6 +65,14 @@ void parse_pgn_moves() {
         while(*s==' ') s++;
         if(*s==0) break;
 
+        // skip number
+        c = *s;
+        if (c >= '1' && c <= '9') {
+            while (*s != 0 && *s != '.' && *s != ' ') s++;
+        }
+        while (*s == '.' || *s == ' ') s++;
+        if (*s == 0) break;
+
         fcastle = 0;
         if((strncmp(s,"0-0-0",5)==0)||(strncmp(s,"O-O-O",5)==0)) {
             fcastle = 2;
@@ -74,7 +88,7 @@ void parse_pgn_moves() {
         if(!fcastle) {
             Pc = 0; w = 0; Pp = 0;
             h1 = 0; v1 = 0; h2 = 0; v2 = 0;
-            while(*s!=' ') {
+            while(*s!=' ' && *s!=0) {
                 c = *s;
                 if(c=='.') w=0;
                 if(Pc==0) {
@@ -194,6 +208,7 @@ void parse_pgn_string() {
         if(St==2) {
             *(m++)=' ';
             while(*s!=0) {
+                if(*s=='.') *(m++) = ' ';
                 *(m++) = *(s++);
                 }
             *(m++)=' ';
