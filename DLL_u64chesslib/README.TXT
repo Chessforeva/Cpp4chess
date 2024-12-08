@@ -1,10 +1,10 @@
 -----------------------
 -
--   u64chessslib.dll
+-   u64chesslib.dll
 -
 -----------------------
 
-This project is a kinda gratitude to Windows - my beloved OS that I'm using for many years.
+This project is a kinda thanks to Windows - my beloved OS that I'm using for many years.
 DLL that does the main chess functionality in a fast C way.
 Very basic shortened version. The first usage Windows Python, see example :)
 
