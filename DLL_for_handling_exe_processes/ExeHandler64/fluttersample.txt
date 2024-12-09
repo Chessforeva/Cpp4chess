@@ -56,6 +56,12 @@ final int Function(
         "getfrom_memory_i_n")
     .asFunction();
 
+final int Function(
+    int,int) add_process_i = ExeHandler.lookup<
+            NativeFunction<Uint32 Function(Uint32,Uint32)>>(
+        "add_process_i")
+    .asFunction();
+
 final int Function(int, int) put_stdin_i =
     ExeHandler.lookup<NativeFunction<Uint32 Function(Uint32, Uint32)>>(
             "put_stdin_i")

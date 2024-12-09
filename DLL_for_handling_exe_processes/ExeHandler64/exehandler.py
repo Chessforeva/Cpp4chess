@@ -44,6 +44,9 @@ eh_dll.assign_memory_i_n.restype = ctypes.c_int
 eh_dll.getfrom_memory_i_n.argtypes = [ ctypes.c_int, ctypes.c_int ]
 eh_dll.getfrom_memory_i_n.restype = ctypes.c_int
 
+eh_dll.add_process_i.argtypes = [ ctypes.c_int, ctypes.c_int ]
+eh_dll.add_process_i.restype = ctypes.c_int
+
 eh_dll.put_stdin_i.argtypes = [ ctypes.c_int,  ctypes.c_int ]
 eh_dll.put_stdin_i.restype = ctypes.c_int
 

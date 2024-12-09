@@ -47,6 +47,11 @@ Functions:
  Stdin/stdout streams are prepared for redirected input/output.
  There can be 20 processes simultaneously.
 
+     1.1  add_process_i < chunk_prog (int), chunk_args (int) >
+
+     The same as add_process, just takes program file name and arguments from 100K_buffer memory.
+
+
 2.  get_status <id (int)>
 
     returns status (int) of process
@@ -66,10 +71,7 @@ Functions:
 
  3.1    put_stdin_i <id (int)>, <chunk (int)>
 
-        returns bytes(int) that were sent to redirected stdin stream/ -1 if error
-
-      Sends directly to the stream from 100K_buffer memory[chunk] without buffering.
-      When memory contains string already.
+        The same as put_stdin, just reads char* from 100K_buffer memory[chunk].
 
 
 4.  get_stdout <id (int)>, <buffer (char*)>
@@ -81,10 +83,7 @@ Functions:
 
   4.1   get_stdout_i <id (int)>, <chunk (int)>
 
-    returns bytes(int) in buffer of redirected stdout stream / -1 if no data anymore
-
-  Reads data from stream that are buffered by the system.
-  Copies to the 100K_buffer memory[chunk]. Space of buffer should be enaugh!
+        The same as get_stdout, just writes char* to 100K_buffer memory[chunk].
 
 
 5.  kill_process <id (int)>

@@ -395,6 +395,24 @@ extern "C" int __declspec(dllexport) add_process(const LPCSTR sName, const LPCST
     return ID[i];
 };
 
+extern "C" int __declspec(dllexport) add_process_i(int Iat1, int Iat2)
+{
+    for (i = 0;i < tb_cnt;i++) if (ID[i] == -1) break;
+    if (i == tb_cnt)
+    {
+        if (tb_cnt == TB_size) return -1;
+        tb_cnt++;
+    }
+    ID[i] = -1;
+    uint8_t* c1 = &CharBuffers[Iat1 * 102400];
+    uint8_t* c2 = &CharBuffers[Iat2 * 102400];
+
+    exeName = (LPCSTR)c1;
+    exeArgs = (LPCSTR)c2;
+    start_process();
+    return ID[i];
+};
+
 extern "C" int __declspec(dllexport) kill_process(int id)
 {
     int n = 0;
