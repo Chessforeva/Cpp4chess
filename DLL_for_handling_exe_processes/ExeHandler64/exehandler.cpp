@@ -14,7 +14,7 @@
 wchar_t wtxt1[1024];
 wchar_t wtxt2[1024];
 
-uint8_t CharBuffers[10 * 102400];
+uint8_t CharBuffers[200 * 102400];
 
 
 const int TB_size = 20;		// max.processes

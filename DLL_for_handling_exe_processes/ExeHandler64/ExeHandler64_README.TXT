@@ -15,7 +15,7 @@ Functions:
 
 0.  char_100kb_buffer <chunk (int)>
 
-    chunk = [0-9];
+    chunk = [0-200];
 
     returns (char *) pointer to char[102400] chunk of dll-memory, for convenience or possibility to work with strings.
                Otherwise should manage allocation of buffers somewhere and how to access them. See flutter sample.
