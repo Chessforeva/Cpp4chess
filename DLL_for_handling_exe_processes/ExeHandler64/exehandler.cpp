@@ -14,7 +14,7 @@
 wchar_t wtxt1[1024];
 wchar_t wtxt2[1024];
 
-uint8_t CharBuffers[10240];
+uint8_t CharBuffers[10 * 102400];
 
 
 const int TB_size = 20;		// max.processes
@@ -37,10 +37,11 @@ size_t outSize, size;
 
 
 // returns pointer to the string buffer
-extern "C" __declspec(dllexport) uint8_t *  char_1kb_buffer(int i)
+extern "C" __declspec(dllexport) uint8_t *  char_100kb_buffer(int i)
 {
-    return &CharBuffers[i << 10];
+    return &CharBuffers[i * 102400];
 }
+
 
 void printf2(LPCWSTR s)
 {
@@ -417,8 +418,8 @@ extern "C" int __declspec(dllexport) release_all()
     return n;
 };
 
-extern "C" int __declspec(dllexport) put_stdin(int id, char* b)
-{
+
+int put_stdin_route(int id, char* b) {
     int l = -1;
     for (i = 0;i < tb_cnt;i++)
         if ((ID[i] == id) && IsRunning() && (IN_Wr[i] != NULL))
@@ -431,9 +432,20 @@ extern "C" int __declspec(dllexport) put_stdin(int id, char* b)
             break;
         }
     return l;
-};
+}
 
-extern "C" int __declspec(dllexport) get_stdout(int id, char* b)
+extern "C" int __declspec(dllexport) put_stdin_i(int id, int Iat)
+{
+    uint8_t*b = &CharBuffers[Iat*102400];
+    return put_stdin_route(id, (char*)b);
+}
+
+extern "C" int __declspec(dllexport) put_stdin(int id, char* b)
+{
+    return put_stdin_route(id, b);
+}
+
+int get_stdout_route(int id, char* b)
 {
     int l = -1;
     for (i = 0;i < tb_cnt;i++)
@@ -457,6 +469,18 @@ extern "C" int __declspec(dllexport) get_stdout(int id, char* b)
         }
     return l;
 };
+
+
+extern "C" int __declspec(dllexport) get_stdout_i(int id, int Iat)
+{
+    uint8_t* b = &CharBuffers[Iat * 102400];
+    return get_stdout_route(id, (char*)b);
+}
+
+extern "C" int __declspec(dllexport) get_stdout(int id, char* b)
+{
+    return get_stdout_route(id, b);
+}
 
 extern "C" int __declspec(dllexport) get_status(int id)
 {

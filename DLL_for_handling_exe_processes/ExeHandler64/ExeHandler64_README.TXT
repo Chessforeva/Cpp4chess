@@ -3,6 +3,7 @@
 *   ExeHandler64.dll - a Win64 DLL library component to start sub-process,
 *                      control stdin/stdout streams continuously(!).
 *                      Compiled by Chessforeva, 2024.
+*                      Updated dec., 2024.
 *
 ***********************
 *
@@ -12,12 +13,14 @@
 
 Functions:
 
-0.  char_1kb_buffer( nr (int) )
+0.  char_100kb_buffer( nr (int) )
 
     nr = [0-9];
 
-    returns (char *) pointer to char[1024] chunk of dll-memory, for convenience to work with strings.
-               Otherwise should manage allocation of buffers somewhere and how to access them. See flutter sample. 
+    returns (char *) pointer to char[102400] chunk of dll-memory, for convenience to work with strings.
+               Otherwise should manage allocation of buffers somewhere and how to access them. See flutter sample.
+    Access memory, write by with put_stdin_i, read from get_stdin_i.
+    This is more workaround if cant just pass memory variables. Sometimes variable type conversions lose data.
 
 
 1.  add_process <[path\]executable file name (char*)>, <arguments (char*)>,
@@ -45,14 +48,28 @@ Functions:
 
   Sends directly to the stream without buffering.
 
+ 3.1    put_stdin_i <id (int)>, <chunk (int)>
 
-4.  get_stdout <id (int)>,
-               <buffer (char*)>
+        returns bytes(int) that were sent to redirected stdin stream/ -1 if error
+
+      Sends directly to the stream from 100K_buffer memory[chunk] without buffering.
+      When memory contains string already.
+
+
+4.  get_stdout <id (int)>, <buffer (char*)>
 
     returns bytes(int) in buffer of redirected stdout stream / -1 if no data anymore
 
   Reads data from stream that are buffered by the system.
   Copies to the buffer provided in parameter. Space of buffer should be enaugh!
+
+  4.1   get_stdout_i <id (int)>, <chunk (int)>
+
+    returns bytes(int) in buffer of redirected stdout stream / -1 if no data anymore
+
+  Reads data from stream that are buffered by the system.
+  Copies to the 100K_buffer memory[chunk]. Space of buffer should be enaugh!
+
 
 5.  kill_process <id (int)>
 

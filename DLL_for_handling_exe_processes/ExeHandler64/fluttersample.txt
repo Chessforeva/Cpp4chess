@@ -8,7 +8,7 @@ import 'dart:ffi'; // For FFI
 
 final DynamicLibrary ExeHandler = DynamicLibrary.open("ExeHandler64.dll");
 
-final Pointer<Uint8> Function(int) char_1kb_buffer =
+final Pointer<Uint8> Function(int) char_100kb_buffer =
     ExeHandler.lookup<NativeFunction<Pointer<Uint8> Function(Int32)>>(
             "char_1kb_buffer")
         .asFunction();
@@ -42,6 +42,17 @@ final int Function(int) get_status =
         .asFunction();
 
 
+// not needed
+final int Function(int, int) put_stdin_i =
+    ExeHandler.lookup<NativeFunction<Uint32 Function(Uint32, Uint32)>>(
+            "put_stdin_i")
+        .asFunction();
+
+final int Function(int, int) get_stdout_i =
+    ExeHandler.lookup<NativeFunction<Uint32 Function(Uint32, Uint32)>>(
+            "get_stdout_i")
+        .asFunction();
+
 StoreString(Pointer<Uint8> Arr, String S) { // String to Pointer
   int i = 0;
   for (; i < S.length; i++) {
@@ -69,8 +80,8 @@ Pause() {
 }
 
 void main() {
-  Pointer<Uint8> Prog = char_1kb_buffer(0);
-  Pointer<Uint8> Args = char_1kb_buffer(1);
+  Pointer<Uint8> Prog = char_100kb_buffer(0);
+  Pointer<Uint8> Args = char_100kb_buffer(1);
   StoreString(Prog, "crafty-22.0-win32.exe");		// use Crafty as a chess engine
   StoreString(Args, "");
   int Id = add_process(Prog, Args);			// start Crafty
@@ -78,8 +89,8 @@ void main() {
 
   Pause();
 
-  Pointer<Uint8> Stdin = char_1kb_buffer(2);
-  Pointer<Uint8> Stdout = char_1kb_buffer(3);
+  Pointer<Uint8> Stdin = char_100kb_buffer(2);
+  Pointer<Uint8> Stdout = char_100kb_buffer(3);
 
   StoreString(Stdin,
       "go" + String.fromCharCode(10) + "display" + String.fromCharCode(10));

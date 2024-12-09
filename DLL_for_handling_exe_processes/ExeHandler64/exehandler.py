@@ -33,10 +33,16 @@ eh_dll.kill_process.restype = ctypes.c_int
 eh_dll.release_all.argtypes = [ ctypes.c_int ]
 eh_dll.release_all.restype = ctypes.c_int
 
-#not needed, can use python memory directly
-eh_dll.char_1kb_buffer.argtypes = [ ctypes.c_int ]
-eh_dll.char_1kb_buffer.restype = ctypes.c_char_p
+#not needed, can use python memory directly from memory variables
+#intended if memory should be accessed in DLL inside
+eh_dll.char_100kb_buffer.argtypes = [ ctypes.c_int ]
+eh_dll.char_100kb_buffer.restype = ctypes.c_char_p
 
+eh_dll.put_stdin_i.argtypes = [ ctypes.c_int,  ctypes.c_int ]
+eh_dll.put_stdin_i.restype = ctypes.c_int
+
+eh_dll.get_stdout_i.argtypes = [ ctypes.c_int,  ctypes.c_int ]
+eh_dll.get_stdout_i.restype = ctypes.c_int
 
 # usage samples
 #-----------------------------------
