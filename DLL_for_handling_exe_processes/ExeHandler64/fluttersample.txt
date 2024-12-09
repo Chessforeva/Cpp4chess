@@ -10,7 +10,7 @@ final DynamicLibrary ExeHandler = DynamicLibrary.open("ExeHandler64.dll");
 
 final Pointer<Uint8> Function(int) char_100kb_buffer =
     ExeHandler.lookup<NativeFunction<Pointer<Uint8> Function(Int32)>>(
-            "char_1kb_buffer")
+            "char_100kb_buffer")
         .asFunction();
 
 final int Function(
