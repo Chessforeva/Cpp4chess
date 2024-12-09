@@ -53,6 +53,9 @@ chesslib.ischeckmate.restype = ctypes.c_bool
 chesslib.polyglotkey.argtypes = []
 chesslib.polyglotkey.restype = ctypes.c_ulonglong
 
+chesslib.spolyglotkey.argtypes = []
+chesslib.spolyglotkey.restype = ctypes.c_char_p
+
 chesslib.i_movegen.argtypes = [ ctypes.c_int ]
 chesslib.i_movegen.restype = ctypes.c_int
 
@@ -81,6 +84,7 @@ print( chesslib.uniq().decode() )
 print( chesslib.getfen().decode() )
 
 print( hex( chesslib.polyglotkey() ) )
+print( chesslib.spolyglotkey().decode() )
 print( chesslib.piecescount() )
 print( chesslib.materialdiff() )
 
@@ -99,6 +103,10 @@ print( chesslib.getfen().decode() )
 
 chesslib.setasuniq(savepos.encode())
 print( chesslib.sboard().decode() )
+
+print( chesslib.parseucimoves("e7e5 g1f3 d7d6".encode()))
+print( chesslib.sboard().decode() )
+
 
 #-----------------------------------------------------
 print("4.Iterations. Solve puzzle....")

@@ -308,6 +308,22 @@ extern "C" U64 __declspec(dllexport) polyglotkey() {
     return getPolyglotKey();
 }
 
+extern "C" __declspec(dllexport) char* spolyglotkey() {
+    U64 pkey = getPolyglotKey();
+    char* u = lib_buffer;
+    char* p = (char*) &pkey;
+    char Z, H, L;
+    for (int ip = 8; ip > 0;) {
+        Z = p[--ip];
+        H = (Z >> 4)&15;
+        L = (Z & 15);
+        *(u++) = (((H < 10) ? 48 : 55) + H);
+        *(u++) = (((L < 10) ? 48 : 55) + L);
+    }
+    *(u) = 0;
+    return lib_buffer;
+}
+
 
 // Freak mode. Iterations in depth
 
