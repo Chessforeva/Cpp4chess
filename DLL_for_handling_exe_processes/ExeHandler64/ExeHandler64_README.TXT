@@ -26,7 +26,7 @@ Functions:
   0.1  assign_memory_i <chunk (int), string_to_store (char*)>
 
       returns count of characters.
-      Writes string too internal memory to use after put_stdin_i. Reading back from stdout to memory chunk
+      Writes string to internal memory to use after put_stdin_i. Reading back from stdout to memory chunk
     by get_stdout_i. Then access memory by pointer given by char_100kb_buffer.
     This all is workaround for a languages that just don't like it.
 
