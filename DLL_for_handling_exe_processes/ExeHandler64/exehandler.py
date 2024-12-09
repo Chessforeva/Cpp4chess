@@ -38,6 +38,9 @@ eh_dll.release_all.restype = ctypes.c_int
 eh_dll.char_100kb_buffer.argtypes = [ ctypes.c_int ]
 eh_dll.char_100kb_buffer.restype = ctypes.c_char_p
 
+eh_dll.assign_memory_i.argtypes = [ ctypes.c_int, ctypes.c_char_p ]
+eh_dll.assign_memory_i.restype = ctypes.c_int
+
 eh_dll.put_stdin_i.argtypes = [ ctypes.c_int,  ctypes.c_int ]
 eh_dll.put_stdin_i.restype = ctypes.c_int
 

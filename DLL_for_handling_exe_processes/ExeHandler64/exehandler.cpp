@@ -470,6 +470,17 @@ int get_stdout_route(int id, char* b)
     return l;
 };
 
+extern "C" int __declspec(dllexport) assign_memory_i(int Iat, char *s)
+{
+    uint8_t* b = &CharBuffers[Iat * 102400];
+    
+    for (int i = 0;;i++) {
+        uint8_t c = s[i];
+        b[i] = c;
+        if (c == 0) break;
+    }
+    return i;
+}
 
 extern "C" int __declspec(dllexport) get_stdout_i(int id, int Iat)
 {

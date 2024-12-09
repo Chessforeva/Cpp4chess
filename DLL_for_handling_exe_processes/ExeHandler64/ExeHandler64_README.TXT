@@ -13,14 +13,22 @@
 
 Functions:
 
-0.  char_100kb_buffer( nr (int) )
+0.  char_100kb_buffer <chunk (int)>
 
-    nr = [0-9];
+    chunk = [0-9];
 
     returns (char *) pointer to char[102400] chunk of dll-memory, for convenience to work with strings.
                Otherwise should manage allocation of buffers somewhere and how to access them. See flutter sample.
-    Access memory, write by with put_stdin_i, read from get_stdin_i.
-    This is more workaround if cant just pass memory variables. Sometimes variable type conversions lose data.
+    Access memory, write put_stdin_i, read back get_stdout_i.
+    This is more workaround if can't just pass memory variables. Sometimes variable type conversions lose data.
+    Garbage collectors ignore low level programming needs.
+
+  0.1  assign_memory_i <chunk (int), string_to_store (char*)>
+
+      returns count of characters.
+      Writes string too internal memory to use after put_stdin_i. Reading back from stdout to memory chunk
+    by get_stdout_i. Then access memory by pointer given by char_100kb_buffer.
+    This all is workaround for a languages that just don't like it.
 
 
 1.  add_process <[path\]executable file name (char*)>, <arguments (char*)>,
