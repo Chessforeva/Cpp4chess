@@ -11,8 +11,6 @@
 
 import ctypes
 eh_dll = ctypes.CDLL("C:\\ExeHandler64\\ExeHandler64.dll")
-
-
 # declaration of dll functions
 eh_dll.add_process.argtypes = [ ctypes.c_char_p, ctypes.c_char_p ]
 eh_dll.add_process.restype = ctypes.c_int
@@ -33,19 +31,25 @@ eh_dll.kill_process.restype = ctypes.c_int
 eh_dll.release_all.argtypes = [ ctypes.c_int ]
 eh_dll.release_all.restype = ctypes.c_int
 
+#
 #not needed, can use python memory directly from memory variables
 #intended if memory should be accessed in DLL inside
+#
 eh_dll.char_100kb_buffer.argtypes = [ ctypes.c_int ]
 eh_dll.char_100kb_buffer.restype = ctypes.c_char_p
 
-eh_dll.assign_memory_i.argtypes = [ ctypes.c_int, ctypes.c_char_p ]
-eh_dll.assign_memory_i.restype = ctypes.c_int
+eh_dll.assign_memory_i_n.argtypes = [ ctypes.c_int, ctypes.c_int, ctypes.c_int ]
+eh_dll.assign_memory_i_n.restype = ctypes.c_int
+
+eh_dll.getfrom_memory_i_n.argtypes = [ ctypes.c_int, ctypes.c_int ]
+eh_dll.getfrom_memory_i_n.restype = ctypes.c_int
 
 eh_dll.put_stdin_i.argtypes = [ ctypes.c_int,  ctypes.c_int ]
 eh_dll.put_stdin_i.restype = ctypes.c_int
 
 eh_dll.get_stdout_i.argtypes = [ ctypes.c_int,  ctypes.c_int ]
 eh_dll.get_stdout_i.restype = ctypes.c_int
+
 
 # usage samples
 #-----------------------------------

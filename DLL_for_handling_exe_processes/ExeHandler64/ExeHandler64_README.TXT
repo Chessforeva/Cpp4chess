@@ -17,18 +17,26 @@ Functions:
 
     chunk = [0-9];
 
-    returns (char *) pointer to char[102400] chunk of dll-memory, for convenience to work with strings.
+    returns (char *) pointer to char[102400] chunk of dll-memory, for convenience or possibility to work with strings.
                Otherwise should manage allocation of buffers somewhere and how to access them. See flutter sample.
     Access memory, write put_stdin_i, read back get_stdout_i.
     This is more workaround if can't just pass memory variables. Sometimes variable type conversions lose data.
     Garbage collectors ignore low level programming needs.
 
-  0.1  assign_memory_i <chunk (int), string_to_store (char*)>
+  0.1  assign_memory_i_n <chunk (int), n (int), c (int)>
 
-      returns count of characters.
-      Writes string to internal memory to use after put_stdin_i. Reading back from stdout to memory chunk
-    by get_stdout_i. Then access memory by pointer given by char_100kb_buffer.
-    This all is workaround for a languages that just don't like it.
+      returns 1.
+      It is for writing into DLL-memory bytes. buffer[chunk][n]=c
+      c=[0-255] ascii code
+      Write string to internal memory ending with \0, to use after put_stdin_i. Reading back from stdout to memory chunk
+      by get_stdout_i. Then access memory by pointer given by char_100kb_buffer.
+      Or read by bytes:
+  0.2  readfrom_memory_i_n <chunk (int), n (int)>
+
+      returns (int) character ascii byte [0-255]
+      Then read next char, next till \0
+
+    This all is workaround for languages that just don't like strings and memory management.
 
 
 1.  add_process <[path\]executable file name (char*)>, <arguments (char*)>,

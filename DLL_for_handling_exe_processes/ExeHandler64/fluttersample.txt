@@ -45,9 +45,15 @@ final int Function(int) get_status =
 // not needed
 
 final int Function(
-    int, Pointer<Uint8>) assign_memory_i = ExeHandler.lookup<
-            NativeFunction<Uint32 Function(Uint32, Pointer<Uint8>)>>(
-        "assign_memory_i")
+    int,int,int) assign_memory_i = ExeHandler.lookup<
+            NativeFunction<Uint32 Function(Uint32,Uint32,Uint32)>>(
+        "assign_memory_i_n")
+    .asFunction();
+
+final int Function(
+    int,int) getfrom_memory_i = ExeHandler.lookup<
+            NativeFunction<Uint32 Function(Uint32,Uint32)>>(
+        "getfrom_memory_i_n")
     .asFunction();
 
 final int Function(int, int) put_stdin_i =
