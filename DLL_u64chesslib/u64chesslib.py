@@ -1,9 +1,14 @@
+#
+# See py_output.txt
+#   console output
+#
+#-----------------------------------------------------
 # load dll and test
 
 # provide DLL file exact filename with path
 
 import ctypes
-chesslib = ctypes.CDLL("C:\\MyDll\\u64chesslib.dll")
+chesslib = ctypes.CDLL("C:\\chesslib\\u64chesslib.dll")
 
 #-----------------------------------------------------
 #declaration of paramaters and return values of DLL function methods
@@ -79,6 +84,8 @@ chesslib.materialdiff.restype = ctypes.c_int
 
 print("1.Starting position....")
 chesslib.setstartpos()
+
+#display chess board to console
 print( chesslib.sboard().decode() )
 print( chesslib.uniq().decode() )
 print( chesslib.getfen().decode() )
@@ -86,6 +93,7 @@ print( chesslib.getfen().decode() )
 print( hex( chesslib.polyglotkey() ) )
 print( chesslib.spolyglotkey().decode() )
 print( chesslib.piecescount() )
+# this is kinda indicator of material, nothing precise
 print( chesslib.materialdiff() )
 
 chesslib.movegen()
@@ -95,6 +103,7 @@ print("2.Moving e4 ......")
 print( chesslib.ucimove("e2e4".encode()))
 print( chesslib.sboard().decode() )
 print( chesslib.getfen().decode() )
+# get 70 bytes unique string as a key for this position
 savepos = chesslib.uniq().decode()
 
 print("3.Moving back....")

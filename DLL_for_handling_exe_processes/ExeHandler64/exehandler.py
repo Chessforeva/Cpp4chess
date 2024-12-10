@@ -1,6 +1,6 @@
 ##################################################
 #
-# Sample of ExeHandler usage in windows python
+# Sample of ExeHandler64 usage in windows python
 #
 ##################################################
 

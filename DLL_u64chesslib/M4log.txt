@@ -1,0 +1,364 @@
+chesslib.uniq()                                                       Stockfish 
+           R Q                      k                    K     bw      f2e1  ok
+                 K                 N                nR   B  k   w      f7e7  ok
+R                        K         p   P                 B   k  w      a1a7  ok
+ Q                             N            k        N   K   b  w      b1f5  ok
+                  k      R R            P         n      K      w      b8c7  ok
+                p                   r                k   K      b      e5e7  ok
+                     k                                q  K      b      f3e4  ok
+      k                  Q p              P              K      w      b4d2  ok
+            k        n            q                      K      b      c5e7  ok
+                p              r      k                  K      b      h4h7  ok
+                    p        r k                         K      b      f4f7  ok
+                k   p         r                          K      b      g4g7  ok
+     q     k     pp                                      K      b      f1c4  ok
+             r     k  p                                  K      b      f2f7  ok
+      q k           p                                    K      b      g1g7  ok
+    r                                  k                 Kb  b  b      e1c1  ok
+               r   k                         b           Kb     b      h2c2  ok
+                p              k        p r              Kb     b      a3a2  ok
+ B                        k                    K     RB  N      w      f7f5  ok
+          N                                    Kk        NB     w      b8d7  ok
+                                             P           R K   kw      d8e7  ok
+ K                                         P    k        R      w      b8b2  ok
+    K   PP                                    P k        R      w      b8b3  ok
+                 p  K        nb            n   r         b k    b      d6f5  ok
+    K              b           r                      k  b      b      h4h2  ok
+              R            K           P                 k      w      g2g7  ok
+       r                 p                      K     kr n      b      h1h6  ok
+           k               n                    K        nb     b      b8d7  ok
+                        k   K                            r   r  b      b8e8  ok
+  k     p                     K                     n    r      b      b8f8  ok
+ k              p               p    P  n       K        r      b      a3a2  ok
+      k          q                                        K   b b      b3f7  ok
+              N                  Q                        K   k w      b5d7  ok
+               r                              n     k     K     b      h2b2  ok
+                   p       k                         r    K     b      d3d2  ok
+                                      b    rk             K     b      d6b6  ok
+         n   q   k                   p                    K     b      f2a7  ok
+            Q         B               k                   K     w      e2e6  ok
+   k                   p              r                   K     b      g5g7  ok
+     q          p                      k                  K     b      f1f7  ok
+                k      p               r                  K     b      h5h7  ok
+ k               q    p                                   K     b      b3f7  ok
+K                      kB                      B          R     w      c8g8  ok
+                   p            k               K         b     b      d3d2  ok
+            R                                 P           k  K  w      e2e7  ok
+                       P    p           K        r        k     b      e4e3  ok
+                               K     P             R      k     w      d7e7  ok
+K                            p                      r     k     b      e7e2  ok
+                K                    P      R             k     w      e6e7  ok
+       Q                    K                             k     w      h1h7  ok
+      Q      P          K                                 k     w      g1g7  ok
+          k                                    K     q    n     b      f7g8  ok
+                        r            k                    nK    b      a4c4  ok
+      k                           r                 K     r     b      c5c6  ok
+       K           p                       k              r     b      c8g8  ok
+                           R B    k                        K RB w      f4e3  ok
+                                       k     P      R      K    w      f6f7  ok
+                    k  p    r     b                        K    b      e4e7  ok
+   k    r             p                                    K    b      a2a7  ok
+                                 K     R          k        N    w      h5d5  ok
+              Q              K  k                          N    w      g2b7  ok
+  k       N                            B   P               Q   Kw      h5g6  ok
+                  k                       K  P             Q    w      f6f7  ok
+                    K                   k                  Q    w      d8b8  ok
+                          K      B             P  k        R    w      d8d7  ok
+         R  K                                     k        R    w      d8d1  ok
+                                k           P          K   R    w      d8b8  ok
+            K                   k              P           R    w      d8b8  ok
+                               pK k      n        p        b    b      h4h3  ok
+                    K k    r                               b    b      d8f6  ok
+                                          K       Rrb      k  b b      d7c7  ok
+                                       K                   k  q b      g8g3  ok
+                                       K          q        k    b      c7g3  ok
+        P                          q                   K   k    b      d5g5  ok
+                         Q K                               k    w      b4b7  ok
+                        K    Q                             k    w      f4f7  ok
+  q                             K                          k    b      c1b2  ok
+                      K  R      P                          k    w      b4b7  ok
+             R                 K      B  R        k        n    w      g5d8  ok
+                                   n  K     k         b    r    b      d5f6  ok
+                    k  pK                                  r    b      d8b8  ok
+    k           p        r   P             p      K        rb   b      b4b8  ok
+                                      K     k              rb   b      d8d4  ok
+                                K           k              rb   b      d8b8  ok
+     k                         p      K        rb          rb   b      d8d5  ok
+       r      bb    k       p    n               p          K   b      h1f1  ok
+                       qn              pP         k         K   b      h3d7  ok
+         k                 p                      q         K   b      d4d3  ok
+          R         k                                Q      K   w      f7c4  ok
+            b         b           k    r                    K   b      h5f5  ok
+                               k  q                         K   b      c5c7  ok
+                               k            P    K          R   w      e8g8  ok
+               k                       P          K         R   w      e8g8  ok
+                     p          k            r              b K b      f3f2  ok
+                   p   k                K         b         b   b      e8c6  ok
+        B              K               P         R   q      k   w      b7f7  ok
+          K                    N                     RB     k   w      f7b7  ok
+                     K            pP       B PP             k   w      f6f7  ok
+                                  q         K  p            k   b      e8f8  ok
+Q                         K                                 k   w      a1g7  ok
+                                     p        K     r       r k b      e7f7  ok
+                K    p                        k             r   b      e8b8  ok
+      K                    p     k                          r   b      e8e2  ok
+k                                           P        R       K  w      f7b7  ok
+B Q                kB                      P                 K  w      c1f1  ok
+      k         R                          P                 K  w      a3a2  ok
+                 b            P             kb               K  b      e6d7  ok
+   k            R                             P              K  w      a3a2  ok
+                   P  k                    RP   R            K  w      e6e7  ok
+                           R       N    B       k            K  w      a6b5  ok
+              N                 k            K               Q  w      f8b8  ok
+       k           K           b        P                    Q  w      f8f3  ok
+             R                 K                    k        R  w      f2f6  ok
+        k       P       K                                    R  w      f8b8  ok
+  R                   B        KP                            k  w      c1c7  ok
+                   rp                           K            k  b      d3b3  ok
+ k   r                      N  r                  p K        n  b      h4e4  ok
+     r    k                                      K           r  b      f1f6  ok
+             k               r                    K          r  b      f4f6  ok
+                K  p                           k             r  b      f8b8  ok
+            n    k                               b nK        rb b      b7c6  ok
+                p         k                      N r          K b      d7b7  ok
+                           p    k                r            K b      d4d3  ok
+                 pP    k     q        p           p           K b      f4f6  ok
+ R                k                            Q              K w      h6e3  ok
+      Q            P          B  p      k                     K w      g4c8  ok
+                k           K                                 Q w      g8b8  ok
+        k   K                   P                             R w      g8b8  ok
+                 p                   BK    P        p         k w      f5e6  ok
+         K                       P        R                   k w      c6c7  ok
+               K            R      P                          k w      e4e7  ok
+         r  r        pK                                       k b      f3f2  ok
+      r                 p                       K             k b      g1b1  ok
+    K                                k                        q b      g8a2  ok
+   k       P      p             K                             q b      c3c2  ok
+        K              p                              k       r b      g8b8  ok
+k                          PBK                        R        Bw      g7b7  ok
+k                                          P   R               Kw      h6h2  ok
+                k                            QP                Kw      f6b6  ok
+      k             p           r                              Kb      a5a7  ok
+ k                                        PK                   Rw      h8h2  ok
+                               P   K                  R        kw      g7g5  ok
+    K                          p                      r        kb      g7g2  ok
+                       pK                   q                  kb      e6b6  ok
+         R                         K           P               kw      d5e6  ok
+                      K b   N      Q                           kw      d5e5  ok
+        R                                P      K              kw      a2g2  ok
+ k         r          pn                    K                  nb      g3g2  ok
+    K     k                          p      Q    B              w      e6c4  ok
+        q     k  p      p                        K  p           b      b3b2  ok
+                                            P  k K   R          w      e6e7  ok
+        k      B      N            R             K              w      d5b5  ok
+                   qkp                           K              b      d3d6  ok
+            K                          Rk        P              w      b7b8r ok
+   q                  k              p r    K    Q   n          b      d1d6  ok
+        k                            P           R    K         w      f5f6  ok
+                                  P     k        R     K        w      c5c6  ok
+               kB      B                     K   R              w      b7b3  ok
+    Q              k                           K R              w      b7c7  ok
+                k            K     P             R              w      d5d6  ok
+   R                                             k K            w      d1d6  ok
+                                  K           R  k N            w      c5d6  ok
+  K                                         Q    k     B        w      h7f5  ok
+                               Kq                k     n        b      a5g5  ok
+                 p              n       K        n k            b      b3b2  ok
+    K                                         kq n              b      h6h2  ok
+                 p                   k  K        nb             b      b7d6  ok
+         k        bp      K        n             p   pb         b      d3d2  ok
+k                        Kb                      p    br        b      b7b5  ok
+               B   N    B            R  k    K   p              w      h2c7  ok
+           R       R    K               k        p              w      d3d6  ok
+    K                           k                q              b      b7g2  ok
+                       K         R      k P      q              w      b5b7  ok
+K              k           p                     r              b      d4d3  ok
+               k        Kp                       r              b      b4b3  ok
+       k         nP                     K        rp             b      b7b6  ok
+K         k          R                B           B             w      c7g3  ok
+ k                   p             q              K             b      f3f2  ok
+                 P               p      k      P  K             w      b3b4  ok
+                     k              K        P    Q             w      f6f7  ok
+                                       K     P R  k             w      f6f7  ok
+                  K                           PR  k             w      g6g7  ok
+               K          p           r           k             b      c4c3  ok
+                   p     K                k       q             b      d3d2  ok
+                    k  p           n        K     r             b      e3e4  ok
+               k                  Q    P           K            w      c5g5  ok
+          Q                            k           K            w      c2g2  ok
+                            K          k      P    P            w      g6g7  ok
+               K RP                       k    P   R            w      b3b7  ok
+                      k             K         P    R            w      d7f7  ok
+    K                         k               P    R            w      d7f7  ok
+                                     K  k P        R            w      d7b7  ok
+  q                                    K           k            b      c1g1  ok
+    K      r                   p                   k            b      d2g2  ok
+         R   B          k                  K       p            w      f2c5  ok
+          K        P       k         rb            p            b      f5b5  ok
+           k  P                R         RK        r   P        w      c6d7  ok
+                               k        Q           K  N        w      a6g6  ok
+                  r                  k b            K           b      c3d3  ok
+    K                           k                   Q           w      e7b7  ok
+                       K                            k q         b      g7g1  ok
+                                K                   k q         b      g7b2  ok
+                    p             k         r       n  K        b      e6g6  ok
+           k                           K            q           b      e7g7  ok
+    k   K             p                             r           b      e7b7  ok
+     Q                          k            B       K          w      f1b1  ok
+      B        KR         k B                        N          w      f7d6  ok
+                       R              PK p  k  B     NB         w      h3d3  ok
+      k             K          P                     R          w      f7f2  ok
+ Kb                p     p                  k        b          b      c1a3  ok
+              K Q  R      k     P  N                 bb         w      a3b3  ok
+                   k   r     Kb      p               bp         b      h3e3  ok
+      K          p         nb                  b     k          b      h6f4  ok
+           k                                   K     q          b      f7g8  ok
+    k   P                b                  K        rbn        b      h7g5  ok
+                         q                  k b       KR        b      g6h7  ok
+                 k                       P     K      R         w      g7c7  ok
+ k                       N       K            P       R         w      g7c7  ok
+      k   b        n      K        rP                 b         b      d5c5  ok
+     R                            R        k           K        w      f1f5  ok
+                       kBR  P                  B       K        w      b4b2  ok
+    k    Q                         P                   K        w      d5d6  ok
+ k                                      Q     P        K        w      a6e2  ok
+                       K     R             N  k        N        w      f4f7  ok
+    N   B             B     k         K                N        w      g3f2  ok
+                              K         k P            R        w      h7b7  ok
+K             R                   P                    k        w      c5c6  ok
+                    k               r       b nK       p        b      e3f4  ok
+            k                  K    r n                p        b      e2f3  ok
+                     p        k            b  K        r        b      h7e7  ok
+                              b             k K        r        b      h7h5  ok
+    k                          R         P  K                   w      h4h2  ok
+    k                  R                 P    K                 w      h3h2  ok
+        k                        KR      P                      w      b6b7  ok
+               k   K                   P Q    P                 w      g6g7  ok
+   B  k        R       K                 b                      w      d1e2  ok
+  R          K                            P    k                w      c1g1  ok
+                k                      K  RP                    w      c6b6  ok
+  K        r                 p            k                     b      d2e2  ok
+R                k           K            p   R                 w      g6c6  ok
+            q          p k                 K                    b      h3h2  ok
+     K            Q   P                    P  k                 w      d6d7  ok
+              K  R             k           P                    w      b3g3  ok
+      K  k         Q                       P                    w      d6d7  ok
+        K            p             r       k                    b      d5b5  ok
+           n  K                 r     n    k                    b      g5e4  ok
+    n              p  K        r           p   k                b      d3d2  ok
+ K                    P          k         q                    b      d6d2  ok
+ K                          p              r  k                 b      d6d2  ok
+                     r  K              k   r                    b      d6b6  ok
+            k        PB                Q    K                   w      h5d5  ok
+  R                        K                P  k                w      c1g1  ok
+       k                       K            P                   w      h4g3  ok
+  k        N       K                        P                   w      e6e7  ok
+N   K                      k                Q                   w      e1d2  ok
+           BK k        p           p        R                   w      e6g6  ok
+                       k             K P    R                   w      e6g6  ok
+                               K     q      k                   b      f5f3  ok
+         K       b               n     k    r                   b      e6e3  ok
+               K   p     k                  r                   b      e6g6  ok
+    k      r      K            b     r       Bb                 b      h4f6  ok
+  r           k    r                         K                  b      d3e3  ok
+k        N               N pK                P                  w      b2d3  ok
+      K      R                k              P                  w      f6f7  ok
+          k K   R                            P                  w      f6f7  ok
+   k                              K          Q                  w      f6f2  ok
+  kN                     K   P  P            R                  w      f6d6  ok
+  k                p   K       p       n     n                  b      d3d2  ok
+       K                  k p                r                  b      f6f2  ok
+ n               P  K k      r                Nr                b      h6g6  ok
+   K    q                                     k                 b      g6f5  ok
+            n  K   pk                         p                 b      d3d2  ok
+   R      k                R                   K                w      d4d3  ok
+     K           P  k        R                 P                w      f4c4  ok
+                k                   K          Q                w      h6b6  ok
+    k                Kb             r          b                b      g3f2  ok
+                              K     k          q                b      h6e3  ok
+         k         Q   K         B                              w      b5c4  ok
+q           k     p              K                              b      c3c2  ok
+   K               P       q     k                              b      d4f2  ok
+K    k                    ppb    n                              b      d4d3  ok
+      K                p   rb     k                             b      d4d2  ok
+    k   K        r                p                             b      c5c4  ok
+  RR           K                   B  k                         w      d1f1  ok
+  B       R                        K   k                        w      c2g2  ok
+  Q                    k    P      K                            w      c1g1  ok
+ K          r            p          k                           b      e5d4  ok
+ K                        q         k                           b      c4e2  ok
+     k         K  R          P        B                         w      c3e3  ok
+        q                  k          K                         b      d4e5  ok
+  q                        k           K                        b      c1g1  ok
+         Q K                           k                        w      b2g7  ok
+   r                p   K              k                        b      d1b1  ok
+          rk    p        K                                      b      a3a2  ok
+      k  r      Kp       r                                      b      b2c2  ok
+         K       b        k   p                                 b      g4g3  ok
+K                         rp k                                  b      c4c2  ok
+          K    b   rb  p   k                                    b      d3d2  ok
+      K      r             k                                    b      d4e3  ok
+      K       n            p   k                                b      h4g3  ok
+ K  k                p     r                                    b      d4d2  ok
+   r    q       k            K                                  b      a2e2  ok
+     K         k r           p                                  b      b3e3  ok
+k    r           p             K                                b      f1g1  ok
+ Kbk             b                                              b      b3a4  ok
+ k      R          K                                            w      a2c2  ok
+   rk       r        K                                          b      d1d4  ok
+    k     r     K p                                             b      c2b2  ok
+ K            b         qN  k                                   b      a4b4  ok
+         q           k          K                               b      f3e4  ok
+          q             p    k  K                               b      c2b3  ok
+    N       Q                   k     K                         w      e2b2  ok
+           P     K R            k                               w      d3d6  ok
+                   p    p               K k                     b      d3d2  ok
+           r   k   p      P             K                       b      d2b2  ok
+   q               pk P                 K                       b      d1b3  ok
+                k  r   p                K                       b      d3b3  ok
+       k                        K       P   R                   w      e6g6  ok
+K        r                 p           kP   b                   b      b2a2  ok
+                  B   k          K      R  RB                   w      d6d3  ok
+    B            kB   K                 RP                      w      b6b7  ok
+            R                           k    P K                w      e2b2  ok
+      K        r           p            k                       b      h2e2  ok
+                            KQ          k                       w      f4b8  ok
+         K    R    Q            k       np                      w      b2c3  ok
+                 pk        r                    K               b      d4b4  ok
+K                  p       pb k                 b               b      d3d2  ok
+                     r  K                       k  p            b      a7b6  ok
+     K         R                           P    k               w      h2b2  ok
+         R  K                      P            k               w      d5d6  ok
+                   r    pKb      p              kb              b      a4a3  ok
+        Q               K                       kp              w      a4b5  ok
+        k        P NN           K  R            p               w      e3c2  ok
+                  p        K                r   rk              b      c3c2  ok
+                   R      kr       N         K          B       w      d3c3  ok
+                 R p                             r   k  K       b      b7b3  ok
+                      k     R  N           P      r     K       w      d6c7  ok
+                   p         k                P      q  K       b      f7g7  ok
+                      k        p                      r K       b      h4h3  ok
+           b                               kb P         K       b      d6c7  ok
+    r                   p                      k        K       b      e1b1  ok
+k                  p          r    p                    K       b      g4b4  ok
+                k      p     pr                         K       b      g4g7  ok
+      r            kp                                   K       b      g1b1  ok
+    R       P                                p      k  PR K     w      a8a6  ok
+ K                                           P   N      k  B    w      b7c5  ok
+                             K       P           R      k       w      b7e7  ok
+                     p  K                          r    k       b      d7b7  ok
+   N                               B      K          p  k       w      c6c7  ok
+                          p    Q               N       Kk       w      h4e7  ok
+                          p         q    K              k       b      c4c3  ok
+              K           P        R     P              k       w      d5d7  ok
+                       R            K       P           k       w      h3b3  ok
+                  R                P         K          k       w      c3c7  ok
+           K             R         P                    k       w      d5d6  ok
+  R   K                            P                    k       w      c1c7  ok
+  K                                 RP                  k       w      e5e7  ok
+                          K  R         P                k       w      f4f7  ok
+      R             K                  P                k       w      g1g7  ok
+K     b  Pr                pb                           k       b      e4d5  ok
+                           NK      N    P        p      kB      w      a6a7  ok
+                        K      p                        kr      b      h4h3  ok
+   K                                           k b      q       b      a8a2  ok
