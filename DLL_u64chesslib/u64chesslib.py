@@ -8,7 +8,7 @@
 # provide DLL file exact filename with path
 
 import ctypes
-chesslib = ctypes.CDLL("C:\\chesslib\\u64chesslib.dll")
+chesslib = ctypes.CDLL("C:\\u64chesslib\\u64chesslib.dll")
 
 #-----------------------------------------------------
 #declaration of paramaters and return values of DLL function methods
@@ -76,8 +76,24 @@ chesslib.i_skipmove.restype = None
 chesslib.piecescount.argtypes = []
 chesslib.piecescount.restype = ctypes.c_int
 
+chesslib.whitecount.argtypes = []
+chesslib.whitecount.restype = ctypes.c_int
+
+chesslib.blackcount.argtypes = []
+chesslib.blackcount.restype = ctypes.c_int
+
 chesslib.materialdiff.argtypes = []
 chesslib.materialdiff.restype = ctypes.c_int
+
+chesslib.sidetomove.argtypes = []
+chesslib.sidetomove.restype = ctypes.c_int
+
+chesslib.swaptomove.argtypes = []
+chesslib.swaptomove.restype = ctypes.c_int
+
+chesslib.seemslegitpos.argtypes = []
+chesslib.seemslegitpos.restype = ctypes.c_bool
+
 
 #-----------------------------------------------------
 #samples of usage
@@ -93,8 +109,21 @@ print( chesslib.getfen().decode() )
 print( hex( chesslib.polyglotkey() ) )
 print( chesslib.spolyglotkey().decode() )
 print( chesslib.piecescount() )
+print( chesslib.whitecount() )
+print( chesslib.blackcount() )
+
 # this is kinda indicator of material, nothing precise
 print( chesslib.materialdiff() )
+
+now_tomove = chesslib.swaptomove()
+# now opponent should move from same position (nullmove)
+# swap back
+chesslib.swaptomove()
+
+if( chesslib.sidetomove() == 0):
+  print("white to move")
+else:
+  print("black to move")
 
 chesslib.movegen()
 print( chesslib.legalmoves().decode() )
@@ -115,6 +144,12 @@ print( chesslib.sboard().decode() )
 
 print( chesslib.parseucimoves("e7e5 g1f3 d7d6".encode()))
 print( chesslib.sboard().decode() )
+
+# Try to set strange chess position
+# Validator when generating chess positions
+print( chesslib.seemslegitpos() )
+chesslib.setfen("PPPPPPPP w".encode())
+print( chesslib.seemslegitpos() )
 
 
 #-----------------------------------------------------

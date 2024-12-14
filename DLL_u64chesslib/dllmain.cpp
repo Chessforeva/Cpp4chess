@@ -370,11 +370,11 @@ extern "C" __declspec(dllexport) char* i_moveinfo(int depth) {
     U8 cm = ((flags & (1 << 7)) ? 1 : 0);
 
     s[0] = pieces[t1];
-    s[1] = (f_sq >> 3) + 97;
-    s[2] = (f_sq & 7) + 49;
+    s[1] = (f_sq & 7) + 'a';
+    s[2] = (f_sq >> 3) + '1';
     s[3] = (capt ? 'x' : '-');
-    s[4] = (t_sq >> 3) + 97;
-    s[5] = (t_sq & 7) + 49;
+    s[4] = (t_sq & 7) + 'a';
+    s[5] = (t_sq >> 3) + '1';
     s[6] = (pr ? pieces[((t_sq >> 3) == 0 ? 8 : 0) + pr_pc] : ' ');
     s[7] = (ck ? '+' : ' ');
     s[8] = (cm ? '#' : ' ');
@@ -389,19 +389,99 @@ extern "C" void __declspec(dllexport) i_skipmove(int depth) {
     lib_ii_po[depth] += 4;
 }
 
-extern "C" int __declspec(dllexport) piecescount() {
+extern "C" int __declspec(dllexport) swaptomove() {
+    ToMove ^= 1;
+    return ToMove;
+}
 
-    WOCC = WK | WQ | WR | WB | WN | WP;
-    BOCC = BK | BQ | BR | BB | BN | BP;
-    OCC = WOCC | BOCC;
+extern "C" int __declspec(dllexport) sidetomove() {
+    return ToMove;
+}
 
-    U64 o = OCC;	//occupancies
+
+
+// Counts pieces by given occupancy
+int bitCount(U64 o)
+{
     int n = 0;
     while (o) {
         n++;
         o &= o - 1;
     }
     return n;
+}
+
+// to verify chess position for normality
+U8 seemslegit() {
+    U8 b = 1;
+    U64 pawns = WP | BP;
+
+    b &= (((pawns & ((1LL << 0) | (1LL << 1) | (1LL << 2) | (1LL << 3) | (1LL << 4) | (1LL << 5) | (1LL << 6) | (1LL << 7) |
+        (1LL << 56) | (1LL << 57) | (1LL << 58) | (1LL << 59) | (1LL << 60) | (1LL << 61) | (1LL << 62) | (1LL << 63))) == 0) ? 1 : 0);
+
+    b &= (((bitCount(WK) == 1) && (bitCount(BK) == 1) && (WK != BK)) ? 1 : 0);
+    b &= (((bitCount(WP) < 9) && (bitCount(BP) < 9) && (bitCount(WN) < 3) && (bitCount(BN) < 3)) ? 1 : 0);
+    b &= (((bitCount(WB) < 3) && (bitCount(BB) < 3) && (bitCount(WR) < 3) && (bitCount(BR) < 3)) ? 1 : 0);
+    if (b) {
+        // avoid same bishop squares
+        U64 o;
+        int sq, v, h, d, D;
+        for (D = 9, o = WB; o;) {
+            sq = (U8)trail0(o);
+            v = (sq >> 3); h = (sq & 7); d = (v + h) & 1;
+            if (D == 9) D = d;
+            else if (D == d) b = 0;
+            o &= o - 1;
+        }
+        for (D = 9, o = BB; o;) {
+            sq = (U8)trail0(o);
+            v = (sq >> 3); h = (sq & 7); d = (v + h) & 1;
+            if (D == 9) D = d;
+            else if (D == d) b = 0;
+            o &= o - 1;
+        }
+    }
+
+    // can not be both check+
+    if (b) {
+        if (IsCheckNow()) {
+            ToMove ^= 1;
+            if (IsCheckNow()) b = 0;
+            ToMove ^= 1;
+        }
+    }
+    // should be pawn normality verify too, but not today
+    return b;
+}
+
+extern "C" bool __declspec(dllexport) seemslegitpos() {
+
+    return seemslegit();
+
+}
+
+int pieces_cnt(int cz) {
+
+    WOCC = WK | WQ | WR | WB | WN | WP;
+    BOCC = BK | BQ | BR | BB | BN | BP;
+    OCC = WOCC | BOCC;
+
+    U64 o = (cz == 0 ? OCC : (cz == 1 ? WOCC : BOCC));	//occupancies
+    return bitCount(o);
+}
+
+
+
+
+
+extern "C" int __declspec(dllexport) piecescount() {
+    return pieces_cnt(0);
+}
+extern "C" int __declspec(dllexport) whitecount() {
+    return pieces_cnt(1);
+}
+extern "C" int __declspec(dllexport) blackcount() {
+    return pieces_cnt(2);
 }
 
 extern "C" int __declspec(dllexport) materialdiff() {

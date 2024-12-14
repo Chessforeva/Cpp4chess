@@ -12,12 +12,10 @@
 #-----------------------------------------------------
 # u64chesslib.dll
 #
-# load dll and test
-
 # provide DLL file exact filename with path
 
 import ctypes
-chesslib = ctypes.CDLL("C:\\chesslib\\u64chesslib.dll")
+chesslib = ctypes.CDLL("C:\\u64chesslib\\u64chesslib.dll")
 
 #-----------------------------------------------------
 #declaration of paramaters and return values of DLL function methods
@@ -85,11 +83,26 @@ chesslib.i_skipmove.restype = None
 chesslib.piecescount.argtypes = []
 chesslib.piecescount.restype = ctypes.c_int
 
+chesslib.whitecount.argtypes = []
+chesslib.whitecount.restype = ctypes.c_int
+
+chesslib.blackcount.argtypes = []
+chesslib.blackcount.restype = ctypes.c_int
+
 chesslib.materialdiff.argtypes = []
 chesslib.materialdiff.restype = ctypes.c_int
 
+chesslib.sidetomove.argtypes = []
+chesslib.sidetomove.restype = ctypes.c_int
+
+chesslib.swaptomove.argtypes = []
+chesslib.swaptomove.restype = ctypes.c_int
+
+chesslib.seemslegitpos.argtypes = []
+chesslib.seemslegitpos.restype = ctypes.c_bool
+
 #-----------------------------------------------------
-# ExeHandler64.dll
+# ExeHandler.dll
 
 # load dll and test
 #-----------------------------------
