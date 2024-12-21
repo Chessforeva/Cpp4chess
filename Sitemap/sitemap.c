@@ -12,9 +12,9 @@
 */
 
 char *config, *dir, *htmS; 
-FILE *f, *f2, *fo;
+FILE *f, *f2, *fo, *foL;
 char *p, *q, *g, *v, *w, *m, *u;
-int n, i, j, cnt, c, c2, e, D, F, r, T, Ds, U, R;
+int n, i, j, cnt, c, c2, e, D, F, r, T, Ds, U, R, G;
 char *folder;
 
 /* buffers for directory file processing */
@@ -603,6 +603,7 @@ fprintf(fo,"<img src=\"%s.gif\">" , ( strstr(buf0,".htm")==NULL ? "u" : "w") );
 				p = p2; g = g2;
 
 fprintf(fo, "</td><td><a href=\"%s\" target=\"_blank\">%s</a></td>", buf4, toAlias(buf3, buf0) );
+fprintf(foL, "%s\n", buf4);
 }
 
 fprintf(fo, "<td align=\"right\">%s</td>", nstrcpy( buf3, g+d_date,w_date ) );
@@ -724,7 +725,11 @@ int main(int argc, char **argv)
 		printf("Can not create a file.\n");
 		return exitprog();	
 	}
-
+	if((foL = fopen("files.lst","w"))==NULL ) {
+		printf("Can not create files.lst.\n");
+		return exitprog();	
+	}
+	
 fprintf(fo, "%c%c%c",0xEF,0xBB,0xBF);		/*UTF-8*/
 fprintf(fo, "<html>\n<head>\n<title>Index Of</title>\n");
 fprintf(fo, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
@@ -782,12 +787,25 @@ fprintf(fo, "<table><tbody>\n");
 				p = ALIAS;
 				while (p!=NULL && get_equ_row()>0) {
 					g = bufL;
+					G = 1;
+					if(strncmp(g,"{site}",6)==0) {
+						G = 0;
+						g+=6;
+					}
 					rep_slash(g);
 					printf("%s\n",g);
-					c = folder1st(g);
+
 fprintf(fo, "<tr><td>");
-fprintf(fo,"<img src=\"f.gif\">");
-fprintf(fo, "</td><td><div class=\"FN\" onclick=\"SW(%d,%d)\"> %s </div></td>", 0, c, toAlias(buf3, bufR) );
+if(G) {
+	c = folder1st(g);
+	fprintf(fo,"<img src=\"f.gif\">");
+	fprintf(fo, "</td><td><div class=\"FN\" onclick=\"SW(%d,%d)\"> %s </div></td>", 0, c, toAlias(buf3, bufR) );
+}
+else {
+	fprintf(fo,"<img src=\"w.gif\">");
+	fprintf(fo, "</td><td><a href=\"%s\" target=\"_blank\"> %s </a></td>", g, toAlias(buf3, bufR) );
+}
+
 fprintf(fo, "</tr>\n");
 				}
 
@@ -800,6 +818,7 @@ fprintf(fo, "</body>\n<html>\n");
 	
 	//free(&work_mem);
 	fclose(fo);
+	fclose(foL);
 	
 	return exitprog();
 }

@@ -21,7 +21,11 @@ Or list multiple files, then it will try to read format (date,size,dots and comm
 
 That is all.
 
-Chessforeva 2021.04.
+Chessforeva apr.2021
 
 Thanks to TinyC compiler (http://hwww.tinycc.org)
+
+--------------------
+*upd.dec.2024
+files to be listed in files.lst
 
