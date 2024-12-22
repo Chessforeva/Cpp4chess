@@ -4,7 +4,8 @@
 This MS Windows batch tool makes a simple 
  Index of... file browser for a web server, as Apache's
 
-*It is not the sitemap.xml for Googlebot
+*It is not the sitemap.xml for Googlebot,
+  but can create it with tositemap.py, see down the readme.
 
 Steps:
 1. cmd> dir /s >output.txt         of a local folder, or a variety of .txt outputs of folders;
@@ -23,9 +24,13 @@ That is all.
 
 Chessforeva apr.2021
 
+
 Thanks to TinyC compiler (http://hwww.tinycc.org)
 
 --------------------
 *upd.dec.2024
-files to be listed in files.lst
+files to be listed in files.lst with modification time
+
+python script tositemap.py can be used as a template
+for sitemap.xml, robots.txt creation from this files.lst file
 
