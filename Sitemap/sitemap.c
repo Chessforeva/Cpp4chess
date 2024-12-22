@@ -3,6 +3,10 @@
   html creator tool v.1.0.
   
   Chessforeva.blogspot.com , 04.2021.
+  
+  dec.2024 added listing of files into
+	files.lst
+		it can be advanced to sitmeap.xml
 */
 
 #include <stdio.h>
@@ -18,7 +22,7 @@ int n, i, j, cnt, c, c2, e, D, F, r, T, Ds, U, R, G;
 char *folder;
 
 /* buffers for directory file processing */
-char *work_mem, *buf0, *buf1, *buf2, *buf3, *buf4, *buf5, *bufL, *bufR, *subdirs;
+char *work_mem, *buf0, *buf1, *buf2, *buf3, *buf4, *buf5, *bufD, *bufL, *bufR, *subdirs;
 char mbuffer[2048];
 
 /* pointers to config data */
@@ -180,6 +184,14 @@ char *toAlias( char *buf_t, char *buf_f ) {
 	
 	alltrim(t);
 	return t;
+}
+
+// to save file modification date
+void sv_filedate( char *u, char *p ) {
+	while(*p>13) p--;
+	p++;
+	while(*p>13 && *p!=32) *(u++)=*(p++);
+	*u = 0;
 }
 
 /*
@@ -514,6 +526,8 @@ fprintf(fo, "</div>\n", c, w);
 		w = g+p_time; d = g+p_date;
 		if(*w==':' && (*d=='.' || *d=='/' || *d=='-') )	{
 			/* this is a file or folder */
+			
+			sv_filedate( bufD, w );
 			w = g+d_size;
 			F = ( *w=='<' ? 1 : 0);
 			
@@ -603,7 +617,7 @@ fprintf(fo,"<img src=\"%s.gif\">" , ( strstr(buf0,".htm")==NULL ? "u" : "w") );
 				p = p2; g = g2;
 
 fprintf(fo, "</td><td><a href=\"%s\" target=\"_blank\">%s</a></td>", buf4, toAlias(buf3, buf0) );
-fprintf(foL, "%s\n", buf4);
+fprintf(foL, "%s  (%s)\n", buf4, bufD);
 }
 
 fprintf(fo, "<td align=\"right\">%s</td>", nstrcpy( buf3, g+d_date,w_date ) );
@@ -692,6 +706,7 @@ int main(int argc, char **argv)
 	buf3 = p; *p=0; p+=1*1024*1024;
 	buf4 = p; *p=0; p+=1*1024*1024;
 	buf5 = p; *p=0; p+=1*1024*1024;
+	bufD = p; *p=0; p+=1*1024;
 	bufL = p; *p=0; p+=2*1024*1024;		/* ... till "=" */
 	bufR = p; *p=0; p+=2*1024*1024;		/* "=" after ... */
 	subdirs = p;  *p=0; p+=10*1024*1024;	/* the list of all folders */
