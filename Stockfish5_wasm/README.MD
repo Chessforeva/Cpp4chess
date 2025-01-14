@@ -26,4 +26,4 @@ Recompile main.wasm and overwrite as needed.
 That's it.
 
 Chessforeva,jan.2025<br />
- https://github.com/Chessforeva/Cpp4chess/Stockfish5_wasm
+ https://github.com/Chessforeva/Cpp4chess/  Stockfish5_wasm
