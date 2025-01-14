@@ -21,23 +21,23 @@ emcc pz.c -O2 -s WASM=1 -o pz.html -s INITIAL_MEMORY=134217728
 
 // Once on startup from javascript
 
-char* EMSCRIPTEN_KEEPALIVE _init() {
+extern "C" char* EMSCRIPTEN_KEEPALIVE _init() {
   Init_u64_chess();
   return &data[0];		// not needed actually
 }
 
 // To set data values from javascript
-void EMSCRIPTEN_KEEPALIVE _set_data( int i, int value ) {
+extern "C" void EMSCRIPTEN_KEEPALIVE _set_data( int i, int value ) {
   data[i] = value;
 }
 
 // To set position from javascript, after _set_data
-void EMSCRIPTEN_KEEPALIVE _set_pos() {
+extern "C" void EMSCRIPTEN_KEEPALIVE _set_pos() {
   SetByFEN( data );
 }
 
 // To read data buffer (answer with found results) from javascript
-int EMSCRIPTEN_KEEPALIVE _get( int i ) {
+extern "C" int EMSCRIPTEN_KEEPALIVE _get( int i ) {
   return (int)data[i];
 }
 
@@ -45,7 +45,7 @@ int EMSCRIPTEN_KEEPALIVE _get( int i ) {
 int HcMAX=9000;
 
 // To set response buffer variants limits to avoid large sizes
-void EMSCRIPTEN_KEEPALIVE _set_HcMAX( int limit ) {
+extern "C" void EMSCRIPTEN_KEEPALIVE _set_HcMAX( int limit ) {
   HcMAX = limit;
 }
 
@@ -389,7 +389,7 @@ void _dispH()
 
 
 // The calculation...
-int EMSCRIPTEN_KEEPALIVE _pz( int depth ) {
+extern "C" int EMSCRIPTEN_KEEPALIVE _pz( int depth ) {
 	CDEPTH = depth;
 	PLYS =(((CDEPTH-1)*2)+1);
     FF = 0;

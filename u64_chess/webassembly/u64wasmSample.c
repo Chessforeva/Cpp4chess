@@ -25,12 +25,12 @@ emcc u64wasmSample.c -O2 -s WASM=1 -o u64wasmSample.html -s INITIAL_MEMORY=13421
 */
 
 // Init chess
-void EMSCRIPTEN_KEEPALIVE _init() {
+extern "C" void EMSCRIPTEN_KEEPALIVE _init() {
   Init_u64_chess();
 }
 
 // Do sample moves
-void EMSCRIPTEN_KEEPALIVE _makeSomeMoves() {
+extern "C" void EMSCRIPTEN_KEEPALIVE _makeSomeMoves() {
 
     uciMove("f2f3");
     uciMove("e7e5");
@@ -42,7 +42,7 @@ void EMSCRIPTEN_KEEPALIVE _makeSomeMoves() {
 
 // To return string from data to Javascript
 // (loop till 0)
-int EMSCRIPTEN_KEEPALIVE _get( int i ) {
+extern "C" int EMSCRIPTEN_KEEPALIVE _get( int i ) {
   return (int)data[i];
 }
 
