@@ -1,6 +1,9 @@
 # Stockfish 5 webassembly build
 
-It is a .wasm chess engine without loads of web-server requirements.
+It is a .wasm chess engine without extensive web-server requirements.<br />
+ A minimal sandboxed for webpages bestmove calculator for chess positions.<br />
+ Not a strongest Stockfish build ever.<br />
+
 Online sample at<br />
  https://chessforeva.github.io/stockfish5wasm/main.html
 
@@ -20,7 +23,7 @@ Compiled on Windows 10
 This generated 3 files:<br /> main.html, main.js, main.wasm
 
 Made some adjustments in<br />
- main.html, main.js
+ main.html, main.js<br />
 Recompile main.wasm and overwrite as needed.
 
 That's it.
