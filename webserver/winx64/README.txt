@@ -12,4 +12,18 @@ www.ini
 mimes.ini
 
 ----
+Hack, but can help moving valuable family content.
+
+Before starting the webserver, can run command prompt (Start cmd),
+  move to current folder and run command
+  dir *.* /s > content.txt
+
+Now can see all the files and subfolders here online, read content.txt
+  
+----
+One of reasons for creating this was Google Colab and python.
+Can easily fetch files and folders and do processing online.
+
+----
 Chessforeva 2025.jan
+
