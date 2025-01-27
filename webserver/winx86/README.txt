@@ -3,7 +3,9 @@ This is a Web server designed by ChatGPT
  (32-bit console application)
 
 Simply copy into folder. Start and it works.
-Not advanced, nos ssl, no gzip transfers, just can get files.
+Not advanced, no ssl, no gzip transfers, just can get files.
+For people holding good intentions.
+Security starts with individual awareness.
 
 www_x86.exe
 www.ini
