@@ -1,6 +1,8 @@
 
 This is a Web server designed by ChatGPT
  especially for tcc  TinyC 32 bit compiler.
+Another version is the same compiled on MS Visual C 2010.
+
 It is for Windows XP.
 
 Simply copy into old PC's folder. Start and it works.
@@ -22,7 +24,11 @@ Before starting the webserver, can run command prompt (Start cmd),
   dir *.* /s > content.txt
 
 Now can see all the files and subfolders here online, read content.txt
-  
+
+
+It does not solve 2 byte unicode filenames in various languages,
+ but files always can be renamed or zipped inside a download pack.
+
 ----
 One of reasons for creating this was Google Colab and python.
 Can easily fetch files and folders and do processing online.
