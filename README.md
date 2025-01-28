@@ -18,9 +18,10 @@ This Git contains various C subfolders of usable tools and developments. Not too
 
 #### Other tools
 
-<b>jsObfsc</b> is a source code minifier and also a helper to minimize and somehow hide names of variables and functions. Developed for weak javascripts in browsers long time ago.
+<b>jsObfsc</b> is a source code minifier for javascript interpreter. Developed for slow javascripts in browsers long time ago.
 
 <b>Sitemap</b> makes a html document that has good links for folders and files on webservers, but also is like a tree of filesystem. Actually it also helps making Google sitemap.xml.
 
-<b>webserver</b> is a webserver in it's simplest form.
+<b>webserver</b> is a webserver in it's simplest form. Varios versions to choose one workable on an old abandoned PC. It will not serve non ASCII filenames. Should find a good advanced ftp instead.
+
 
