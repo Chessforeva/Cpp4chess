@@ -22,7 +22,7 @@ This Git contains various C subfolders of usable tools and developments. Not too
 
 <b>Sitemap</b> makes a html document that has good links for folders and files on webservers, but also is like a tree of filesystem. Actually it also helps making Google sitemap.xml.
 
-<b>webserver</b> is a webserver in it's simplest form. Various versions to choose one workable on an old abandoned PC. Good for ASCII filenames. Bad for non-english 2-byte character filenames. Better find a good advanced ftp instead to transfer files. Or can zip and download a compressed download pack.
+<b>webserver</b> is a webserver in it's simplest form. Various versions to find one workable on an old abandoned PC.
 
 
 

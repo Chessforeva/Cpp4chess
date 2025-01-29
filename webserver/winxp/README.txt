@@ -6,13 +6,14 @@ Another version is the same compiled on MS Visual C 2010.
 It is for Windows XP.
 
 Simply copy into old PC's folder. Start and it works.
-Not advanced, nossl, no gzip transfers, just can get files.
-For people holding good intentions.
-Security starts with individual awareness.
 
 www_xp.exe
 www.ini
 mimes.ini
+
+Not advanced, nossl, no gzip transfers, just can get files.
+For people holding good intentions.
+Security starts with individual awareness.
 
 This way can get old good things online.
 
@@ -23,15 +24,14 @@ Before starting the webserver, can run command prompt (Start cmd),
   move to current folder and run command
   dir *.* /s > content.txt
 
-Now can see all the files and subfolders here online, read content.txt
+Now can see all the files and subfolders, read content.txt first.
 
-
-It does not solve 2 byte unicode filenames in various languages,
+Use inside the local network
+  or configure router settings (ip,port) to allow access from outside.
+ 
+It does not solve 2-byte unicode filenames in various languages,
  but files always can be renamed or zipped inside a download pack.
 
-----
-One of reasons for creating this was Google Colab and python.
-Can easily fetch files and folders and do processing online.
 
 ----
 Chessforeva 2025.jan
