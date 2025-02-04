@@ -4,6 +4,10 @@
 
  ChatGPT made almost everything
 
+ Compile:
+ tcc.exe ftp_xp.c -IINCLUDE -lws2_32 -o ftp_xp.exe
+
+
 */
 
 #define _WIN32_WINNT 0x0501 // Ensure compatibility with Windows XP
@@ -133,8 +137,8 @@ void get_file_attributes(char *output, WIN32_FIND_DATA *find_data) {
     snprintf(month, sizeof(month), "%s", months[stLocal.wMonth - 1]);
     char date[20];
     snprintf(date, sizeof(date), "%s %02d %02d:%02d", month, stLocal.wDay, stLocal.wHour, stLocal.wMinute);
-	//unsigned long long size = ((unsigned long long)find_data->nFileSizeHigh << 32) | find_data->nFileSizeLow;
-	DWORD size = find_data->nFileSizeLow;	// 4GB
+    //unsigned long long size = ((unsigned long long)find_data->nFileSizeHigh << 32) | find_data->nFileSizeLow;
+    DWORD size = find_data->nFileSizeLow;	// 4GB
     sprintf(output, "%s   1 user    group    %12llu %s %s\r\n", permissions, size, date, find_data->cFileName);
 }
 
@@ -154,33 +158,33 @@ void list_directory() {
     strcpy(list_buffer, "");
     do {
         if (strcmp(find_data.cFileName, ".") != 0 && strcmp(find_data.cFileName, "..") != 0) {
-			get_file_attributes(entry, &find_data);
-			strcat(list_buffer, entry);
+        	get_file_attributes(entry, &find_data);
+        	strcat(list_buffer, entry);
         }
     } while (FindNextFile(hFind, &find_data));
     FindClose(hFind);
     strcat(list_buffer, "\r\n"); // Ensure proper termination
-	send(transfer_sock, list_buffer, strlen(list_buffer), 0);
+    send(transfer_sock, list_buffer, strlen(list_buffer), 0);
     closesocket(transfer_sock);
     send_response("226 Directory send OK.\r\n");
 }
 
 void nlst() {
-	list_directory();
+    list_directory();
 }
 
 void pwd() {
     char current_path[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, current_path);
-	norm_filename(current_path);
+    norm_filename(current_path);
     sprintf(buffer, "257 \"%s\" is the current directory\r\n", current_path);
     send_response(buffer);
 }
 
 void retr(char *filename) {
-	strcpy( filenm, filename );
-	norm_filename(filenm);
-	removeslashes(filenm);
+    strcpy( filenm, filename );
+    norm_filename(filenm);
+    removeslashes(filenm);
     SOCKET transfer_sock = get_data_socket();
     if (transfer_sock == INVALID_SOCKET) {
         send_response("425 Can't open data connection\r\n");
@@ -196,16 +200,16 @@ void retr(char *filename) {
             send(transfer_sock, buffer, bytes_read, 0);
         }
         fclose(file);
-		printf("[INFO] Sent file: %s\n", (char *)filenm);
+        printf("[INFO] Sent file: %s\n", (char *)filenm);
         closesocket(transfer_sock);
         send_response("226 Transfer complete\r\n");
     }
 }
 
 void stor(char *filename) {
-	strcpy( filenm, filename );
-	norm_filename(filenm);
-	removeslashes(filenm);
+    strcpy( filenm, filename );
+    norm_filename(filenm);
+    removeslashes(filenm);
     SOCKET transfer_sock = get_data_socket();
     if (transfer_sock == INVALID_SOCKET) {
         send_response("425 Can't open data connection\r\n");
@@ -221,15 +225,15 @@ void stor(char *filename) {
             fwrite(buffer, 1, bytes_received, file);
         }
         fclose(file);
-		printf("[INFO] Received file: %s\n", (char *)filenm);
+        printf("[INFO] Received file: %s\n", (char *)filenm);
         closesocket(transfer_sock);
         send_response("226 Transfer complete\r\n");
     }
 }
 			
 void pasv() {
-	int h1, h2, h3, h4;
-	sscanf(client_ip, "%d.%d.%d.%d", &h1, &h2, &h3, &h4);
+    int h1, h2, h3, h4;
+    sscanf(client_ip, "%d.%d.%d.%d", &h1, &h2, &h3, &h4);
     int port = 50000 + (rand() % 1000);
     pasv_sock = socket(AF_INET, SOCK_STREAM, 0);
     pasv_addr.sin_family = AF_INET;
@@ -238,7 +242,7 @@ void pasv() {
     bind(pasv_sock, (struct sockaddr*)&pasv_addr, sizeof(pasv_addr));
     listen(pasv_sock, 1);
     sprintf(buffer, "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d)\r\n", h1, h2, h3, h4, port / 256, port % 256);
-	printf("port:%ld\n",port);
+    printf("port:%ld\n",port);
     send_response(buffer);
 }
 
@@ -250,15 +254,15 @@ void port(char *params) {
     active_addr.sin_addr.s_addr = client_addr.sin_addr;
     active_addr.sin_port = htons(p1 * 256 + p2);
     printf("port:%ld\n",active_addr.sin_port);
-	connect(data_sock, (struct sockaddr*)&active_addr, sizeof(active_addr));
+    connect(data_sock, (struct sockaddr*)&active_addr, sizeof(active_addr));
     send_response("200 PORT command successful\r\n");
 }
 
 void cdup() {
     GetCurrentDirectory(MAX_PATH, pathbuf);
-	norm_filename(pathbuf);
+    norm_filename(pathbuf);
     if (strcmp(pathbuf, working_directory) == 0) {
-		send_response("550 Already at root directory\r\n");
+        send_response("550 Already at root directory\r\n");
         return;
     }
     remove_till_parent_folder(pathbuf);
@@ -270,14 +274,14 @@ void cdup() {
 }
 
 void cwd(char *path) {
-	norm_filename(path);
-	char *C = path;
-	// avoid exact pathnames in commands
-	if(*C == '.' || *C == '\\' || strchr(path, ':') != NULL) {
-		cdup();
-		return;
-	}
-	safefilename(path);
+    norm_filename(path);
+    char *C = path;
+    // avoid exact pathnames in commands
+    if(*C == '.' || *C == '\\' || strchr(path, ':') != NULL) {
+    	cdup();
+    	return;
+    }
+    safefilename(path);
     if (SetCurrentDirectory(path)) {
         send_response("250 Directory successfully changed\r\n");
     } else {
@@ -286,7 +290,7 @@ void cwd(char *path) {
 }
 
 void mkd(char *path) {
-	safefilename(path);
+    safefilename(path);
     if (CreateDirectory(path, NULL)) {
         send_response("257 Directory created\r\n");
     } else {
@@ -295,7 +299,7 @@ void mkd(char *path) {
 }
 
 void rmd(char *path) {
-	safefilename(path);
+    safefilename(path);
     if (RemoveDirectory(path)) {
         send_response("250 Directory removed\r\n");
     } else {
@@ -304,7 +308,7 @@ void rmd(char *path) {
 }
 
 void dele(char *path) {
-	safefilename(path);
+    safefilename(path);
     if (DeleteFile(path)) {
         send_response("250 File deleted\r\n");
     } else {
@@ -313,13 +317,13 @@ void dele(char *path) {
 }
 
 void rnfr(char *old_name) {
-	strcpy( filenm, old_name );
-	safefilename( filenm );
+    strcpy( filenm, old_name );
+    safefilename( filenm );
     send_response("350 Ready for RNTO\r\n");
 }
 
 void rnto(char *old_name, char *new_name) {
-	safefilename(new_name);
+    safefilename(new_name);
     if (MoveFile(old_name, new_name)) {
         send_response("250 File renamed successfully\r\n");
     } else {
@@ -344,7 +348,7 @@ void site(char *cmd) {
         send_response("500 Unsupported chmod mode\r\n");
         return;
     }
-	safefilename(filenm);
+    safefilename(filenm);
     if (SetFileAttributes(filenm, attributes)) {
 		send_response("200 File attributes changed\r\n");
     } else {
@@ -372,7 +376,7 @@ void stat() {
 }
 			
 void client() {
-	strcpy(client_ip, inet_ntoa(client_addr.sin_addr));
+    strcpy(client_ip, inet_ntoa(client_addr.sin_addr));
     printf("[INFO] Client connected: %s\n", client_ip);
     send_response("220 Simple FTP Server\r\n");
     while (1) {
@@ -381,12 +385,12 @@ void client() {
         if (bytes_received <= 0) break;
         
         printf("[CMD] %s", buffer);
-		if (strncmp(buffer, "USER", 4) == 0) {
+        if (strncmp(buffer, "USER", 4) == 0) {
 			send_response("230 Logged in\r\n");
         } else if (strncmp(buffer, "PASS", 4) == 0) {
-            send_response("230 Logged in\r\n");
+			send_response("230 Logged in\r\n");
         } else if (strncmp(buffer, "LIST", 4) == 0) {
-            list_directory();
+			list_directory();
         } else if (strncmp(buffer, "NLST", 4) == 0) {
 			nlst();
         } else if (strncmp(buffer, "PORT", 4) == 0) {
@@ -411,40 +415,39 @@ void client() {
 			pwd();
         } else if (strncmp(buffer, "STAT", 4) == 0) {
 			stat();
-        } else if (strncmp(buffer, "QUIT", 4) == 0 ||
-				strncmp(buffer, "BYE", 3) == 0) {
+        } else if (strncmp(buffer, "QUIT", 4) == 0 || strncmp(buffer, "BYE", 3) == 0) {
 			send_response("221 Bye.\r\n");
         } else if (strncmp(buffer, "RETR ", 5) == 0) {
-            retr(buffer + 5);
+			retr(buffer + 5);
         } else if (strncmp(buffer, "STOR ", 5) == 0) {
 			stor(buffer + 5);
         } else if (strncmp(buffer, "TYPE I", 6) == 0) {
-            transfer_mode = 1;
-            send_response("200 Binary mode set\r\n");
+			transfer_mode = 1;
+			send_response("200 Binary mode set\r\n");
         } else if (strncmp(buffer, "TYPE A", 6) == 0) {
-            transfer_mode = 0;
-            send_response("200 ASCII mode set\r\n");
+			transfer_mode = 0;
+			send_response("200 ASCII mode set\r\n");
         } else if (strncmp(buffer, "MKD ", 4) == 0) {
-            mkd(buffer + 4);
+			mkd(buffer + 4);
         } else if (strncmp(buffer, "XMKD ", 5) == 0) {
-            mkd(buffer + 5);
+			mkd(buffer + 5);
         } else if (strncmp(buffer, "RMD ", 4) == 0) {
-            rmd(buffer + 4);
+   			rmd(buffer + 4);
         } else if (strncmp(buffer, "XRMD ", 5) == 0) {
-            rmd(buffer + 5);
+			rmd(buffer + 5);
         } else if (strncmp(buffer, "DELE ", 5) == 0) {
-            dele(buffer + 5);
+			dele(buffer + 5);
         } else if (strncmp(buffer, "RNFR ", 5) == 0) {
-            rnfr(buffer + 5);
+			rnfr(buffer + 5);
         } else if (strncmp(buffer, "RNTO ", 5) == 0) {
-            rnto(filenm, buffer + 5);
+			rnto(filenm, buffer + 5);
         } else if (strncmp(buffer, "SITE ", 5) == 0) {
-            site(buffer + 5);
-		} else if (strncmp(buffer, "HELP", 4) == 0) {
+			site(buffer + 5);
+        } else if (strncmp(buffer, "HELP", 4) == 0) {
 			help();
         } else {
 			send_response("500 Unknown command\r\n");
-		}
+        	}
     }
     printf("[INFO] Client disconnected\n");
     closesocket(client_sock);
@@ -464,16 +467,16 @@ void hello() {
  };
  for( int i = 0; hello_txt[i][0] != '\0' ; i++ ) {
 	printf( hello_txt[i] );
- }
+ 	}
  }
 
 int main() {
-	hello();
+    hello();
     GetModuleFileNameA(NULL, working_directory, MAX_PATH);
     *(strrchr(working_directory, '\\')) = '\0';
     WSAStartup(MAKEWORD(2, 2), &wsa_data);
     server_sock = socket(AF_INET, SOCK_STREAM, 0);
-	client_len = sizeof(client_addr);
+    client_len = sizeof(client_addr);
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(control_port);
