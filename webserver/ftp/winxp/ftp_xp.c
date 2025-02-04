@@ -2,11 +2,10 @@
 
  FTP server in simplest old C style for TinyC compiler for very old Windows PCs.
 
- ChatGPT made almost everything
+ ChatGPT made almost everything.
 
  Compile:
  tcc.exe ftp_xp.c -IINCLUDE -lws2_32 -o ftp_xp.exe
-
 
 */
 
@@ -23,10 +22,13 @@
 #define BUFFER_SIZE 100*1024
 
 char buffer[BUFFER_SIZE];
+char buff2[BUFFER_SIZE];
+wchar_t utf16buffer[BUFFER_SIZE];
 char filenm[BUFFER_SIZE];
 char list_buffer[BUFFER_SIZE];
 char entry[BUFFER_SIZE];
 char pathbuf[BUFFER_SIZE];
+
 char server_ip[256];
 char client_ip[256];
 int client_len;
@@ -37,6 +39,7 @@ int control_port = 21;
 int data_port = 20;
 int passive_mode = 1;
 int transfer_mode = 0; // 0 = ASCII, 1 = Binary
+int utf8 = 0;
 WSADATA wsa_data;
 SOCKET server_sock = INVALID_SOCKET, client_sock = INVALID_SOCKET;
 SOCKET data_sock = INVALID_SOCKET, pasv_sock = INVALID_SOCKET;
@@ -57,8 +60,45 @@ void get_server_ip(char *ip, size_t size) {
     strncpy(ip, "127.0.0.1", size);
 }
 
-void send_response(const char *message) {
-    send(client_sock, message, strlen(message), 0);
+int convert_to_utf8( char *input ) {
+    int input_length = strlen(input);
+    unsigned int code_page = GetACP();
+    int utf16_length = MultiByteToWideChar(code_page, 0, input, input_length, NULL, 0);
+    if (utf16_length == 0) {
+        printf("Error getting UTF-16 length: %d\n", GetLastError());
+        return 1;
+    }
+    int result = MultiByteToWideChar(code_page, 0, input, input_length, utf16buffer, utf16_length);
+    if (result == 0) {
+        printf("Error converting to UTF-16: %d\n", GetLastError());
+        return 1;
+    }
+    utf16buffer[utf16_length] = L'\0';
+    int utf8_length = WideCharToMultiByte(CP_UTF8, 0, utf16buffer, utf16_length, NULL, 0, NULL, NULL);
+    if (utf8_length == 0) {
+        printf("Error getting UTF-8 length: %d\n", GetLastError());
+        return 1;
+    }
+    result = WideCharToMultiByte(CP_UTF8, 0, utf16buffer, utf16_length, buffer, utf8_length, NULL, NULL);
+    if (result == 0) {
+        printf("Error converting to UTF-8: %d\n", GetLastError());
+        return 1;
+    }
+    buffer[utf8_length] = '\0';
+    printf("UTF8 converted\n");
+    return 0;
+}
+
+void send_response(char *message) {
+    if(utf8) {
+        convert_to_utf8( message );
+        send(client_sock, buffer, strlen(buffer), 0);
+        printf("%s\n",buffer);
+    }
+    else {
+        send(client_sock, message, strlen(message), 0);
+        printf("%s\n",message);
+    }
 }
 
 SOCKET get_data_socket() {
@@ -70,51 +110,77 @@ SOCKET get_data_socket() {
     return data_sock;
 }
 
-void removecharat( char *s ) {
-	char *T = s, *Q = s;
-	while(*Q != 0) *(Q++) = *(++T);
+void removecharat(char *s) {
+    char *T = s, *Q = s;
+    while(*Q != 0) *(Q++) = *(++T);
 }
 
-void norm_filename( char *filename ) {
-	char *C = filename;
-	while(*C == ' ') removecharat(C);
-	while(*C != 0) {
-		if(*C == '/') *C = '\\';
-		if(*C < 14 || *C == ' ') { *C = '\0'; break; }
-		C++;
-	}
+void norm_filename(char *filename) {
+    char *C = filename;
+    while(*C == ' ' || *C < 14) removecharat(C);
+    while(*C != 0) {
+        if(*C == '/') *C = '\\';
+        if(*C < 14) { *C = '\0'; break; }
+        C++;
+    }
+    while( *(--C) == ' ' ) *C = '\0';
 }
 
-void removelastslash( char *filename ) {
-	char *slash = strrchr(filename, '\\');
-	if(slash != NULL) {
+void removelastslash(char *path) {
+    char *slash = strrchr(path, '\\');
+    if(slash != NULL) {
         if( *(++slash) == 0 ) *(--slash) = '\0';
-	}
+    }
 }
 
-void removeslashes( char *filename ) {
-	char *C = filename;
-	while(*C != 0) {
-		if(*C == '/' || *C == '\\' || *C == ':') removecharat(C);
-		else C++;
-	}
+void removeslashes(char *path) {
+    char *C = path;
+    while(*C != 0) {
+        if(*C == '/' || *C == '\\' || *C == ':') removecharat(C);
+        else C++;
+    }
 }
 
-void removestartdots( char *filename ) {
-	char *C = filename;
-	while(*C == '.' || *C == ' ') removecharat(C);
+void removestartdots(char *path) {
+    char *C = path;
+    while(*C == '.' || *C == ' ') removecharat(C);
+}
+
+void removesemicolons(char *path) {
+    char *C = path;
+    while(*C != 0) {
+        if(*C == ':') removecharat(C);
+        else C++;
+    }
+}
+
+void toremotepath(char *path) {
+    char *C = path;
+    int L = strlen(working_directory);
+    if( strncmp( C, working_directory, L )==0 ) {
+        while( L-- ) removecharat(C);
+    }
+    if( *C == 0 ) {
+        *(C++) = '/';
+        *C = '\0';
+        return;
+    }    
+    while( *C != 0 ) {
+        if(*C == '\\') *C = '/';
+        C++;
+    }
 }
 
 void safefilename(char *path) {
-	norm_filename(path);
-	removeslashes(path);
-	removestartdots(path);
-	GetCurrentDirectory(MAX_PATH, pathbuf);
-	removelastslash(pathbuf);	
-	strcat(pathbuf,"/");
-	strcat(pathbuf,path);	
-	norm_filename(pathbuf);	
-	strcpy(path, pathbuf);
+    norm_filename(path);
+    removeslashes(path);
+    removestartdots(path);
+    GetCurrentDirectory(MAX_PATH, pathbuf);
+    removelastslash(pathbuf);    
+    strcat(pathbuf,"/");
+    strcat(pathbuf,path);    
+    norm_filename(pathbuf);    
+    strcpy(path, pathbuf);
 }
 
 void remove_till_parent_folder(char *path) {
@@ -122,6 +188,21 @@ void remove_till_parent_folder(char *path) {
     if (len == 0) return;
     while (len > 0 && path[len-1] == '\\') path[--len] = '\0';
     while (len > 0 && path[len-1] != '\\') path[--len] = '\0';
+}
+
+void cmdtoupper(char *buf) {
+    char *C = buf;
+    int U;
+    while(*C != 0 && *C == ' ') removecharat(C);
+    while(*C != 0 && *C != ' ')
+    {
+        if(*C < 14) { *C = '\0'; break; }
+        if(*C >= 'a') {
+            U = *C;
+            *C = (char)(U - 32);
+            }
+        C++;
+    }
 }
 
 void get_file_attributes(char *output, WIN32_FIND_DATA *find_data) {
@@ -138,32 +219,36 @@ void get_file_attributes(char *output, WIN32_FIND_DATA *find_data) {
     char date[20];
     snprintf(date, sizeof(date), "%s %02d %02d:%02d", month, stLocal.wDay, stLocal.wHour, stLocal.wMinute);
     //unsigned long long size = ((unsigned long long)find_data->nFileSizeHigh << 32) | find_data->nFileSizeLow;
-    DWORD size = find_data->nFileSizeLow;	// 4GB
-    sprintf(output, "%s   1 user    group    %12llu %s %s\r\n", permissions, size, date, find_data->cFileName);
+    DWORD size = find_data->nFileSizeLow;    // 4GB
+    sprintf(output, "%s    1 user     group %12llu %s %s\r\n", permissions, size, date, find_data->cFileName);
 }
 
 void list_directory() {
-    SOCKET transfer_sock = get_data_socket();
-    if (transfer_sock == INVALID_SOCKET) {
-        send_response("425 Can't open data connection\r\n");
-        return;
-    }
     WIN32_FIND_DATA find_data;
+    strcpy(list_buffer, "");
     HANDLE hFind = FindFirstFile("*", &find_data);
     if (hFind == INVALID_HANDLE_VALUE) {
         send_response("550 Directory listing failed\r\n");
         return;
     }
-    send_response("150 Here comes the directory listing\r\n");
-    strcpy(list_buffer, "");
     do {
         if (strcmp(find_data.cFileName, ".") != 0 && strcmp(find_data.cFileName, "..") != 0) {
-        	get_file_attributes(entry, &find_data);
-        	strcat(list_buffer, entry);
+            get_file_attributes(entry, &find_data);
+            strcat(list_buffer, entry);
         }
     } while (FindNextFile(hFind, &find_data));
     FindClose(hFind);
     strcat(list_buffer, "\r\n"); // Ensure proper termination
+    if(utf8) {
+        convert_to_utf8(list_buffer);
+        strcpy(list_buffer, buffer);
+    }
+    SOCKET transfer_sock = get_data_socket();
+    if (transfer_sock == INVALID_SOCKET) {
+        send_response("425 Can't open data connection\r\n");
+        return;
+    }
+    send_response("150 Here comes the directory listing\r\n");
     send(transfer_sock, list_buffer, strlen(list_buffer), 0);
     closesocket(transfer_sock);
     send_response("226 Directory send OK.\r\n");
@@ -174,10 +259,10 @@ void nlst() {
 }
 
 void pwd() {
-    char current_path[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, current_path);
-    norm_filename(current_path);
-    sprintf(buffer, "257 \"%s\" is the current directory\r\n", current_path);
+    GetCurrentDirectory(MAX_PATH, pathbuf);
+    printf("get current: %s\n",pathbuf);
+    toremotepath(pathbuf);
+    sprintf(buffer, "257 \"%s\" is the current directory\r\n", pathbuf);
     send_response(buffer);
 }
 
@@ -197,6 +282,10 @@ void retr(char *filename) {
         send_response("150 Opening data connection\r\n");
         int bytes_read;
         while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
+            if(transfer_mode==0 && utf8) {
+                memcpy( buff2, buffer, bytes_read );
+                convert_to_utf8( buff2 );
+            }
             send(transfer_sock, buffer, bytes_read, 0);
         }
         fclose(file);
@@ -204,6 +293,21 @@ void retr(char *filename) {
         closesocket(transfer_sock);
         send_response("226 Transfer complete\r\n");
     }
+}
+
+void size(char *filename) {
+    strcpy( pathbuf, filename );
+    norm_filename(pathbuf);
+    removeslashes(pathbuf);
+    file = fopen(pathbuf, "rb");
+    if (file) {
+        fseek(file, 0L, SEEK_END);
+        sprintf(buffer, "213 %ld\r\n", ftell(file));
+        fclose(file);
+        send_response(buffer);
+        return;
+    }	
+    send_response("550 File not found\r\n");
 }
 
 void stor(char *filename) {
@@ -223,6 +327,8 @@ void stor(char *filename) {
         int bytes_received;
         while ((bytes_received = recv(transfer_sock, buffer, BUFFER_SIZE, 0)) > 0) {
             fwrite(buffer, 1, bytes_received, file);
+            // ignores UTF8 to Windows ASCII...
+            // client can send in binary mode
         }
         fclose(file);
         printf("[INFO] Received file: %s\n", (char *)filenm);
@@ -230,7 +336,7 @@ void stor(char *filename) {
         send_response("226 Transfer complete\r\n");
     }
 }
-			
+            
 void pasv() {
     int h1, h2, h3, h4;
     sscanf(client_ip, "%d.%d.%d.%d", &h1, &h2, &h3, &h4);
@@ -258,35 +364,68 @@ void port(char *params) {
     send_response("200 PORT command successful\r\n");
 }
 
+void goroot() {
+    SetCurrentDirectory(working_directory);
+}
+
+void setfolder( char *folder ) {
+    if (SetCurrentDirectory(folder)) {
+        send_response("250 Directory successfully changed\r\n");
+    } else {
+        send_response("550 Failed to change directory\r\n");
+    }
+    // verify to be sure
+    GetCurrentDirectory(MAX_PATH, pathbuf);
+    if( strncmp( pathbuf, working_directory, strlen(working_directory) ) != 0 ) {
+        goroot();
+    }
+    printf("set current: %s\n",folder);
+}
+
 void cdup() {
     GetCurrentDirectory(MAX_PATH, pathbuf);
     norm_filename(pathbuf);
     if (strcmp(pathbuf, working_directory) == 0) {
-        send_response("550 Already at root directory\r\n");
+        send_response("250 Already at root directory\r\n");
         return;
     }
     remove_till_parent_folder(pathbuf);
-    if (SetCurrentDirectory(pathbuf)) {
-        send_response("250 Directory successfully changed\r\n");
-    } else {
-        send_response("550 Failed to change directory\r\n");
-    }
+    setfolder(pathbuf);
 }
 
 void cwd(char *path) {
-    norm_filename(path);
-    char *C = path;
+    strcpy(pathbuf,path);
+    norm_filename(pathbuf);
+    toremotepath(pathbuf);
+    if( strcmp( pathbuf, ".." )==0 ) {
+         cdup();
+         return;
+    }
+    if( strcmp( pathbuf, "." )==0 ) {
+         send_response("250 NOOP\r\n");
+         return;
+    }
+    if( strcmp( pathbuf, "/" )==0 ) {
+         GetCurrentDirectory(MAX_PATH, pathbuf);
+         toremotepath(pathbuf);
+         if ( strcmp( pathbuf, "/" )==0 ) {
+         send_response("250 Already at root directory\r\n");
+         return;
+    }
+    setfolder(working_directory);
+    return;
+    }
     // avoid exact pathnames in commands
-    if(*C == '.' || *C == '\\' || strchr(path, ':') != NULL) {
-    	cdup();
-    	return;
+    norm_filename(path);
+    removelastslash(path);
+    removesemicolons(path);
+    if( path[0]=='\\' ) {
+        strcpy(pathbuf, working_directory);
+        strcat(pathbuf, path);
+        setfolder(pathbuf);
+        return;
     }
-    safefilename(path);
-    if (SetCurrentDirectory(path)) {
-        send_response("250 Directory successfully changed\r\n");
-    } else {
-        send_response("550 Failed to change directory\r\n");
-    }
+    setfolder(path);
 }
 
 void mkd(char *path) {
@@ -333,7 +472,8 @@ void rnto(char *old_name, char *new_name) {
 
 void site(char *cmd) {
     char mode[4];
-    if (sscanf(cmd, "chmod %3s %s", mode, filenm) != 2) {
+    cmdtoupper(cmd);
+    if (sscanf(cmd, "CHMOD %3s %s", mode, filenm) != 2) {
         send_response("500 Invalid STAT command format\r\n");
         return;
     }
@@ -350,32 +490,60 @@ void site(char *cmd) {
     }
     safefilename(filenm);
     if (SetFileAttributes(filenm, attributes)) {
-		send_response("200 File attributes changed\r\n");
+        send_response("200 File attributes changed\r\n");
     } else {
-		send_response("550 Failed to change file attributes\r\n");
+        send_response("550 Failed to change file attributes\r\n");
     }
 }
 
 void feat() {
-	send_response("211-Features:\r\n211 End\r\n");
+    send_response("211-Features:\r\n211 End\r\n");
 }
 
 void help() {
-	send_response("220 Help not there\r\n");
+    send_response("220 Help not there\r\n");
 }
 
 void stat() {
-	sprintf(buffer, "211-FTP server status:\r\n Connected to %s\r\n TYPE: ", server_ip);
-	if(transfer_mode == 0) {
-		strcat(buffer, "ASCII");
-	} else {
-		strcat(buffer, "BINARY");
-	}
-	strcat(buffer, "\r\n File transfer MODE: Stream\r\n211 End of status\r\n");
-	send_response(buffer);
+    sprintf(buffer, "211-FTP server status:\r\n Connected to %s\r\n TYPE: ", server_ip);
+    if(transfer_mode == 0) {
+        strcat(buffer, "ASCII");
+    } else {
+        strcat(buffer, "BINARY");
+    }
+    strcat(buffer, "\r\n File transfer MODE: Stream\r\n211 End of status\r\n");
+    send_response(buffer);
 }
-			
+
+void optsonoff( char *set ) {
+    cmdtoupper(set);
+    if( strncmp( set, "ON", 2 ) == 0 ) {
+        utf8 = 1;
+        send_response("200 UTF8 encoding enabled\r\n");
+        return 1;
+    }
+    if( strncmp( set, "OFF", 3 ) == 0 ) {
+        utf8 = 0;
+        send_response("200 UTF8 encoding disabled\r\n");
+        return 1;
+    }
+    return 0;
+}
+    
+void opts( char *opt ) {
+    cmdtoupper(opt);
+    if( strncmp( opt, "UTF8", 4 ) == 0 ) {
+        if( optsonoff( opt + 5 ) ) return;
+    }
+    send_response("500 Command not recognized\r\n");
+}
+
 void client() {
+    control_port = 21;
+    data_port = 20;
+    passive_mode = 1;
+    transfer_mode = 0;
+    utf8 = 0;
     strcpy(client_ip, inet_ntoa(client_addr.sin_addr));
     printf("[INFO] Client connected: %s\n", client_ip);
     send_response("220 Simple FTP Server\r\n");
@@ -384,73 +552,81 @@ void client() {
         int bytes_received = recv(client_sock, buffer, BUFFER_SIZE - 1, 0);
         if (bytes_received <= 0) break;
         
-        printf("[CMD] %s", buffer);
-        if (strncmp(buffer, "USER", 4) == 0) {
-			send_response("230 Logged in\r\n");
+        cmdtoupper(buffer);
+        printf("[CMD] %s\n", buffer);
+        if (strncmp(buffer, "OPTS", 4) == 0) {
+            opts( buffer + 5 );
+        } else if (strncmp(buffer, "USER", 4) == 0) {
+            send_response("230 Logged in\r\n");
         } else if (strncmp(buffer, "PASS", 4) == 0) {
-			send_response("230 Logged in\r\n");
+            send_response("230 Logged in\r\n");
         } else if (strncmp(buffer, "LIST", 4) == 0) {
-			list_directory();
+            list_directory();
         } else if (strncmp(buffer, "NLST", 4) == 0) {
-			nlst();
+            nlst();
         } else if (strncmp(buffer, "PORT", 4) == 0) {
-			passive_mode = 0;
-			port(buffer + 5);
+            passive_mode = 0;
+            port(buffer + 5);
         } else if (strncmp(buffer, "PASV", 4) == 0) {
-			passive_mode = 1;
-			pasv();
+            passive_mode = 1;
+            pasv();
         } else if (strncmp(buffer, "CWD", 3) == 0) {
-			cwd(buffer + 4);
+            cwd(buffer + 4);
         } else if (strncmp(buffer, "CDUP", 4) == 0) {
-			cdup();			
+            cdup();            
         } else if (strncmp(buffer, "XCUP", 4) == 0) {
-			cdup();
+            cdup();
         } else if (strncmp(buffer, "SYST", 4) == 0) {
-			send_response("215 Windows TinyC made ftp\r\n");
+            send_response("215 Windows TinyC made ftp\r\n");
         } else if (strncmp(buffer, "FEAT", 4) == 0) {
-			feat();
+            feat();
         } else if (strncmp(buffer, "PWD", 3) == 0) {
-			pwd();
+            pwd();
         } else if (strncmp(buffer, "XPWD", 4) == 0) {
-			pwd();
+            pwd();
         } else if (strncmp(buffer, "STAT", 4) == 0) {
-			stat();
+            stat();
         } else if (strncmp(buffer, "QUIT", 4) == 0 || strncmp(buffer, "BYE", 3) == 0) {
-			send_response("221 Bye.\r\n");
+            send_response("221 Bye.\r\n");
         } else if (strncmp(buffer, "RETR ", 5) == 0) {
-			retr(buffer + 5);
+            retr(buffer + 5);
         } else if (strncmp(buffer, "STOR ", 5) == 0) {
-			stor(buffer + 5);
+            stor(buffer + 5);
+        } else if (strncmp(buffer, "SIZE", 4) == 0) {
+            size(buffer + 5);
         } else if (strncmp(buffer, "TYPE I", 6) == 0) {
-			transfer_mode = 1;
-			send_response("200 Binary mode set\r\n");
+            transfer_mode = 1;
+            send_response("200 Binary mode set\r\n");
         } else if (strncmp(buffer, "TYPE A", 6) == 0) {
-			transfer_mode = 0;
-			send_response("200 ASCII mode set\r\n");
+            transfer_mode = 0;
+            send_response("200 ASCII mode set\r\n");
         } else if (strncmp(buffer, "MKD ", 4) == 0) {
-			mkd(buffer + 4);
+            mkd(buffer + 4);
         } else if (strncmp(buffer, "XMKD ", 5) == 0) {
-			mkd(buffer + 5);
+            mkd(buffer + 5);
         } else if (strncmp(buffer, "RMD ", 4) == 0) {
-   			rmd(buffer + 4);
+               rmd(buffer + 4);
         } else if (strncmp(buffer, "XRMD ", 5) == 0) {
-			rmd(buffer + 5);
+            rmd(buffer + 5);
         } else if (strncmp(buffer, "DELE ", 5) == 0) {
-			dele(buffer + 5);
+            dele(buffer + 5);
         } else if (strncmp(buffer, "RNFR ", 5) == 0) {
-			rnfr(buffer + 5);
+            rnfr(buffer + 5);
         } else if (strncmp(buffer, "RNTO ", 5) == 0) {
-			rnto(filenm, buffer + 5);
+            rnto(filenm, buffer + 5);
         } else if (strncmp(buffer, "SITE ", 5) == 0) {
-			site(buffer + 5);
+            site(buffer + 5);
         } else if (strncmp(buffer, "HELP", 4) == 0) {
-			help();
+            help();
+        } else if (strncmp(buffer, "NOOP", 4) == 0) {
+            send_response("250 NOOP\r\n");
         } else {
-			send_response("500 Unknown command\r\n");
-        	}
+            send_response("500 Unknown command\r\n");
+            }
     }
     printf("[INFO] Client disconnected\n");
     closesocket(client_sock);
+    goroot();
 }
 
 void hello() {
@@ -466,8 +642,8 @@ void hello() {
  (char *)"\0",
  };
  for( int i = 0; hello_txt[i][0] != '\0' ; i++ ) {
-	printf( hello_txt[i] );
- 	}
+    printf( hello_txt[i] );
+     }
  }
 
 int main() {
