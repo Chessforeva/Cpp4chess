@@ -32,6 +32,8 @@ Use inside the local network
 It does not solve 2-byte unicode filenames in various languages,
  but files always can be renamed or zipped inside a download pack.
 
+Modern Windows suspect TinyC executables as malwares and deletes. 
+It is made for XP anyway.
 
 ----
 Chessforeva 2025.jan

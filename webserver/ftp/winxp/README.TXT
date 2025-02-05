@@ -43,6 +43,9 @@ cd "filename%(my)+-folder"
 
 File sizes may be small because it isn't important in sending.
 
+Modern Windows suspect TinyC executables as malwares and deletes. 
+It is made for XP anyway.
+
 -----------------
 Chessforeva 30%, ChatGPT 60%, Gemini 10%
 2025

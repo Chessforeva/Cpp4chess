@@ -7,6 +7,9 @@
  Compile:
  tcc.exe ftp_xp.c -IINCLUDE -lws2_32 -o ftp_xp.exe
 
+ Remindert: do not forget it online,
+ use and close after - for security reasons
+ 
 */
 
 #define _WIN32_WINNT 0x0501 // Ensure compatibility with Windows XP
@@ -19,18 +22,20 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-#define BUFFER_SIZE 100*1024
+#define Kb100 (100*1024)
+#define BUFFER_SIZE Kb100
 
-char buffer[BUFFER_SIZE];
-char buff2[BUFFER_SIZE];
-wchar_t utf16buffer[BUFFER_SIZE];
-char filenm[BUFFER_SIZE];
-char list_buffer[BUFFER_SIZE];
-char entry[BUFFER_SIZE];
-char pathbuf[BUFFER_SIZE];
+char buffer[Kb100];
+wchar_t utf16buffer[Kb100];   // 200Kbytes
+char pathbuf[Kb100];
+char list_buffer[Kb100*6];    // 600Kbytes
+char filenm[Kb100];
+char buff2[Kb100];
+char entry[Kb100];
 
 char server_ip[256];
 char client_ip[256];
+char host_name[256];
 int client_len;
 struct sockaddr_in server_addr = {0}, client_addr = {0};
 struct sockaddr_in active_addr = {0}, pasv_addr = {0};
@@ -45,8 +50,7 @@ SOCKET server_sock = INVALID_SOCKET, client_sock = INVALID_SOCKET;
 SOCKET data_sock = INVALID_SOCKET, pasv_sock = INVALID_SOCKET;
 char working_directory[MAX_PATH] = "C:\\";
 
-void get_server_ip(char *ip, size_t size) {
-    char host_name[256];
+void get_server_ip(char *ip, size_t size) {   
     if (gethostname(host_name, sizeof(host_name)) == 0) {
         struct hostent *host_entry = gethostbyname(host_name);
         if (host_entry) {
@@ -306,7 +310,7 @@ void size(char *filename) {
         fclose(file);
         send_response(buffer);
         return;
-    }	
+    }    
     send_response("550 File not found\r\n");
 }
 
