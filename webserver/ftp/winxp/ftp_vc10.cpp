@@ -5,15 +5,18 @@
  ChatGPT made almost everything.
  Chessforeva, 2025 jan.
 
- Compile:
- tcc.exe ftp_xp.c -IINCLUDE -lws2_32 -o ftp_xp.exe
+ MS Visual C++ 2010 version
  
 */
+
+#include "stdafx.h"
 
 #define _WIN32_WINNT 0x0501 // Ensure compatibility with Windows XP
 #include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
+#include <conio.h>
+#include <direct.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -39,7 +42,7 @@ int client_len;
 struct sockaddr_in server_addr = {0}, client_addr = {0};
 struct sockaddr_in active_addr = {0}, pasv_addr = {0};
 FILE *file;
-WIN32_FIND_DATA find_data;
+WIN32_FIND_DATAA find_data;
 HANDLE hFind;
 int control_port = 21;
 int data_port = 20;
@@ -203,8 +206,8 @@ void safefilename(char *path) {
     norm_filename(path);
     removeslashes(path);
     removestartdots(path);
-    GetCurrentDirectory(MAX_PATH, pathbuf);
-    removelastslash(pathbuf);    
+    GetCurrentDirectoryA(MAX_PATH, pathbuf);
+    removelastslash(pathbuf);
     strcat(pathbuf,"/");
     strcat(pathbuf,path);    
     norm_filename(pathbuf);    
@@ -234,7 +237,7 @@ void cmdtoupper(char *buf) {
     }
 }
 
-void get_file_attributes(char *output, WIN32_FIND_DATA *find_data) {
+void get_file_attributes(char *output, WIN32_FIND_DATAA *find_data) {
     char file_permissions[11] = "-rwxrwxrwx";
     if (find_data->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
         file_permissions[0] = 'd';
@@ -247,24 +250,23 @@ void get_file_attributes(char *output, WIN32_FIND_DATA *find_data) {
     sprintf(month, "%s", months[stLocal.wMonth - 1]);
     char date[20];
     sprintf(date, "%s %02d %02d:%02d", month, stLocal.wDay, stLocal.wHour, stLocal.wMinute);
-    //unsigned long long size = ((unsigned long long)find_data->nFileSizeHigh << 32) | find_data->nFileSizeLow;
-    DWORD size = find_data->nFileSizeLow;    // 4GB
-    sprintf(output, "%s    1 user     group %12llu %s %s\r\n", file_permissions, size, date, find_data->cFileName);
+    unsigned long size = find_data->nFileSizeLow;    // 4GB
+    sprintf(output, "%s    1 user     group %12lu %s %s\r\n", file_permissions, size, date, find_data->cFileName);
 }
 
 void list_directory() {
     strcpy(list_buffer, "");
-    hFind = FindFirstFile("*", &find_data);
+    hFind = FindFirstFileA("*", &find_data);
     if (hFind == INVALID_HANDLE_VALUE) {
         send_response("550 Directory listing failed\r\n");
         return;
     }
     do {
-        if (strcmp(find_data.cFileName, ".") != 0 && strcmp(find_data.cFileName, "..") != 0) {
+        if (strcmp((char *)find_data.cFileName, ".") != 0 && strcmp((char *)find_data.cFileName, "..") != 0) {
             get_file_attributes(entry, &find_data);
             strcat(list_buffer, entry);
         }
-    } while (FindNextFile(hFind, &find_data));
+    } while (FindNextFileA(hFind, &find_data));
     FindClose(hFind);
     strcat(list_buffer, "\r\n"); // Ensure proper termination
     if(utf8) {
@@ -282,10 +284,10 @@ void list_directory() {
     send_response("226 Directory send OK.\r\n");
 }
 
+
 int is100ascii( char c ) {
     return ((( c=='.' ) || (c >='0' && c <= '9') ||  (c >='A' && c <= 'Z') || (c >='a' && c <= 'z')) ? 1 : 0);
 }
-
 
 int canexactthisname( char *actual, char *mask ) {
     char *C = actual, *B = mask;
@@ -307,7 +309,7 @@ int canbethisname( char *actual, char *mask ) {
 
 int filename_err_correction( char *filename ) {
     int cnt = 0;
-    hFind = FindFirstFile("*", &find_data);
+    hFind = FindFirstFileA("*", &find_data);
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
             char *f = find_data.cFileName;
@@ -315,12 +317,12 @@ int filename_err_correction( char *filename ) {
                 strcpy( buff1, f );
                 cnt++;
             }
-        } while (FindNextFile(hFind, &find_data));
+        } while (FindNextFileA(hFind, &find_data));
         FindClose(hFind);
     }
     if( cnt == 1 ) return 1;
     cnt = 0;
-    hFind = FindFirstFile("*", &find_data);
+    hFind = FindFirstFileA("*", &find_data);
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
             char *f = find_data.cFileName;
@@ -328,18 +330,17 @@ int filename_err_correction( char *filename ) {
                 strcpy( buff1, f );
                 cnt++;
             }
-        } while (FindNextFile(hFind, &find_data));
+        } while (FindNextFileA(hFind, &find_data));
         FindClose(hFind);
     }
     return cnt;
 }
-
 void nlst() {
     list_directory();
 }
 
 void pwd() {
-    GetCurrentDirectory(MAX_PATH, pathbuf);
+    GetCurrentDirectoryA(MAX_PATH, pathbuf);
     printf("get current: %s\n",pathbuf);
     toremotepath(pathbuf);
     sprintf(buffer, "257 \"%s\" is the current directory\r\n", pathbuf);
@@ -450,14 +451,14 @@ void port(char *params) {
     data_sock = socket(AF_INET, SOCK_STREAM, 0);
     active_addr.sin_family = AF_INET;
     active_addr.sin_addr = client_addr.sin_addr;
-    active_addr.sin_port = (ULONG)htons(p1 * 256 + p2);
+    active_addr.sin_port = (u_long)htons(p1 * 256 + p2);
     printf("port:%ld\n",active_addr.sin_port);
     connect(data_sock, (struct sockaddr*)&active_addr, sizeof(active_addr));
     send_response("200 PORT command successful\r\n");
 }
 
 void goroot() {
-    SetCurrentDirectory(working_directory);
+    SetCurrentDirectoryA(working_directory);
 }
 
 int setpathinternal( char *folder ) {
@@ -471,7 +472,7 @@ int setpathinternal( char *folder ) {
         good = 0;
         for( int drive = 1; drive < 26; drive++ ) {
             if( _chdrive( drive ) == 0 ) {
-                GetCurrentDirectory(MAX_PATH,buff2);
+                GetCurrentDirectoryA(MAX_PATH,buff2);
                 int c1 = *c; if(c1 >= 97) c1 -= 32; *c = (char)c1;
                 if( *a == *c ) {
                     good = 1;
@@ -481,19 +482,19 @@ int setpathinternal( char *folder ) {
         }
     }
     if( good ) {
-        good = ( SetCurrentDirectory(folder) ? 1 : 0 );
+        good = ( SetCurrentDirectoryA(folder) ? 1 : 0 );
         }
-    GetCurrentDirectory(MAX_PATH, working_directory);
+    GetCurrentDirectoryA(MAX_PATH, working_directory);
     printf("currently: %s\n", working_directory);
     return good;
 }
 
 void setfolder( char *folder ) {
-    int tryresult = ( SetCurrentDirectory(folder) ? 1 : 0 );
+    int tryresult = ( SetCurrentDirectoryA(folder) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(folder) == 1 ) {
             strcpy( folder, buff1 );
-            tryresult = ( SetCurrentDirectory(folder) ? 1 : 0 );
+            tryresult = ( SetCurrentDirectoryA(folder) ? 1 : 0 );
         }
     }
     if( tryresult ) {
@@ -502,7 +503,7 @@ void setfolder( char *folder ) {
         send_response("550 Failed to change directory\r\n");
     }
     // verify to be sure
-    GetCurrentDirectory(MAX_PATH, pathbuf);
+    GetCurrentDirectoryA(MAX_PATH, pathbuf);
     if( strncmp( pathbuf, working_directory, strlen(working_directory) ) != 0 ) {
         goroot();
     }
@@ -510,7 +511,7 @@ void setfolder( char *folder ) {
 }
 
 void cdup() {
-    GetCurrentDirectory(MAX_PATH, pathbuf);
+    GetCurrentDirectoryA(MAX_PATH, pathbuf);
     norm_filename(pathbuf);
     if (strcmp(pathbuf, working_directory) == 0) {
         send_response("250 Already at root directory\r\n");
@@ -533,7 +534,7 @@ void cwd(char *path) {
          return;
     }
     if( strcmp( pathbuf, "/" )==0 ) {
-        GetCurrentDirectory(MAX_PATH, pathbuf);
+        GetCurrentDirectoryA(MAX_PATH, pathbuf);
         toremotepath(pathbuf);
         if ( strcmp( pathbuf, "/" )==0 ) {
             send_response("250 Already at root directory\r\n");
@@ -557,7 +558,7 @@ void cwd(char *path) {
 
 void mkd(char *path) {
     safefilename(path);
-    if (CreateDirectory(path, NULL)) {
+    if (CreateDirectoryA(path, NULL)) {
         send_response("257 Directory created\r\n");
     } else {
         send_response("550 Failed to create directory\r\n");
@@ -566,11 +567,11 @@ void mkd(char *path) {
 
 void rmd(char *path) {
     safefilename(path);
-    int tryresult = ( RemoveDirectory(path) ? 1 : 0 );
+    int tryresult = ( RemoveDirectoryA(path) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(path) == 1 ) {
             strcpy( path, buff1 );
-            tryresult = ( RemoveDirectory(path) ? 1 : 0 );
+            tryresult = ( RemoveDirectoryA(path) ? 1 : 0 );
         }
     }
     if (tryresult) {
@@ -582,11 +583,11 @@ void rmd(char *path) {
 
 void dele(char *path) {
     safefilename(path);
-    int tryresult = ( DeleteFile(path) ? 1 : 0 );
+    int tryresult = ( DeleteFileA(path) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(path) == 1 ) {
             strcpy( path, buff1 );
-            tryresult = ( DeleteFile(path) ? 1 : 0 );
+            tryresult = ( DeleteFileA(path) ? 1 : 0 );
         }
     }
     if (tryresult) {
@@ -604,11 +605,11 @@ void rnfr(char *old_name) {
 
 void rnto(char *old_name, char *new_name) {
     safefilename(new_name);
-    int tryresult = ( MoveFile(old_name, new_name) ? 1 : 0 );
+    int tryresult = ( MoveFileA(old_name, new_name) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(old_name) == 1 ) {
             strcpy( old_name, buff1 );
-            tryresult = ( MoveFile(old_name, new_name) ? 1 : 0 );
+            tryresult = ( MoveFileA(old_name, new_name) ? 1 : 0 );
         }
     }
     if (tryresult) {
@@ -637,11 +638,11 @@ void site(char *cmd) {
         return;
     }
     safefilename(filenm);
-    int tryresult = ( SetFileAttributes(filenm, attributes) ? 1 : 0 );
+    int tryresult = ( SetFileAttributesA(filenm, (DWORD)attributes) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(filenm) == 1 ) {
             strcpy( filenm, buff1 );
-            tryresult = ( SetFileAttributes(filenm, attributes) ? 1 : 0 );
+            tryresult = ( SetFileAttributesA(filenm, (DWORD)attributes) ? 1 : 0 );
         }
     }
     if (tryresult) {
@@ -935,3 +936,4 @@ int main(int argc, char **argv) {
     WSACleanup();
     return 0;
 }
+
