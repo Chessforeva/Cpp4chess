@@ -5,7 +5,7 @@
  ChatGPT made almost everything.
  Chessforeva, 2025 jan.
 
- MS Visual C++ 2010 version
+ MS Visual C++ 2010 version, it is Microsoft
  
 */
 
@@ -284,6 +284,47 @@ void list_directory() {
     send_response("226 Directory send OK.\r\n");
 }
 
+void alna() {
+    int id = 0;
+    strcpy(list_buffer, "220-Alternative names of files and folders\r\n");
+    hFind = FindFirstFileA("*", &find_data);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            if (strcmp(find_data.cFileName, ".") != 0 && strcmp(find_data.cFileName, "..") != 0) {
+                sprintf(entry, "{%d}=%s\r\n", (++id), find_data.cFileName);            
+                strcat(list_buffer, entry);
+            }
+        } while (FindNextFileA(hFind, &find_data));
+        FindClose(hFind);
+    }
+    strcat(list_buffer, "220 Ok\r\n");    
+    if(utf8) {
+        convert_to_utf8(list_buffer);
+        strcpy(list_buffer, buffer);
+    }    
+    send_response(list_buffer);
+}
+
+int ck_alna( char *filename ) {
+    int id = 0, n = 0;
+    norm_filename( filename );
+    hFind = FindFirstFileA("*", &find_data);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            if (strcmp(find_data.cFileName, ".") != 0 && strcmp(find_data.cFileName, "..") != 0) {
+                sprintf(entry, "{%d}", (++id));
+                if( strcmp( filename, entry ) == 0 ) {
+                    strcpy( filename, find_data.cFileName );
+                    printf("{%d} is \"%s\"\n", id, find_data.cFileName);
+                    n++;
+                    break;
+                }
+            }
+        } while (FindNextFileA(hFind, &find_data));
+        FindClose(hFind);
+    }
+    return n;
+}
 
 int is100ascii( char c ) {
     return ((( c=='.' ) || (c >='0' && c <= '9') ||  (c >='A' && c <= 'Z') || (c >='a' && c <= 'z')) ? 1 : 0);
@@ -356,6 +397,9 @@ void retr(char *filename) {
         send_response("425 Can't open data connection\r\n");
         return;
     }
+    if( ck_alna(filename) ) {
+        strcpy( filenm, filename );
+    }
     file = fopen(filenm, transfer_mode ? "rb" : "rt");
     if(!file) {
         if( filename_err_correction(filenm) == 1 ) {
@@ -383,9 +427,12 @@ void retr(char *filename) {
 }
 
 void size(char *filename) {
+    int a = ck_alna(filename);
     strcpy( pathbuf, filename );
-    norm_filename(pathbuf);
-    removeslashes(pathbuf);
+    if(!a) {
+        norm_filename(pathbuf);
+        removeslashes(pathbuf);
+    }
     file = fopen(pathbuf, "rb");
     if(!file) {
         if( filename_err_correction(pathbuf) == 1 ) {
@@ -507,7 +554,8 @@ void setfolder( char *folder ) {
     if( strncmp( pathbuf, working_directory, strlen(working_directory) ) != 0 ) {
         goroot();
     }
-    printf("set current: %s\n",folder);
+    GetCurrentDirectoryA(MAX_PATH, pathbuf);
+    printf("set current: %s\n",pathbuf);
 }
 
 void cdup() {
@@ -522,39 +570,41 @@ void cdup() {
 }
 
 void cwd(char *path) {
-    strcpy(pathbuf,path);
-    norm_filename(pathbuf);
-    toremotepath(pathbuf);
-    if( strcmp( pathbuf, ".." )==0 ) {
-         cdup();
-         return;
-    }
-    if( strcmp( pathbuf, "." )==0 ) {
-         send_response("250 NOOP\r\n");
-         return;
-    }
-    if( strcmp( pathbuf, "/" )==0 ) {
-        GetCurrentDirectoryA(MAX_PATH, pathbuf);
+    if( !ck_alna(path) ) {
+        strcpy(pathbuf,path);
+        norm_filename(pathbuf);
         toremotepath(pathbuf);
-        if ( strcmp( pathbuf, "/" )==0 ) {
-            send_response("250 Already at root directory\r\n");
+        if( strcmp( pathbuf, ".." )==0 ) {
+            cdup();
             return;
         }
-        setfolder(working_directory);
-        return;
-    }
-
-    norm_filename(path);
-    removelastslash(path);
-    removesemicolons(path);
-    if( path[0]=='\\' ) {
-        strcpy(pathbuf, working_directory);
-        strcat(pathbuf, path);
-        setfolder(pathbuf);
-        return;
+        if( strcmp( pathbuf, "." )==0 ) {
+            send_response("250 NOOP\r\n");
+            return;
+        }
+        if( strcmp( pathbuf, "/" )==0 ) {
+            GetCurrentDirectoryA(MAX_PATH, pathbuf);
+            toremotepath(pathbuf);
+            if ( strcmp( pathbuf, "/" )==0 ) {
+                send_response("250 Already at root directory\r\n");
+                return;
+            }
+            setfolder(working_directory);
+            return;
+        }
+        norm_filename(path);
+        removelastslash(path);
+        removesemicolons(path);
+        if( path[0]=='\\' ) {
+            strcpy(pathbuf, working_directory);
+            strcat(pathbuf, path);
+            setfolder(pathbuf);
+            return;
+        }
     }
     setfolder(path);
 }
+
 
 void mkd(char *path) {
     safefilename(path);
@@ -566,7 +616,7 @@ void mkd(char *path) {
 }
 
 void rmd(char *path) {
-    safefilename(path);
+    if(!ck_alna(path)) safefilename(path);
     int tryresult = ( RemoveDirectoryA(path) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(path) == 1 ) {
@@ -582,7 +632,7 @@ void rmd(char *path) {
 }
 
 void dele(char *path) {
-    safefilename(path);
+    if(!ck_alna(path)) safefilename(path);
     int tryresult = ( DeleteFileA(path) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(path) == 1 ) {
@@ -600,6 +650,7 @@ void dele(char *path) {
 void rnfr(char *old_name) {
     strcpy( filenm, old_name );
     safefilename( filenm );
+    if(ck_alna(old_name)) strcpy( filenm, old_name );
     send_response("350 Ready for RNTO\r\n");
 }
 
@@ -637,7 +688,7 @@ void site(char *cmd) {
         send_response("500 Unsupported chmod mode\r\n");
         return;
     }
-    safefilename(filenm);
+    if(!ck_alna(filenm)) safefilename(filenm);
     int tryresult = ( SetFileAttributesA(filenm, (DWORD)attributes) ? 1 : 0 );
     if( !tryresult ) {
         if( filename_err_correction(filenm) == 1 ) {
@@ -653,11 +704,19 @@ void site(char *cmd) {
 }
 
 void feat() {
-    send_response("211-Features:\r\n211 End\r\n");
+    strcpy( buffer,"211-Features:\r\n" );
+    strcat( buffer,"- USER PASS LIST NLST PORT PASV CWD CDUP XCUP \r\n");
+    strcat( buffer,"- SYST FEAT PWD XPWD STAT QUIT BYE RETR STOR SIZE \r\n");
+    strcat( buffer,"- TYPE MKD XMKD RMD XRMD DELE RNFR RNTO HELP NOOP \r\n");
+    strcat( buffer,"- OPTS UTF8 ON/OFF\r\n");
+    strcat( buffer,"- SITE CHMOD 777/444/000 repeatedly\r\n");
+    strcat( buffer,"- ALNA - alternative names\r\n");
+    strcat( buffer,"211 End\r\n" );
+    send_response( buffer);
 }
 
 void help() {
-    send_response("220 Help not there\r\n");
+    send_response("220 Help is FEAT and readme\r\n");
 }
 
 void stat() {
@@ -773,6 +832,8 @@ void client() {
             list_directory();
         } else if ( (pm(p_fLOGGEDIN|p_fREAD)) && strncmp(buffer, "NLST", 4) == 0) {
             nlst();
+        } else if ( (pm(p_fLOGGEDIN|p_fREAD)) && strncmp(buffer, "ALNA", 4) == 0) {
+            alna();    // not standard
         } else if (strncmp(buffer, "PORT", 4) == 0) {
             passive_mode = 0;
             port(buffer + 5);
@@ -786,7 +847,7 @@ void client() {
         } else if ( (pm(p_fLOGGEDIN)) && strncmp(buffer, "XCUP", 4) == 0) {
             cdup();
         } else if ( (pm(p_fLOGGEDIN|p_fCHANGEROOT)) && strncmp(buffer, "ROOT", 4) == 0) {
-            root(buffer + 5);
+            root(buffer + 5);    // not standard, hacking tool
         } else if (strncmp(buffer, "SYST", 4) == 0) {
             send_response("215 Windows TinyC made ftp\r\n");
         } else if (strncmp(buffer, "FEAT", 4) == 0) {
@@ -901,9 +962,7 @@ int main(int argc, char **argv) {
             }
         }
     perm_saved = perm;
-    
     hello();
-    
     if(perm & p_fPSW) {
         printf("Enter password 6 chars\n:");
         for( int j=0; j<6; j++ ) psw[j] = _getch();

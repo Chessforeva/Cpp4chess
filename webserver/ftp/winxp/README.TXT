@@ -17,10 +17,18 @@ Can set UTF8 if filenames are encoded.
 Encoded paths and files can be accessed by using "?" instead
 of non-ascii letters. ftp>cd "J??AA"
 Also can try OPTS UTF8 OFF, or ON. Sometimes helps.
-It is specially for opening old folders made by non-IT members :)
-Also can modify access attributes properties of files and folders,
-if it blocks something.
-Actually this tool reads PC as a local disk.
+The command ALNA lists alternative names of files and folders.
+So, can simply ftp>literal cd {123} or ftp>literal site chmod 777 {34}
+It is specially made for opening old folders created by non-IT members :)
+Also can modify access attributes properties of files and folders
+ with valid values 777-normal, 444-readonly, 000-hidden
+
+If filenames contain "?" in lists then it means files are saved using
+Windows 2-byte encoding, which is much different to ascii.
+This tool is 8-bit only and not the best choice then.
+There were plenty of functions (ending W as SetCurrentDirectoryW)
+developed later which should be used. But normally ascii was used.
+Some language encodings are close to ascii, but some really encoded. 
 
 Place it in a folder and run.
 The current folder of the application becomes the root "/"
