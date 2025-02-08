@@ -28,6 +28,7 @@ char buff1[Kb100];
 wchar_t utf16buffer[Kb100];   // 200Kbytes
 char pathbuf[Kb100];
 char list_buffer[Kb100*6];    // 600Kbytes
+wchar_t filenameW[Kb100];      // 200Kbytes
 char filenm[Kb100];
 char buff2[Kb100];
 char entry[Kb100];
@@ -39,8 +40,10 @@ int client_len;
 struct sockaddr_in server_addr = {0}, client_addr = {0};
 struct sockaddr_in active_addr = {0}, pasv_addr = {0};
 FILE *file;
+int use_w16 = 0;
 WIN32_FIND_DATA find_data;
-HANDLE hFind;
+WIN32_FIND_DATAW find_dataW;
+HANDLE hFind, hFindW;
 int control_port = 21;
 int data_port = 20;
 int passive_mode = 1;
@@ -108,6 +111,28 @@ int convert_to_utf8( char *input ) {
     }
     buffer[utf8_length] = '\0';
     printf("UTF8 converted\n");
+    return 0;
+}
+
+int utf8_w16( char *input ) {
+    int input_length = strlen(input);
+    unsigned int code_page = GetACP();
+    int utf16_length = MultiByteToWideChar(code_page, 0, input, input_length, NULL, 0);
+    if (utf16_length == 0) return 1;
+    int result = MultiByteToWideChar(code_page, 0, input, input_length, utf16buffer, utf16_length);
+    if (result == 0) return 1;
+    utf16buffer[utf16_length] = L'\0';
+    return 0;
+}
+
+int w16utf8() {
+    size_t utf16_length = wcslen(utf16buffer);
+    utf16buffer[utf16_length] = L'\0';    
+    int utf8_length = WideCharToMultiByte(CP_UTF8, 0, utf16buffer, utf16_length, NULL, 0, NULL, NULL);
+    if (utf8_length == 0) return 1;
+    int result = WideCharToMultiByte(CP_UTF8, 0, utf16buffer, utf16_length, buffer, utf8_length, NULL, NULL);
+    if (result == 0) return 1;
+    buffer[utf8_length] = '\0';
     return 0;
 }
 
@@ -303,22 +328,60 @@ void alna() {
     send_response(list_buffer);
 }
 
+void alnw() {
+    int id = 0;
+    strcpy(list_buffer, "220-Alternative 2-byte char names of files and folders\r\n");
+    hFindW = FindFirstFileW(L"*", &find_dataW);
+    if (hFindW != INVALID_HANDLE_VALUE) {
+        do {
+            wcscpy( utf16buffer, find_dataW.cFileName );
+            if( w16utf8() == 0 ) strcpy(pathbuf, buffer);
+            else strcpy(pathbuf, "");
+            if (strcmp(pathbuf, ".") != 0 && strcmp(pathbuf, "..") != 0) {
+                sprintf(entry, "{w%d}=%s\r\n", (++id), pathbuf);            
+                strcat(list_buffer, entry);
+            }
+        } while (FindNextFileW(hFindW, &find_dataW));
+        FindClose(hFindW);
+    }
+    strcat(list_buffer, "\r\nCan do sequence:\r\n   RNFR {wNr}\r\n   RNTO newname\r\n\r\n");
+    strcat(list_buffer, "to rename normally the encoded files and folders. Or:\r\n");
+    strcat(list_buffer, "   SITE CHMOD 777 {wNr}\r\nto set attributes to normal.\r\n220 Ok\r\n");
+    send_response(list_buffer);
+}
+
 int ck_alna( char *filename ) {
-    int id = 0, n = 0;
-    norm_filename( filename );
+    int id = 0, n = 0, fA, fW;
+    char *A = filename;
+    norm_filename(A);
+    use_w16 = (( *(A++)=='{' && *(A--)=='w' ) ? 1 : 0);
+    hFindW = FindFirstFileW(L"*", &find_dataW);
     hFind = FindFirstFile("*", &find_data);
-    if (hFind != INVALID_HANDLE_VALUE) {
+    if (hFindW != INVALID_HANDLE_VALUE && hFind != INVALID_HANDLE_VALUE) {
         do {
             if (strcmp(find_data.cFileName, ".") != 0 && strcmp(find_data.cFileName, "..") != 0) {
                 sprintf(entry, "{%d}", (++id));
                 if( strcmp( filename, entry ) == 0 ) {
                     strcpy( filename, find_data.cFileName );
+                    wcscpy( filenameW, find_dataW.cFileName );
                     printf("{%d} is \"%s\"\n", id, find_data.cFileName);
+                    wprintf(L"{%d} is \"%s\"\n", id, find_dataW.cFileName);
+                    n++;
+                    break;
+                }
+                sprintf(entry, "{w%d}", id);
+                if( strcmp( filename, entry ) == 0 ) {
+                    wcscpy( filenameW, find_dataW.cFileName );
+                    wprintf(L"{%d} is \"%s\"\n", id, find_dataW.cFileName);
                     n++;
                     break;
                 }
             }
-        } while (FindNextFile(hFind, &find_data));
+            fW = (FindNextFileW(hFindW, &find_dataW) ? 1 : 0 );
+            fA = (FindNextFile(hFind, &find_data) ? 1 : 0 );
+            if( fW != fA ) return 0;
+        } while (fW);
+        FindClose(hFindW);
         FindClose(hFind);
     }
     return n;
@@ -648,13 +711,24 @@ void dele(char *path) {
 void rnfr(char *old_name) {
     strcpy( filenm, old_name );
     safefilename( filenm );
-    if(ck_alna(old_name)) strcpy( filenm, old_name );
+    if(ck_alna(old_name) && (!use_w16)) strcpy( filenm, old_name );
     send_response("350 Ready for RNTO\r\n");
 }
 
 void rnto(char *old_name, char *new_name) {
+    int tryresult = 0;
+    if( use_w16 ) {
+        norm_filename(new_name);
+        if(!utf8_w16(new_name)) {
+            wprintf(L"renaming to: %s\n", utf16buffer);
+            tryresult = ( MoveFileW(filenameW, utf16buffer) ? 1 : 0 );
+            printf("RESULT=%d\n",tryresult);
+        }
+    }
     safefilename(new_name);
-    int tryresult = ( MoveFile(old_name, new_name) ? 1 : 0 );
+    if( !tryresult ) {
+        tryresult = ( MoveFile(old_name, new_name) ? 1 : 0 );
+    }
     if( !tryresult ) {
         if( filename_err_correction(old_name) == 1 ) {
             strcpy( old_name, buff1 );
@@ -662,9 +736,9 @@ void rnto(char *old_name, char *new_name) {
         }
     }
     if (tryresult) {
-        send_response("250 File renamed successfully\r\n");
+        send_response("250 File or folder renamed successfully\r\n");
     } else {
-        send_response("550 Failed to rename file\r\n");
+        send_response("550 Failed to rename file or folder\r\n");
     }
 }
 
@@ -686,8 +760,14 @@ void site(char *cmd) {
         send_response("500 Unsupported chmod mode\r\n");
         return;
     }
-    if(!ck_alna(filenm)) safefilename(filenm);
-    int tryresult = ( SetFileAttributes(filenm, attributes) ? 1 : 0 );
+    if(!ck_alna(filenm) && (!use_w16)) safefilename(filenm);
+    int tryresult = 0;
+    if( use_w16 ) {
+        tryresult = ( SetFileAttributesW(filenameW, attributes) ? 1 : 0 );
+    }
+    if( !tryresult ) {
+        tryresult = ( SetFileAttributes(filenm, attributes) ? 1 : 0 );
+    }
     if( !tryresult ) {
         if( filename_err_correction(filenm) == 1 ) {
             strcpy( filenm, buff1 );
@@ -709,6 +789,7 @@ void feat() {
     strcat( buffer,"- OPTS UTF8 ON/OFF\r\n");
     strcat( buffer,"- SITE CHMOD 777/444/000 repeatedly\r\n");
     strcat( buffer,"- ALNA - alternative names\r\n");
+    strcat( buffer,"- ALNW - altern.names with 2-byte char support\r\n");
     strcat( buffer,"211 End\r\n" );
     send_response( buffer);
 }
@@ -832,6 +913,8 @@ void client() {
             nlst();
         } else if ( (pm(p_fLOGGEDIN|p_fREAD)) && strncmp(buffer, "ALNA", 4) == 0) {
             alna();    // not standard
+        } else if ( (pm(p_fLOGGEDIN|p_fREAD)) && strncmp(buffer, "ALNW", 4) == 0) {
+            alnw();    // not standard
         } else if (strncmp(buffer, "PORT", 4) == 0) {
             passive_mode = 0;
             port(buffer + 5);

@@ -25,10 +25,19 @@ Also can modify access attributes properties of files and folders
 
 If filenames contain "?" in lists then it means files are saved using
 Windows 2-byte encoding, which is much different to ascii.
-This tool is 8-bit only and not the best choice then.
+This tool is 8-bit and maybe not the best choice then. Find a good Windows app.
 There were plenty of functions (ending W as SetCurrentDirectoryW)
 developed later which should be used. But normally ascii was used.
-Some language encodings are close to ascii, but some really encoded. 
+Some language encodings are close to ascii, but some really encoded.
+ 
+Ok, ok. I added a special case to rename some files and folders this way:
+ALNA command displays list of files.
+Instead of a filename the code {Nr} can be used. It is the key for file the program finds.
+ALNW command displays almost the same list with the code {wNr}. Use this(!) and rename
+ abrakadabras by using the most core rename function for Windows 2-byte char.filenames.
+The same works for changing permission attributes of files or folders.
+After the file or folder has a good name to operate normally.
+At least, this can be a solution for encodings.
 
 Place it in a folder and run.
 The current folder of the application becomes the root "/"
