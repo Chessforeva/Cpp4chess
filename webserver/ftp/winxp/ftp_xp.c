@@ -28,7 +28,7 @@ char buff1[Kb100];
 wchar_t utf16buffer[Kb100];   // 200Kbytes
 char pathbuf[Kb100];
 char list_buffer[Kb100*6];    // 600Kbytes
-wchar_t filenameW[Kb100];      // 200Kbytes
+wchar_t filenameW[Kb100];     // 200Kbytes
 char filenm[Kb100];
 char buff2[Kb100];
 char entry[Kb100];
@@ -344,9 +344,9 @@ void alnw() {
         } while (FindNextFileW(hFindW, &find_dataW));
         FindClose(hFindW);
     }
-    strcat(list_buffer, "\r\nCan do sequence:\r\n   RNFR {wNr}\r\n   RNTO newname\r\n\r\n");
-    strcat(list_buffer, "to rename normally the encoded files and folders. Or:\r\n");
-    strcat(list_buffer, "   SITE CHMOD 777 {wNr}\r\nto set attributes to normal.\r\n220 Ok\r\n");
+    strcat(list_buffer, "\r\n Can do sequence:\r\n   RNFR {wNr}\r\n   RNTO newname\r\n");
+    strcat(list_buffer, " to rename the encoded files and folders.\r\n");
+    strcat(list_buffer, "220 Ok\r\n");
     send_response(list_buffer);
 }
 
@@ -360,19 +360,16 @@ int ck_alna( char *filename ) {
     if (hFindW != INVALID_HANDLE_VALUE && hFind != INVALID_HANDLE_VALUE) {
         do {
             if (strcmp(find_data.cFileName, ".") != 0 && strcmp(find_data.cFileName, "..") != 0) {
-                sprintf(entry, "{%d}", (++id));
+                id++;
+                if( use_w16 ) {
+                    sprintf(entry, "{w%d}", id);
+                } else {
+                    sprintf(entry, "{%d}", id);
+                }
                 if( strcmp( filename, entry ) == 0 ) {
                     strcpy( filename, find_data.cFileName );
                     wcscpy( filenameW, find_dataW.cFileName );
                     printf("{%d} is \"%s\"\n", id, find_data.cFileName);
-                    wprintf(L"{%d} is \"%s\"\n", id, find_dataW.cFileName);
-                    n++;
-                    break;
-                }
-                sprintf(entry, "{w%d}", id);
-                if( strcmp( filename, entry ) == 0 ) {
-                    wcscpy( filenameW, find_dataW.cFileName );
-                    wprintf(L"{%d} is \"%s\"\n", id, find_dataW.cFileName);
                     n++;
                     break;
                 }
@@ -716,10 +713,12 @@ void rnfr(char *old_name) {
 }
 
 void rnto(char *old_name, char *new_name) {
+    int attributes = FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_NORMAL;
     int tryresult = 0;
     if( use_w16 ) {
         norm_filename(new_name);
         if(!utf8_w16(new_name)) {
+            SetFileAttributesW(filenameW, attributes);
             wprintf(L"renaming to: %s\n", utf16buffer);
             tryresult = ( MoveFileW(filenameW, utf16buffer) ? 1 : 0 );
             printf("RESULT=%d\n",tryresult);
@@ -727,11 +726,13 @@ void rnto(char *old_name, char *new_name) {
     }
     safefilename(new_name);
     if( !tryresult ) {
+        SetFileAttributes(old_name, attributes);
         tryresult = ( MoveFile(old_name, new_name) ? 1 : 0 );
     }
     if( !tryresult ) {
         if( filename_err_correction(old_name) == 1 ) {
             strcpy( old_name, buff1 );
+            SetFileAttributes(old_name, attributes);
             tryresult = ( MoveFile(old_name, new_name) ? 1 : 0 );
         }
     }
