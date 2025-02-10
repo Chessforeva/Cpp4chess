@@ -1,2 +1,0 @@
-<img src="screenshot.jpg">
-
