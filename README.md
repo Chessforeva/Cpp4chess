@@ -14,6 +14,8 @@ This Git contains various C subfolders of usable tools and developments. Not too
 
 <b>DLL projects</b> are windows libraries that help run Stockfish on windows as a subprocess, or simply ready to run chess logic for windows projects.
 
+<b>dgr</b> tool generates art-styled diagram image png-file for a chess position.
+
 <b>Stockfish5_wasm</b> is a successful and working build of Stockfish5 for webpages.
 
 #### Other tools
