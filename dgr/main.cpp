@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
 
     if (argc < 2 || string(argv[1]) == "/h") {
         cout << "Chess diagram generator tool." << endl;
-        cout << " syntax: dgr fen=<FEN> pgn=<output.png> [size=300-1024] [scale=1.0-1.3]" << endl;
+        cout << " syntax: dgr fen=<FEN> file=<output.png> [size=300-1024] [scale=1.0-1.3]" << endl;
     }
 
     string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w";
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         string arg = argv[i];
         if (arg.find("fen=") == 0) fen = arg.substr(4);
-        else if (arg.find("pgn=") == 0) out_file = arg.substr(4);
+        else if (arg.find("file=") == 0) out_file = arg.substr(5);
         else if (arg.find("size=") == 0) Size = stoi(arg.substr(5));
         else if (arg.find("scale=") == 0) Sz2 = stof(arg.substr(6));
     }
