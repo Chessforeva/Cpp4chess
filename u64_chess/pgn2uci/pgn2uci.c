@@ -230,8 +230,8 @@ int main(int argc, char *argv[])
         printf("\nUsage: pgn2uci <pgn-file> <output-file>\n\n");
         printf("Chessforeva, mar.2022,bugfix v.03.2024, opensource, gcc-compiled for Win32\n");
         printf("Also, c1_chess project is much sophisticated pgn parser.\n");
-        printf("\n\nPress a key...\n");
-        getch();
+//        printf("\n\nPress a key...\n");
+//        getch();
         return 0;
     }
 
