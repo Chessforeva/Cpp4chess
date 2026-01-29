@@ -6,17 +6,17 @@
         pgn-file -> pgn2uci ->
             stockfish position startpos moves e2e4 e7e5 ....
 
-Compiler: gcc
+Compiler: GCC, MSVC
 
 */
 
+// for MSVC
 #pragma warning(disable:4996);
 
 
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include "u64_chess.h"
 
 char buf_reader[1 << 18];
@@ -225,11 +225,9 @@ int main(int argc, char* argv[])
         printf("  stockfish position startpos moves e2e4 e7e5 ....\n");
         printf("Aimed to analyse chess games and help searching positions.\n");
         printf("Note: pgn should be properly notated, fast chess movegen.\n");
-        printf("\nUsage: pgn2uci64 <pgn-file> <output-file>\n\n");
-        printf("Chessforeva, mar.2022,bugfix v.03.2024, opensource, MSVC-compiled 64bit\n");
-        printf("Also, c1_chess project is much sophisticated pgn parser.\n");
-        printf("\n\nPress a key...\n");
-        _getch();
+        printf("\nUsage: pgn2uci <pgn-file> <output-file>\n\n");
+        printf("Chessforeva, v.01.2026\n");
+        printf("Also, c1_chess project is much sophisticated pgn parser.\n\n");
         return 0;
     }
 
@@ -252,7 +250,7 @@ int main(int argc, char* argv[])
     GM = 0;
 
     while (!feof(f_pgn)) {
-        fgets(buf_reader, 1 << 12, f_pgn);
+        fgets(buf_reader, 1 << 16, f_pgn);
         parse_pgn_string();
     }
     if (St == 2) printout();

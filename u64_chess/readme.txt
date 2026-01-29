@@ -6,21 +6,9 @@ u64_chess is a base for next C projects.
 
 Chessforeva, feb.2022
 
-----------------
-Added 03.2024
-
- pgn2uci64 for windows x64,  -this is fast and good for large pgn processing
-
- Bugfix version for pawns - other magics. Rare cases of blocked pawns.
-
-Added 03.2022:
-  pgn2uci tool prepares uci moves for chess engines
-	stockfish position startpos moves e2e4 e7e5 ....
 Usage:
  
  pgn2uci <pgn-file> <output-uci-moves-textfile>
-
- pgn2uci64 <pgn-file> <output-uci-moves-textfile>
  
 Also there is c1_chess tool too, but not so fast.
 

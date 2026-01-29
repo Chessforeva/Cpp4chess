@@ -16,15 +16,18 @@ for MSVC
 
 */
 
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+//#include <conio.h>
+
 #include "u64_chess.h"
 
-char buf_reader[1<<12];
-char buf_header[1<<12];
-char buf_moves[1<<12];
-char buf_ucis[1<<12];
+char buf_reader[1<<18];
+char buf_header[1<<18];
+char buf_moves[1<<18];
+char buf_ucis[1<<18];
 
 FILE *f_pgn, *f_out;
 
@@ -230,8 +233,8 @@ int main(int argc, char *argv[])
         printf("\nUsage: pgn2uci <pgn-file> <output-file>\n\n");
         printf("Chessforeva, mar.2022,bugfix v.03.2024, opensource, gcc-compiled for Win32\n");
         printf("Also, c1_chess project is much sophisticated pgn parser.\n");
-//        printf("\n\nPress a key...\n");
-//        getch();
+        printf("\n\nPress a key...\n");
+        getch();
         return 0;
     }
 
@@ -254,7 +257,7 @@ int main(int argc, char *argv[])
     GM = 0;
 
     while(!feof(f_pgn)) {
-        fgets(buf_reader, 1<<12, f_pgn);
+        fgets(buf_reader, 1<<16, f_pgn);
         parse_pgn_string();
     }
     if(St==2) printout();
