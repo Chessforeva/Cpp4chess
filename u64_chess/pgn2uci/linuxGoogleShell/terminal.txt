@@ -1,7 +1,7 @@
-$ gcc -Wall pgn2uci.c -o pgn2uci
+$ gcc -Wall pgn2uci.cpp -o pgn2uci
 
 $ ls
-pgn2uci pgn2uci.c u64_chess.h sample.pgn
+pgn2uci pgn2uci.cpp u64_chess.h sample.pgn
 
 # grant permission
 $ chmod 755 ./pgn2uci
