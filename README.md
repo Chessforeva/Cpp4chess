@@ -8,7 +8,7 @@ This Git contains various C subfolders of usable tools and developments. Not too
 
 <b>ChessMagicGen</b> is a generator of chess bitboard numbers needed for chess engines.
 
-<b>u64_chess</b> is 64bit chess logic C source. Also webassembly builds and a fast tool than helps preparing chess pgn files for chess engines. 
+<b>u64_chess</b> is 64bit chess logic C source. Also webassembly builds and a fast tool than helps preparing chess pgn files for chess engines. And other goodies.
 
 <b>c1_chess</b> are tools for parsing chess games to make them html-browsable.
 
