@@ -1,15 +1,24 @@
 /*
  A simple Index Of ... sitemap as filebrowser
-  html creator tool v.1.0.
+  html creator tool v.1.2.
   
-  Chessforeva.blogspot.com , 04.2021.
+  Chessforeva.blogspot.com
+  
+  win64 buid 01.2026, x86 from 04.2021.
   
   dec.2024 added listing of files into
 	files.lst
 		it can be advanced to sitmeap.xml
 */
 
+#pragma warning(disable:4996)
+
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <conio.h>
+#include <malloc.h>
+#include <time.h>
 
 /*
  A bunch of working variables 
@@ -36,7 +45,7 @@ int w_date, w_time, w_size;
 /* position of  ":" in file time */
 int p_time, p_date;
 
-char *SzStr = " KMGTP   ";	// bytes, Kbytes, Mbytes, ...
+char *SzStr = (char*)" KMGTP   \0";	// bytes, Kbytes, Mbytes, ...
 
 /* helping functions */
 
@@ -688,6 +697,8 @@ int main(int argc, char **argv)
 		return exitprog();
 	}
 
+	_tzset();	// time environment
+
 		/* do it in a lots of memory */
 	work_mem = (char *)malloc(80*1024*1024);
 	if( work_mem == NULL ) {
@@ -753,7 +764,7 @@ fprintf(fo, "DIV.FN{ cursor:pointer; text-decoration: bold; color: black;}\n");
 fprintf(fo, "DIV.FD{ visibility:hidden;position:absolute;left:12px;top:12px }\n");
 fprintf(fo, "</style>\n");
 fprintf(fo, "</head>\n<body onload=\"loaded()\">\n");
-fprintf(fo, "<!-- sitemap tool, %s -->\n", strdate(buf0));
+fprintf(fo, "<!-- sitemap tool, %s -->\n", _strdate(buf0));
 fprintf(fo, "<script type=\"text/javascript\">\n");
 fprintf(fo, "function GE(i) { return document.getElementById(i); }\n");
 fprintf(fo, "function loaded() { SW(0,0); }\n");
@@ -778,7 +789,7 @@ fprintf(fo, "</script>\n");
 	  if(*g!=0 && (*g=='1' || *g=='y' || *g=='Y' )) R=1;
 	}
 
-	if(R) new_folder("<root_page>");
+	if(R) new_folder((char *)"<root_page>\0");
 			
 	/* processes directories outputs */
 	p = DIR_OUTPUTS;

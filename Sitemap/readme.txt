@@ -34,3 +34,4 @@ files to be listed in files.lst with modification time
 python script tositemap.py can be used as a template
 for sitemap.xml, robots.txt creation from this files.lst file
 
+*win64 build on jan.2026
