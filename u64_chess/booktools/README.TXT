@@ -16,4 +16,9 @@ Toolchain:
 
 Someday may be needed...
 
+
+
+The poly2csv tool is for .bin polyglot books to extract them to usable text file.
+
+
 jan.2026
