@@ -1,8 +1,11 @@
+
 /*
  * Gemini generated - 2026-02-01
  * Description: Decodes a chess polyglot book (.bin) into a CSV file.
  * Records are ordered: polyglot_key, uci_moves, move, weight, learn.
  */
+
+#pragma warning(disable:4146)
 
 #include <iostream>
 #include <fstream>
@@ -13,8 +16,6 @@
 #include <cstring>
 #include "u64_chess.h"
 #include "u64_polyglot.h"
-
-#pragma warning(disable:4146)
 
 using namespace std;
 
@@ -52,7 +53,7 @@ void getUciStr(unsigned short m, char* uci) {
     int promo = (m >> 12) & 7;
     uci[0] = from_col + 'a'; uci[1] = from_row + '1';
     uci[2] = to_col + 'a';   uci[3] = to_row + '1';
-    if (promo > 0) { uci[4] = prompieces[promo]; uci[5] = '\0'; }
+    if (promo > 0) { uci[4] = prompieces[promo%5]; uci[5] = '\0'; }
     else { uci[4] = '\0'; }
 }
 
@@ -83,14 +84,19 @@ void traverseBook(ofstream& csv, string moveHistory) {
         bool isLegal = false;
         for (int i = 0; i < moveCount; i++) {
             U8* p = mlist + (1 + (i << 2));
+            U8 ty = *(p);
+            U8 sq1 = *(p + 1);
+            U8 sq2 = *(p + 2);
+            U8 fl = *(p + 3);
+            U8 prom = ((fl & 2) ? pieces[8 + ((fl >> 2) & 3)] : 0 );
             char legalUci[8];
-            legalUci[0] = ((*(p + 1) & 7) + 'a');
-            legalUci[1] = ((*(p + 1) >> 3) + '1');
-            legalUci[2] = ((*(p + 2) & 7) + 'a');
-            legalUci[3] = ((*(p + 2) >> 3) + '1');
-            legalUci[4] = ((*(p + 3) == 0) ? 0 : prompieces[*(p + 3)]);
-            if (*(p + 3) == 0) legalUci[4] = 0; else legalUci[5] = 0;
-
+            legalUci[0] = ((sq1 & 7) + 'a');
+            legalUci[1] = ((sq1 >> 3) + '1');
+            legalUci[2] = ((sq2 & 7) + 'a');
+            legalUci[3] = ((sq2 >> 3) + '1');
+            legalUci[4] = prom;
+            legalUci[5] = 0;
+            
             if (strcmp(bookUci, legalUci) == 0) {
                 isLegal = true;
                 break;
